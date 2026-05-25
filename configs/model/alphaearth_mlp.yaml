@@ -1,0 +1,29 @@
+# Main method: AlphaEarth embedding + small MLP head per pixel.
+# See proposal §7 Table 3.
+
+name: alphaearth_mlp
+family: alphaearth_head
+
+backbone:
+  type: alphaearth_embedding
+  frozen: true
+  in_channels: 64  # AlphaEarth annual embedding dim
+
+# aux_channels keys MUST match patch source names produced by tile-dataset
+# (sentinel1, sentinel2, dem, worldpop). Values are channel counts.
+aux_channels:
+  sentinel1: 2    # VV + VH
+  dem:       4    # elevation, slope, curvature, HAND
+  sentinel2: 6    # RGB + NIR + SWIR1 + SWIR2
+
+head:
+  type: mlp
+  hidden: [256, 128]
+  dropout: 0.2
+  out_channels: 1  # binary segmentation
+  activation: gelu
+
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

@@ -1,0 +1,25 @@
+# Fallback: AlphaEarth + S1 with a small 3x3 conv head instead of per-pixel MLP.
+# Gives the foundation features some local spatial context (mild U-Net flavor)
+# without breaking the "small head on frozen embedding" philosophy.
+
+name: alphaearth_s1_conv
+family: alphaearth_head
+
+backbone:
+  type: alphaearth_embedding
+  frozen: true
+  in_channels: 64
+
+aux_channels:
+  sentinel1: 2
+
+head:
+  type: conv          # 1x1 -> 3x3 -> 1x1 (alphaearth_head._ConvHead)
+  hidden_dim: 128
+  dropout: 0.1
+  out_channels: 1
+
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

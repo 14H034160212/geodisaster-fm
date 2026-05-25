@@ -1,0 +1,57 @@
+# Top-level GeoDisaster-FM configuration.
+# Overrides live in configs/{data,model,experiment}/. Composition is done with
+# hydra-core; if you don't use hydra, you can also load this directly with
+# geodisaster.utils.io.load_config.
+
+project:
+  name: geodisaster-fm
+  seed: 1234
+  workdir: ${oc.env:GEODISASTER_WORKDIR,outputs}
+
+paths:
+  root: ${oc.env:GEODISASTER_ROOT,.}
+  data_raw: ${paths.root}/data/raw
+  data_interim: ${paths.root}/data/interim
+  data_processed: ${paths.root}/data/processed
+  catalog: ${paths.root}/data/catalog/japan_events.yaml
+  external: ${paths.root}/data/external
+
+gee:
+  # Earth Engine project ID. Set via env or override here. Auth runs once via
+  # `earthengine authenticate` from the CLI.
+  project: ${oc.env:GEE_PROJECT,null}
+  high_volume: true  # use high-volume endpoint for batch downloads
+
+logging:
+  level: INFO
+  file: ${project.workdir}/logs/run.log
+
+# Default disaster scope. Override on the CLI:
+#   python -m geodisaster.cli download-gee data.scope.hazard=flood
+data:
+  scope:
+    hazard: flood
+    country: JP
+    region: null  # substring filter against event.region
+  patch:
+    size_px: 256
+    stride_px: 224  # overlap of 32 px
+    resolution_m: 10  # AlphaEarth / Sentinel-1/2 native ground resolution
+
+train:
+  epochs: 50
+  batch_size: 16
+  num_workers: 8
+  optimizer: adamw
+  lr: 1e-4
+  weight_decay: 1e-2
+  scheduler: cosine
+  precision: bf16-mixed
+  accumulate_grad_batches: 1
+  early_stopping_patience: 10
+  log_every_n_steps: 25
+
+eval:
+  thresholds: [0.3, 0.4, 0.5, 0.6, 0.7]
+  primary_metric: f1
+  save_predictions: true

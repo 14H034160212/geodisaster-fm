@@ -1,0 +1,21 @@
+# Few-shot label sweep on Sen1Floods11 (Nature proposal §H1).
+# Uses our cross-region split: 8 region train / Spain val / USA test.
+
+name: few_shot_sen1floods11
+label_fractions: [0.05, 0.10, 0.25, 0.50, 1.0]
+repeats: 1   # bump to 3 once we trust the curve shape
+splits:
+  train_events:
+    - sen1floods11_Ghana
+    - sen1floods11_India
+    - sen1floods11_Mekong
+    - sen1floods11_Nigeria
+    - sen1floods11_Pakistan
+    - sen1floods11_Paraguay
+    - sen1floods11_Somalia
+    - sen1floods11_Sri-Lanka
+  val_events: [sen1floods11_Spain]
+  test_events: [sen1floods11_USA]
+report:
+  primary_metric: f1
+  curves: [f1_vs_label_fraction, iou_vs_label_fraction]

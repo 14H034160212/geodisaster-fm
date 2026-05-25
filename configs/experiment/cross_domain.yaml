@@ -1,0 +1,21 @@
+# Cross-domain generalization matrix (proposal §8).
+name: cross_domain
+modes:
+  cross_region:
+    train_filter: {region_contains: Kanto}
+    test_filter:  {region_contains: Kyushu}
+  cross_event:
+    train_events: [jp_typhoon_hagibis_2019]
+    test_events:  [jp_kyushu_floods_2020, jp_west_japan_floods_2018]
+  cross_hazard:
+    train_filter: {hazard: flood}
+    test_filter:  {hazard: landslide}
+  global_to_japan:
+    source: external/openearthmap+sen1floods11
+    test_filter: {country: JP}
+  temporal:
+    train_year: 2019
+    test_year: 2020
+report:
+  matrix: cross_domain_F1.csv
+  heatmap: cross_domain_F1.png

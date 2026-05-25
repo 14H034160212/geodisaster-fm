@@ -1,0 +1,99 @@
+# =============================================================================
+# Exclude heavy raw/processed data, keep small reproducible artefacts.
+# =============================================================================
+
+# Raw geospatial downloads (Sen1Floods11 ~1.7 GB, GEE exports ~GB)
+data/raw/
+data/interim/
+data/external/
+data/cache/
+
+# Per-event patch tensors (~34 GB of .npy files)
+data/processed/patches/
+
+# Allow small reproducible config-shaped artefacts under data/processed
+!data/processed/
+data/processed/*
+!data/processed/norm_stats_*.yaml
+
+# =============================================================================
+# Outputs: exclude heavy run state, keep small results + figures + report
+# =============================================================================
+outputs/**
+
+# Re-include figures, top-level result JSONs, sweep CSVs, the deployable site
+!outputs/
+!outputs/figures/
+!outputs/figures/**
+!outputs/site/
+!outputs/site/**
+!outputs/sen1floods11_*.json
+!outputs/four_way_results_table.json
+!outputs/reproducibility.json
+!outputs/few_shot_unet_s1s2/
+!outputs/few_shot_unet_s1s2/few_shot_results.csv
+!outputs/few_shot_unet_s1s2/few_shot_summary.json
+!outputs/few_shot_ae_s1/
+!outputs/few_shot_ae_s1/few_shot_results.csv
+!outputs/few_shot_ae_s1/few_shot_summary.json
+
+# Always exclude checkpoints, lightning logs, tmp run dirs
+**/checkpoints/
+**/lightning_logs/
+**/run.log
+**/wandb/
+**/mlruns/
+runs/
+
+# Geospatial intermediate rasters (large)
+*.tif
+*.tiff
+*.cog
+*.zarr
+*.nc
+
+# Vector formats can be moderate — exclude by default
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+
+# =============================================================================
+# Python / IDE / system
+# =============================================================================
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+.venv/
+.venv*/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+notebooks/scratch/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# =============================================================================
+# Secrets — NEVER commit these
+# =============================================================================
+.env
+.envrc
+secrets/
+*.pem
+*.key
+gcp-key.json
+ee-credentials.json
+
+# Claude Code session settings
+.claude/

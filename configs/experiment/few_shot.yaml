@@ -1,0 +1,11 @@
+# Few-shot sweep (proposal §8).
+name: few_shot
+label_fractions: [0.001, 0.01, 0.05, 0.1, 0.5, 1.0]
+repeats: 3  # different label-subset draws for variance
+splits:
+  train_events: [jp_typhoon_hagibis_2019, jp_west_japan_floods_2018]
+  val_events: [jp_kyushu_floods_2020]
+  test_events: [jp_kyushu_floods_2020]
+report:
+  primary_metric: f1
+  curves: [precision_recall, f1_vs_label_fraction, iou_vs_label_fraction]

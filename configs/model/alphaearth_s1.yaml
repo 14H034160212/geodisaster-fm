@@ -1,0 +1,26 @@
+# GeoDisaster-FM main method on Sen1Floods11:
+# AlphaEarth 64-d annual embedding (primary) + Sentinel-1 SAR (auxiliary).
+# Skip S2 because AlphaEarth already fuses multi-source optical/radar/year info.
+
+name: alphaearth_s1
+family: alphaearth_head
+
+backbone:
+  type: alphaearth_embedding
+  frozen: true       # we just learn the head on top of the static embedding
+  in_channels: 64
+
+aux_channels:
+  sentinel1: 2       # VV + VH
+
+head:
+  type: mlp
+  hidden: [256, 128]
+  dropout: 0.2
+  out_channels: 1
+  activation: gelu
+
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

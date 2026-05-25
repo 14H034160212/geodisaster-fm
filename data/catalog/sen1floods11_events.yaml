@@ -1,0 +1,171 @@
+events:
+- event_id: sen1floods11_Ghana
+  name: Sen1Floods11 Ghana
+  hazard: flood
+  country: XX
+  region: Ghana
+  bbox:
+  - -1.83974970187678
+  - 8.27887365844551
+  - -0.27596245528151697
+  - 10.808529498526083
+  event_date: null
+  pre_window: null
+  post_window: null
+  sources:
+  - Sen1Floods11 v1.1
+  label_paths: {}
+  notes: Hand-labeled flood mask from Bonafilia et al. 2020. 53 chips.
+- event_id: sen1floods11_India
+  name: Sen1Floods11 India
+  hazard: flood
+  country: XX
+  region: India
+  bbox:
+  - 92.40142877676128
+  - 25.710502083728002
+  - 93.96521602335655
+  - 27.320283072870183
+  event_date: null
+  pre_window: null
+  post_window: null
+  sources:
+  - Sen1Floods11 v1.1
+  label_paths: {}
+  notes: Hand-labeled flood mask from Bonafilia et al. 2020. 68 chips.
+- event_id: sen1floods11_Mekong
+  name: Sen1Floods11 Mekong
+  hazard: flood
+  country: XX
+  region: Mekong
+  bbox:
+  - 105.60163288772718
+  - 12.00436680474599
+  - 106.1075640557433
+  - 13.430172823700493
+  event_date: null
+  pre_window: null
+  post_window: null
+  sources:
+  - Sen1Floods11 v1.1
+  label_paths: {}
+  notes: Hand-labeled flood mask from Bonafilia et al. 2020. 30 chips.
+- event_id: sen1floods11_Nigeria
+  name: Sen1Floods11 Nigeria
+  hazard: flood
+  country: XX
+  region: Nigeria
+  bbox:
+  - 5.56524284817726
+  - 8.508842371180108
+  - 6.025180273646455
+  - 10.02663587522845
+  event_date: null
+  pre_window: null
+  post_window: null
+  sources:
+  - Sen1Floods11 v1.1
+  label_paths: {}
+  notes: Hand-labeled flood mask from Bonafilia et al. 2020. 18 chips.
+- event_id: sen1floods11_Pakistan
+  name: Sen1Floods11 Pakistan
+  hazard: flood
+  country: XX
+  region: Pakistan
+  bbox:
+  - 70.41641983933376
+  - 29.206026517293882
+  - 72.34815702630438
+  - 33.80540077198583
+  event_date: null
+  pre_window: null
+  post_window: null
+  sources:
+  - Sen1Floods11 v1.1
+  label_paths: {}
+  notes: Hand-labeled flood mask from Bonafilia et al. 2020. 28 chips.
+- event_id: sen1floods11_Paraguay
+  name: Sen1Floods11 Paraguay
+  hazard: flood
+  country: XX
+  region: Paraguay
+  bbox:
+  - -57.814134381477814
+  - -25.250564658258806
+  - -56.02037842214795
+  - -23.134852501100507
+  event_date: null
+  pre_window: null
+  post_window: null
+  sources:
+  - Sen1Floods11 v1.1
+  label_paths: {}
+  notes: Hand-labeled flood mask from Bonafilia et al. 2020. 67 chips.
+- event_id: sen1floods11_Somalia
+  name: Sen1Floods11 Somalia
+  hazard: flood
+  country: XX
+  region: Somalia
+  bbox:
+  - 44.84389898324651
+  - 2.529655840080572
+  - 45.80976757673182
+  - 5.1053054227080645
+  event_date: null
+  pre_window: null
+  post_window: null
+  sources:
+  - Sen1Floods11 v1.1
+  label_paths: {}
+  notes: Hand-labeled flood mask from Bonafilia et al. 2020. 26 chips.
+- event_id: sen1floods11_Spain
+  name: Sen1Floods11 Spain
+  hazard: flood
+  country: XX
+  region: Spain
+  bbox:
+  - -0.9658685934853095
+  - 38.03682508630243
+  - -0.5979186531099535
+  - 38.312787541583944
+  event_date: null
+  pre_window: null
+  post_window: null
+  sources:
+  - Sen1Floods11 v1.1
+  label_paths: {}
+  notes: Hand-labeled flood mask from Bonafilia et al. 2020. 30 chips.
+- event_id: sen1floods11_Sri-Lanka
+  name: Sen1Floods11 Sri-Lanka
+  hazard: flood
+  country: XX
+  region: Sri-Lanka
+  bbox:
+  - 80.30507448692144
+  - 5.933192788552616
+  - 81.68488676332903
+  - 8.002911203163993
+  event_date: null
+  pre_window: null
+  post_window: null
+  sources:
+  - Sen1Floods11 v1.1
+  label_paths: {}
+  notes: Hand-labeled flood mask from Bonafilia et al. 2020. 42 chips.
+- event_id: sen1floods11_USA
+  name: Sen1Floods11 USA
+  hazard: flood
+  country: XX
+  region: USA
+  bbox:
+  - -95.66698449759257
+  - 38.40477502667778
+  - -94.42515344882572
+  - 40.290518471101485
+  event_date: null
+  pre_window: null
+  post_window: null
+  sources:
+  - Sen1Floods11 v1.1
+  label_paths: {}
+  notes: Hand-labeled flood mask from Bonafilia et al. 2020. 69 chips.

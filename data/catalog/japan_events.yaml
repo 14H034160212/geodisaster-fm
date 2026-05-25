@@ -1,0 +1,183 @@
+# Japan multi-hazard disaster event catalog for GeoDisaster-FM.
+# Schema: see geodisaster/data/catalog.py::DisasterEvent.
+# bbox: minx, miny, maxx, maxy in EPSG:4326 (degrees lon/lat).
+# Sources are pointers (URLs / dataset names) — actual asset paths live in
+# label_paths once ingested into data/raw/ and data/processed/.
+#
+# The events below were chosen to (a) cover all four minimum packages from
+# Nature_GeoFM_Disaster_Data_Requirements.docx §8 (flood / landslide /
+# road-building) and (b) span multiple regions, climates, and years so we can
+# run cross-region, cross-event, and temporal transfer experiments.
+
+events:
+  # ---------------------------------------------------------------------------
+  # FLOODS (Package A)
+  # ---------------------------------------------------------------------------
+  - event_id: jp_typhoon_hagibis_2019
+    name: 2019 Typhoon Hagibis (Reiwa-1 East Japan Heavy Rain)
+    hazard: flood
+    country: JP
+    region: Kanto / Tohoku / Koshinetsu
+    bbox: [137.5, 35.0, 141.5, 38.5]
+    event_date: 2019-10-12
+    pre_window: [2019-09-01, 2019-10-10]
+    post_window: [2019-10-13, 2019-10-31]
+    sources:
+      - GSI inundation maps (https://www.gsi.go.jp/BOUSAI/R1.taihu19gou.html)
+      - MLIT river flood reports
+      - Copernicus EMSR395
+    notes: |
+      Reference event. Affected 13 prefectures; Chikuma & Abukuma rivers
+      breached. Good Sentinel-1 pre/post coverage and dense building footprints.
+
+  - event_id: jp_west_japan_floods_2018
+    name: 2018 Western Japan Heavy Rain (Heisei-30 July)
+    hazard: flood
+    country: JP
+    region: Chugoku / Shikoku / Kinki
+    bbox: [132.0, 33.0, 136.0, 35.5]
+    event_date: 2018-07-06
+    pre_window: [2018-05-15, 2018-07-04]
+    post_window: [2018-07-07, 2018-07-31]
+    sources:
+      - GSI inundation maps (https://www.gsi.go.jp/BOUSAI/H30.taihu7gou.html)
+      - Copernicus EMSR295
+    notes: |
+      Mabi / Kurashiki area. Often used as Japanese flood benchmark; high-quality
+      official inundation polygons.
+
+  - event_id: jp_kyushu_floods_2020
+    name: 2020 Kyushu Heavy Rain (Reiwa-2 July)
+    hazard: flood
+    country: JP
+    region: Kyushu / Kumamoto
+    bbox: [130.0, 31.7, 132.0, 33.5]
+    event_date: 2020-07-04
+    pre_window: [2020-06-01, 2020-07-03]
+    post_window: [2020-07-05, 2020-07-31]
+    sources:
+      - GSI inundation maps (Kumagawa river)
+      - JAXA ALOS-2 PALSAR-2 emergency observation
+    notes: Kumagawa river flooding; severe Hitoyoshi inundation.
+
+  # ---------------------------------------------------------------------------
+  # LANDSLIDES (Package B)
+  # ---------------------------------------------------------------------------
+  - event_id: jp_hokkaido_eq_landslides_2018
+    name: 2018 Hokkaido Eastern Iburi Earthquake-induced Landslides
+    hazard: landslide
+    country: JP
+    region: Hokkaido / Atsuma
+    bbox: [141.7, 42.6, 142.3, 43.0]
+    event_date: 2018-09-06
+    pre_window: [2018-06-01, 2018-09-05]
+    post_window: [2018-09-07, 2018-10-31]
+    sources:
+      - GSI landslide polygon inventory
+      - NIED landslide point inventory
+      - Sentinel-2 post-event imagery
+    notes: |
+      ~5,000+ co-seismic landslides; canonical earthquake-induced landslide
+      dataset. Excellent for cross-event landslide generalization tests.
+
+  - event_id: jp_atami_debris_flow_2021
+    name: 2021 Atami Debris Flow
+    hazard: landslide
+    country: JP
+    region: Shizuoka / Atami
+    bbox: [139.05, 35.07, 139.13, 35.13]
+    event_date: 2021-07-03
+    pre_window: [2021-04-01, 2021-07-02]
+    post_window: [2021-07-04, 2021-08-31]
+    sources:
+      - GSI emergency mapping
+      - MLIT debris flow report
+    notes: Small AOI but very well documented; high-resolution imagery available.
+
+  - event_id: jp_kumamoto_rain_landslides_2020
+    name: 2020 Reiwa-2 July Rain Landslides (Kumamoto)
+    hazard: landslide
+    country: JP
+    region: Kyushu / Kumamoto / Ashikita
+    bbox: [130.3, 32.1, 131.0, 33.0]
+    event_date: 2020-07-04
+    pre_window: [2020-04-01, 2020-07-03]
+    post_window: [2020-07-05, 2020-08-31]
+    sources:
+      - GSI landslide polygons
+      - JAXA ALOS-2 emergency observation
+    notes: Compound flood + landslide event; supports cross-hazard experiments.
+
+  # ---------------------------------------------------------------------------
+  # EARTHQUAKE / TSUNAMI / BUILDING (Package C)
+  # ---------------------------------------------------------------------------
+  - event_id: jp_noto_eq_2024
+    name: 2024 Noto Peninsula Earthquake
+    hazard: earthquake
+    country: JP
+    region: Ishikawa / Noto
+    bbox: [136.5, 37.0, 137.5, 37.7]
+    event_date: 2024-01-01
+    pre_window: [2023-09-01, 2023-12-31]
+    post_window: [2024-01-02, 2024-03-31]
+    sources:
+      - GSI emergency mapping (https://www.gsi.go.jp/BOUSAI/20240101_noto_earthquake.html)
+      - MLIT road closure records
+      - GSI building damage survey
+      - Copernicus EMSR705
+    notes: |
+      Compound hazards (shaking + tsunami + landslides + road disruption).
+      Strong candidate for road-accessibility and isolated-community case study.
+
+  - event_id: jp_kumamoto_eq_2016
+    name: 2016 Kumamoto Earthquake
+    hazard: earthquake
+    country: JP
+    region: Kyushu / Kumamoto
+    bbox: [130.5, 32.5, 131.3, 33.0]
+    event_date: 2016-04-16
+    pre_window: [2015-09-01, 2016-04-13]
+    post_window: [2016-04-17, 2016-06-30]
+    sources:
+      - GSI building damage survey
+      - NIED strong motion records
+      - xBD subset (Aso area)
+    notes: Reference earthquake event with rich building-damage labels.
+
+  # ---------------------------------------------------------------------------
+  # TYPHOON COMPOUND (multi-hazard impact)
+  # ---------------------------------------------------------------------------
+  - event_id: jp_typhoon_jebi_2018
+    name: 2018 Typhoon Jebi
+    hazard: typhoon
+    country: JP
+    region: Kinki / Osaka / Kansai Airport
+    bbox: [134.5, 33.5, 136.5, 35.5]
+    event_date: 2018-09-04
+    pre_window: [2018-08-01, 2018-09-03]
+    post_window: [2018-09-05, 2018-09-30]
+    sources:
+      - MLIT damage reports
+      - GSI imagery
+    notes: Coastal flooding + storm surge + infrastructure damage.
+
+  # ---------------------------------------------------------------------------
+  # TSUNAMI (historical reference for global-to-Japan)
+  # ---------------------------------------------------------------------------
+  - event_id: jp_tohoku_eq_tsunami_2011
+    name: 2011 Tohoku Earthquake and Tsunami (Great East Japan Earthquake)
+    hazard: tsunami
+    country: JP
+    region: Tohoku / Iwate / Miyagi / Fukushima
+    bbox: [140.5, 36.5, 142.5, 39.5]
+    event_date: 2011-03-11
+    pre_window: [2010-09-01, 2011-03-10]
+    post_window: [2011-03-12, 2011-06-30]
+    sources:
+      - GSI tsunami inundation polygons
+      - MLIT damage inventory
+      - Coastal damage atlas
+    notes: |
+      Historical reference. AlphaEarth annual embeddings only start ~2017, so
+      this event is used mainly for label transfer and physical validation,
+      not as a training event.

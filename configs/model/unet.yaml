@@ -1,0 +1,14 @@
+# Traditional supervised baseline.
+name: unet
+family: smp_unet
+backbone:
+  type: resnet34
+  encoder_weights: imagenet
+  in_channels: 6  # S2 RGB+NIR+SWIR1+SWIR2 by default
+head:
+  type: smp_default
+  out_channels: 1
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

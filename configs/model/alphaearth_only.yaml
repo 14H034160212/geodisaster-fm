@@ -1,0 +1,24 @@
+# Ablation: AlphaEarth alone (no S1, no S2). Tests whether the foundation
+# embedding's pre-fused multi-source info is enough for flood mapping.
+
+name: alphaearth_only
+family: alphaearth_head
+
+backbone:
+  type: alphaearth_embedding
+  frozen: true
+  in_channels: 64
+
+aux_channels: {}    # foundation embedding only
+
+head:
+  type: mlp
+  hidden: [256, 128]
+  dropout: 0.2
+  out_channels: 1
+  activation: gelu
+
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

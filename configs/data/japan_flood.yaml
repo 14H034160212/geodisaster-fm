@@ -1,0 +1,59 @@
+# Data config — Package A (flood) from data-requirements §8.
+# Compose with: python -m geodisaster.cli ... data=japan_flood
+
+scope:
+  hazard: flood
+  country: JP
+  region: null
+  events:  # null = all matching `hazard`; or pin a subset
+    - jp_typhoon_hagibis_2019
+    - jp_west_japan_floods_2018
+    - jp_kyushu_floods_2020
+
+sources:
+  - alphaearth
+  - sentinel1
+  - sentinel2
+  - dem
+  - osm_roads
+  - osm_buildings
+  - worldpop
+
+alphaearth:
+  collection: GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL  # AlphaEarth annual embeddings
+  bands: null  # null = all 64 dims
+  year_from_event: pre  # pick the year matching the pre_window
+
+sentinel1:
+  collection: COPERNICUS/S1_GRD
+  polarizations: [VV, VH]
+  orbit: DESCENDING
+  composite: median
+  speckle_filter: refined_lee
+
+sentinel2:
+  collection: COPERNICUS/S2_SR_HARMONIZED
+  bands: [B2, B3, B4, B8, B11, B12]
+  cloud_mask: qa60_scl
+  max_cloud_prob: 30
+  composite: median
+
+dem:
+  source: USGS/SRTMGL1_003
+  derivatives: [slope, curvature, hand]  # HAND = Height-Above-Nearest-Drainage
+
+osm_roads:
+  highway_types: [motorway, trunk, primary, secondary, tertiary, residential]
+
+osm_buildings:
+  source: overpass
+
+worldpop:
+  collection: WorldPop/GP/100m/pop
+  year: latest_pre_event
+
+label:
+  type: flood_extent
+  positive_class: 1
+  raster_dtype: uint8
+  resolution_m: 10

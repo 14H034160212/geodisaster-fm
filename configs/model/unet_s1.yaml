@@ -1,0 +1,19 @@
+# U-Net baseline for Sentinel-1-only flood mapping (Sen1Floods11 protocol).
+# Reproduces the canonical SAR-only baseline from Bonafilia et al. 2020.
+
+name: unet_s1
+family: smp_unet
+
+backbone:
+  type: resnet34
+  encoder_weights: null   # in_channels != 3, no ImageNet
+  in_channels: 2          # VV + VH
+  sources: [sentinel1]    # selects which patch source goes into the model
+
+head:
+  out_channels: 1
+
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

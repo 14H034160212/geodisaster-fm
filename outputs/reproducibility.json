@@ -1,0 +1,114 @@
+{
+  "timestamp": "2026-05-25T23:33:02.887510Z",
+  "python": "3.10.20 (main, Mar 11 2026, 17:46:40) [GCC 14.3.0]",
+  "platform": "Linux-4.18.0-535.el8.x86_64-x86_64-with-glibc2.28",
+  "git_revision": null,
+  "env_seed": null,
+  "package_versions": {
+    "torch": "2.5.1+cu124",
+    "pytorch_lightning": "2.6.4",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "rasterio": "1.4.4",
+    "geopandas": "missing",
+    "transformers": "missing",
+    "earthengine-api": "missing"
+  },
+  "artefacts": {
+    "fig3_four_way": {
+      "path": "outputs/figures/fig3_four_way_comparison.png",
+      "sha256": "4c2a94988d99afe12e890d662abfedc36d77bc581ae41d4735e984e8ab1f2f22"
+    },
+    "fig3_few_shot": {
+      "path": "outputs/figures/fig3_sen1floods11_few_shot.png",
+      "sha256": "7986678ba5e036a7e48025bcec09967bcb2b7afd10ba1b017a34bf2338cc1057"
+    },
+    "few_shot_unet_s1s2_csv": {
+      "path": "outputs/few_shot_unet_s1s2/few_shot_results.csv",
+      "sha256": "fd9850ba255d74bb12e86f7ad653dff0d88097bc3c03e1e17bd14123b946dcd3"
+    },
+    "few_shot_ae_s1_csv": {
+      "path": "outputs/few_shot_ae_s1/few_shot_results.csv",
+      "sha256": "77d836a16a5d0f4cfe90265f62ce9bd78fa891694afbc594b0243ba44e28cdd0"
+    },
+    "comparison_json": {
+      "path": "outputs/sen1floods11_comparison.json",
+      "sha256": "2ca0454013d345eae8b6b004387f6fce1b0a751091afb50c7b9687c1b84ad566"
+    },
+    "norm_stats": {
+      "path": "data/processed/norm_stats_sen1floods11_ae.yaml",
+      "sha256": "55262de5940ab87387f3af6f8fe08478e004bc03f7d67fe3317901ec94bb6cac"
+    },
+    "catalog": {
+      "path": "data/catalog/sen1floods11_events.yaml",
+      "sha256": "b7be787046353bd26b5730ac78b0cb86f31eddc7e40cab2fb4b4ff4ab61243d0"
+    },
+    "ckpt_unet_s1_best": {
+      "path": "outputs/sen1floods11_unet_s1/checkpoints/best-epoch035-f1_0.8110.ckpt",
+      "sha256": "47140c7531d90134d9f0dc46c81881f45eaa382cdb77feabe5ceca8fc85c57d8"
+    },
+    "ckpt_unet_s1s2_best": {
+      "path": "outputs/sen1floods11_unet_s1s2/checkpoints/best-epoch016.ckpt",
+      "sha256": "4315882b441deb7ba4bc20306aea57a48e269c669358775fcfb491144dd07185"
+    },
+    "ckpt_ae_s1_mlp_best": {
+      "path": "outputs/sen1floods11_ae_s1/checkpoints/best-epoch044.ckpt",
+      "sha256": "118d1d95af45039edf05bdd8f6feec41e6fa8eec66b321b81eb7527417d8eab1"
+    },
+    "ckpt_ae_s1_conv_best": {
+      "path": "outputs/sen1floods11_ae_s1_conv/checkpoints/best-epoch013.ckpt",
+      "sha256": "4a206ba34f8514ff15196adcc8753d5a1e515bcdad077f4381c9e82f67029cf6"
+    },
+    "model_unet_s1": {
+      "path": "configs/model/unet_s1.yaml",
+      "sha256": "8cdae568274bb5aad082b56840fc153b346ac3fe2fda7b00df420f1de65e20b1"
+    },
+    "model_unet_s1s2": {
+      "path": "configs/model/unet_s1s2.yaml",
+      "sha256": "8996451dde36b62873bd25edf719e4f7ed4962d6a76092becddb5a7a27ae9673"
+    },
+    "model_ae_s1_mlp": {
+      "path": "configs/model/alphaearth_s1.yaml",
+      "sha256": "54a3c76e35ec05f622fd16689bdb65612a9e5aee98c0be8a01fa9cba88b14082"
+    },
+    "model_ae_s1_conv": {
+      "path": "configs/model/alphaearth_s1_conv.yaml",
+      "sha256": "623e7835852c6d4bdc377b92dabe0a8090326fcdd1a078f9d58d9f16d39e5b14"
+    }
+  },
+  "extra": {
+    "experiment": "Sen1Floods11 cross-region flood mapping w/ AlphaEarth foundation prior",
+    "train_events": [
+      "sen1floods11_Ghana",
+      "sen1floods11_India",
+      "sen1floods11_Mekong",
+      "sen1floods11_Nigeria",
+      "sen1floods11_Pakistan",
+      "sen1floods11_Paraguay",
+      "sen1floods11_Somalia",
+      "sen1floods11_Sri-Lanka"
+    ],
+    "val_events": [
+      "sen1floods11_Spain"
+    ],
+    "test_events": [
+      "sen1floods11_USA (69 chips)"
+    ],
+    "loss": "focal_bce alpha=0.75 gamma=2.0",
+    "optimizer": "AdamW lr=1e-4 wd=1e-2",
+    "scheduler": "cosine",
+    "precision": "bf16-mixed",
+    "epochs": 50,
+    "alphaearth_collection": "GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL",
+    "alphaearth_year_strategy": "event_year - 1, clamped to >= 2017",
+    "alphaearth_chips_fetched": 431,
+    "alphaearth_chip_split": "2x2 sub-tiles per chip (GEE 48 MB limit)",
+    "headline_findings": {
+      "modality_lift": "U-Net SAR+Optical (F1=0.849) beats SAR-only (0.618) by +0.218",
+      "label_efficiency_unet": "U-Net S1+S2 at 5% labels (0.789) ~ 93% of 100% performance",
+      "AE_negative_result_F1": "AlphaEarth+S1 MLP head F1=0.602; conv head F1=0.631; both below U-Net S1+S2 0.849",
+      "AE_AUPRC_positive": "AE+S1 AUPRC 0.79 > U-Net S1-only 0.71 \u2014 foundation prior helps ranking",
+      "interpretation": "Sen1Floods11 chips have no S1 pre/post temporal pair; AE annual prior cannot match post-event optical observation. \u00a73.4 caveat validated."
+    }
+  }
+}

@@ -1,0 +1,20 @@
+# U-Net with Sentinel-1 + Sentinel-2 channel-stacked input (Sen1Floods11).
+# Tests whether adding optical bands on top of SAR improves cross-region
+# generalization. Sen1Floods11 ships all 13 S2 bands per chip.
+
+name: unet_s1s2
+family: smp_unet
+
+backbone:
+  type: resnet34
+  encoder_weights: null
+  in_channels: 15           # 2 (S1: VV+VH) + 13 (S2 all bands)
+  sources: [sentinel1, sentinel2]
+
+head:
+  out_channels: 1
+
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

@@ -1,0 +1,44 @@
+# Data config — Package B (landslide).
+
+scope:
+  hazard: landslide
+  country: JP
+  events:
+    - jp_hokkaido_eq_landslides_2018
+    - jp_atami_debris_flow_2021
+    - jp_kumamoto_rain_landslides_2020
+
+sources:
+  - alphaearth
+  - sentinel2
+  - dem
+  - rainfall
+  - osm_roads
+
+alphaearth:
+  collection: GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL
+  year_from_event: pre
+
+sentinel2:
+  collection: COPERNICUS/S2_SR_HARMONIZED
+  bands: [B2, B3, B4, B5, B6, B7, B8, B8A, B11, B12]
+  cloud_mask: qa60_scl
+  max_cloud_prob: 20
+  composite: median
+
+dem:
+  source: USGS/SRTMGL1_003
+  derivatives: [slope, curvature, aspect, twi, hand]
+
+rainfall:
+  collection: NASA/GPM_L3/IMERG_V07
+  aggregation: cumulative_72h_pre_event
+
+osm_roads:
+  highway_types: [motorway, trunk, primary, secondary]
+
+label:
+  type: landslide_polygon
+  positive_class: 1
+  raster_dtype: uint8
+  resolution_m: 10
