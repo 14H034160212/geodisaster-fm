@@ -1,16 +1,10 @@
-"""Fig 0 — GeoDisaster-FM Dispatcher architecture.
+"""Fig 0 — GeoDisaster-FM Dispatcher (DeepSeek-R1 / Nature pipeline style).
 
-Hybrid design: Nature Methods rigour (rectangles, sans-serif, panel labels)
-but DeepMind-blog visual punch (colour-coded layers, large fonts, fewer
-text elements). The goal is "what does this do?" answered in 3 seconds.
-
-Layout: 3 large stacked layer cards, each colour-coded by status:
-    Layer 3 (Reinforcement-learning policy)   — dashed grey, planned
-    Layer 2 (Neuro-symbolic reasoner)          — solid navy, implemented (focus)
-    Layer 1 (Perception backbone)              — solid teal, validated
-Inputs feed in from the left as a compact stack, outputs flow out
-to the right. A wide ribbon at the bottom carries the headline
-"1–3 days → 30 minutes" claim.
+Design principle: a single horizontal pipeline. Each stage is a large
+box with ONE verb (Perception / Reasoning / Decision) and one short
+descriptor; inputs and outputs are category-level abstractions, not
+specific dataset names. Status badges and metrics live below, not
+inside, the stage boxes.
 """
 from __future__ import annotations
 
@@ -19,7 +13,7 @@ from pathlib import Path
 import matplotlib as mpl
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch, Rectangle
+from matplotlib.patches import FancyArrowPatch, Rectangle, FancyBboxPatch
 
 mpl.rcParams["font.family"] = "sans-serif"
 mpl.rcParams["font.sans-serif"] = [
@@ -29,258 +23,232 @@ mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["axes.unicode_minus"] = False
 
 
-# Palette — three layer colours, restrained
-NAVY        = "#1a3d6e"
-NAVY_FILL   = "#dde5f0"
-TEAL        = "#1f7a82"
-TEAL_FILL   = "#d6ecee"
-GREY_EDGE   = "#6c7480"
-GREY_FILL   = "#f3f4f6"
-BG_TINT     = "#fafbfc"        # very soft page background
-EDGE        = "#1a202c"
-BODY_GREY   = "#525861"
-ACCENT_GOLD = "#a86a1f"
+# Palette
+INPUT_FILL   = "#e9eef5"
+INPUT_EDGE   = "#7e8a9d"
+
+TEAL_FILL    = "#cde9ec"
+TEAL_EDGE    = "#0f6a72"
+
+NAVY_FILL    = "#cbd8ee"
+NAVY_EDGE    = "#1a3d6e"
+
+GREY_FILL    = "#ececef"
+GREY_EDGE    = "#7d838c"
+
+OUT_FILL     = "#dce8df"
+OUT_EDGE     = "#3a6b48"
+
+BG           = "#fbfbfc"
+EDGE         = "#1a202c"
+BODY_GREY    = "#525861"
 
 
-def _rect(ax, x, y, w, h, *, fc, ec, lw=1.0, dashed=False, zorder=2):
-    rec = Rectangle((x, y), w, h, facecolor=fc, edgecolor=ec,
-                    linewidth=lw, zorder=zorder)
+def _box(ax, x, y, w, h, *, fc, ec, lw=1.6, dashed=False):
+    rec = Rectangle((x, y), w, h, facecolor=fc, edgecolor=ec, linewidth=lw)
     if dashed:
-        rec.set_linestyle((0, (5, 3)))
+        rec.set_linestyle((0, (6, 3)))
     ax.add_patch(rec)
-    return rec
 
 
-def _arrow(ax, x0, y0, x1, y1, *, lw=1.4, color=None):
-    color = color or EDGE
-    arrow = FancyArrowPatch(
+def _pill(ax, cx, y, text, *, fg, bg, w=1.3, h=0.32):
+    ax.add_patch(FancyBboxPatch(
+        (cx - w / 2, y), w, h,
+        boxstyle="round,pad=0.02,rounding_size=0.10",
+        facecolor=bg, edgecolor=fg, linewidth=0.9,
+    ))
+    ax.text(cx, y + h / 2, text, ha="center", va="center",
+            fontsize=8.5, fontweight="bold", color=fg)
+
+
+def _arrow(ax, x0, y0, x1, y1, *, lw=2.0, color=EDGE):
+    ax.add_patch(FancyArrowPatch(
         (x0, y0), (x1, y1),
-        arrowstyle="-|>", mutation_scale=15,
-        linewidth=lw, color=color, zorder=4,
-        shrinkA=2, shrinkB=2,
-    )
-    ax.add_patch(arrow)
+        arrowstyle="-|>", mutation_scale=22,
+        linewidth=lw, color=color, shrinkA=4, shrinkB=4, zorder=4,
+    ))
 
 
 def render(out_path: str | Path = "outputs/figures/fig0_architecture.png") -> Path:
-    fig = plt.figure(figsize=(14, 9), facecolor=BG_TINT)
+    fig = plt.figure(figsize=(15, 7.5), facecolor=BG)
     ax = fig.add_axes([0, 0, 1, 1])
-    ax.set_xlim(0, 14)
-    ax.set_ylim(0, 9)
-    ax.set_facecolor(BG_TINT)
+    ax.set_xlim(0, 15)
+    ax.set_ylim(0, 7.5)
+    ax.set_facecolor(BG)
     ax.axis("off")
 
     # =====================================================================
     # TITLE
     # =====================================================================
-    ax.text(7, 8.50,
+    ax.text(7.5, 7.05,
             "GeoDisaster-FM Dispatcher",
-            ha="center", fontsize=22, fontweight="bold", color=EDGE)
-    ax.text(7, 8.10,
-            "An AI emergency dispatcher that turns satellite imagery into "
-            "actionable answers in minutes, not days",
-            ha="center", fontsize=12, color=BODY_GREY)
+            ha="center", fontsize=24, fontweight="bold", color=EDGE)
+    ax.text(7.5, 6.60,
+            "From satellite imagery to emergency decisions in minutes",
+            ha="center", fontsize=13, color=BODY_GREY)
 
     # =====================================================================
-    # INPUTS (left) — compact icon-style stack
+    # FIVE-STAGE HORIZONTAL PIPELINE
     # =====================================================================
-    inp_x = 0.4
-    inp_w = 2.4
-    inp_y = 1.7
-    inp_h = 5.5
-    _rect(ax, inp_x, inp_y, inp_w, inp_h, fc="white", ec=GREY_EDGE, lw=0.9)
-    ax.text(inp_x + inp_w / 2, inp_y + inp_h - 0.32,
-            "INPUTS", ha="center", fontsize=10, fontweight="bold",
-            color=BODY_GREY)
+    y_box = 3.30
+    h_box = 2.05
+    box_w = 2.45
+    gap   = 0.55
+    x0    = 0.40
+    centres = [x0 + i * (box_w + gap) + box_w / 2 for i in range(5)]
 
-    inputs = [
-        ("Sentinel-1",  "SAR"),
-        ("Sentinel-2",  "Optical"),
-        ("AlphaEarth", "Foundation prior"),
-        ("OpenStreetMap", "Roads · Buildings · Facilities"),
-        ("WorldPop",     "Population"),
-        ("JRC GSW",      "Permanent water"),
-    ]
-    top = inp_y + inp_h - 0.95
-    bot = inp_y + 0.30
-    step = (top - bot) / (len(inputs) - 1)
-    for i, (head, sub) in enumerate(inputs):
-        y = top - i * step
-        ax.text(inp_x + inp_w / 2, y, head,
-                ha="center", fontsize=11.5, fontweight="bold", color=EDGE)
-        ax.text(inp_x + inp_w / 2, y - 0.27, sub,
-                ha="center", fontsize=9, color=BODY_GREY)
+    # Layout convention inside each box:
+    #   header_y = y_box + h_box - 0.50   (big stage name)
+    #   body_y   = y_box + 0.70           (single descriptor line / chips)
+    header_y = y_box + h_box - 0.50
+    body_y   = y_box + 0.70
 
-    # =====================================================================
-    # THREE LAYER STACK (centre) — bigger boxes, fewer words
-    # =====================================================================
-    L_x = 3.6
-    L_w = 7.0
-    layer_h = 1.55
-    gap = 0.40
-    L1_y = 1.70
-    L2_y = L1_y + layer_h + gap
-    L3_y = L2_y + layer_h + gap
+    # ----- INPUT (stage 0) -----
+    _box(ax, x0, y_box, box_w, h_box, fc=INPUT_FILL, ec=INPUT_EDGE, lw=1.4)
+    ax.text(centres[0], header_y,
+            "Input", ha="center", fontsize=15,
+            fontweight="bold", color=INPUT_EDGE)
+    ax.text(centres[0], body_y + 0.45,
+            "satellite",
+            ha="center", fontsize=11, color=EDGE)
+    ax.text(centres[0], body_y + 0.15,
+            "maps",
+            ha="center", fontsize=11, color=EDGE)
+    ax.text(centres[0], body_y - 0.15,
+            "demographics",
+            ha="center", fontsize=11, color=EDGE)
 
-    # --- Layer 1 (bottom): perception, validated ---
-    _rect(ax, L_x, L1_y, L_w, layer_h, fc=TEAL_FILL, ec=TEAL, lw=1.6)
-    ax.text(L_x + 0.25, L1_y + layer_h - 0.40,
-            "Layer 1   ·   Perception",
-            fontsize=14, fontweight="bold", color=TEAL)
-    ax.text(L_x + 0.25, L1_y + layer_h - 0.80,
-            "Frozen geospatial backbone   →   pixel-level disaster footprint",
-            fontsize=11, color=EDGE)
-    # status pill
-    _rect(ax, L_x + L_w - 1.55, L1_y + layer_h - 0.55, 1.30, 0.36,
-          fc="white", ec=TEAL, lw=1.0)
-    ax.text(L_x + L_w - 0.90, L1_y + layer_h - 0.37,
-            "VALIDATED", ha="center", fontsize=9, fontweight="bold",
-            color=TEAL)
-    # key metrics inline
-    ax.text(L_x + 0.25, L1_y + 0.45,
-            "F1 = 0.849  on USA hold-out   ·   "
-            "F1 = 0.828  averaged across 10 leave-one-region-out runs",
-            fontsize=10.5, fontweight="bold", color=EDGE)
-    ax.text(L_x + 0.25, L1_y + 0.18,
-            "U-Net (Sentinel-1 + Sentinel-2)  ·  AlphaEarth pre + post + Sentinel-1",
-            fontsize=9, color=BODY_GREY, style="italic")
-
-    # --- Layer 2 (middle): reasoner, implemented (focal) ---
-    _rect(ax, L_x, L2_y, L_w, layer_h, fc=NAVY_FILL, ec=NAVY, lw=2.0)
-    ax.text(L_x + 0.25, L2_y + layer_h - 0.40,
-            "Layer 2   ·   Neuro-symbolic reasoner",
-            fontsize=14, fontweight="bold", color=NAVY)
-    ax.text(L_x + 0.25, L2_y + layer_h - 0.80,
-            "Graph algorithms + LLM planner   →   "
-            "answers to 10 emergency questions",
-            fontsize=11, color=EDGE)
-    _rect(ax, L_x + L_w - 1.75, L2_y + layer_h - 0.55, 1.50, 0.36,
-          fc="white", ec=NAVY, lw=1.0)
-    ax.text(L_x + L_w - 1.00, L2_y + layer_h - 0.37,
-            "IMPLEMENTED", ha="center", fontsize=9, fontweight="bold",
-            color=NAVY)
-    # Example questions in a single horizontal line for visual rhythm
-    ax.text(L_x + 0.25, L2_y + 0.45,
-            "Which hospitals are flooded?  ·  "
-            "Which villages lost road access?  ·  "
-            "Top-5 roads to clear?",
-            fontsize=10.5, color=EDGE)
-    ax.text(L_x + 0.25, L2_y + 0.18,
-            "Live demo on USA chip: 58 / 2,053 buildings, 10.1 / 232 km roads, "
-            "3 isolated communities  (Fig. 1d)",
-            fontsize=9, color=BODY_GREY, style="italic")
-
-    # --- Layer 3 (top): RL policy, planned ---
-    _rect(ax, L_x, L3_y, L_w, layer_h, fc=GREY_FILL, ec=GREY_EDGE, lw=1.4,
-          dashed=True)
-    ax.text(L_x + 0.25, L3_y + layer_h - 0.40,
-            "Layer 3   ·   Reinforcement-learning policy",
-            fontsize=14, fontweight="bold", color=GREY_EDGE)
-    ax.text(L_x + 0.25, L3_y + layer_h - 0.80,
-            "Meta-RL across a curated atlas of ≥ 30 historical disasters",
-            fontsize=11, color=EDGE)
-    _rect(ax, L_x + L_w - 1.55, L3_y + layer_h - 0.55, 1.30, 0.36,
-          fc="white", ec=GREY_EDGE, lw=1.0)
-    ax.text(L_x + L_w - 0.90, L3_y + layer_h - 0.37,
-            "PLANNED", ha="center", fontsize=9, fontweight="bold",
-            color=GREY_EDGE)
-    ax.text(L_x + 0.25, L3_y + 0.45,
-            "Schedule perception · select labels · issue alerts · dispatch responders",
-            fontsize=10.5, color=EDGE)
-    ax.text(L_x + 0.25, L3_y + 0.18,
-            "Reward = labels saved  +  response-time reduction  +  lives saved",
-            fontsize=9, color=BODY_GREY, style="italic")
-
-    # =====================================================================
-    # OUTPUTS (right)
-    # =====================================================================
-    out_x = 11.2
-    out_w = 2.4
-    out_y = inp_y
-    out_h = inp_h
-    _rect(ax, out_x, out_y, out_w, out_h, fc="white", ec=GREY_EDGE, lw=0.9)
-    ax.text(out_x + out_w / 2, out_y + out_h - 0.32,
-            "OUTPUTS", ha="center", fontsize=10, fontweight="bold",
-            color=BODY_GREY)
-
-    outputs = [
-        ("Briefing",       "one-page summary"),
-        ("Dispatch report", "structured JSON"),
-        ("Impact map",     "georeferenced GeoTIFF"),
-        ("Action plan",    "ranked decisions"),
-        ("Atlas entry",    "for self-improvement"),
-        ("Time-to-answer", "minutes, not days"),
-    ]
-    top_o = out_y + out_h - 0.95
-    bot_o = out_y + 0.30
-    step_o = (top_o - bot_o) / (len(outputs) - 1)
-    for i, (head, sub) in enumerate(outputs):
-        y = top_o - i * step_o
-        ax.text(out_x + out_w / 2, y, head,
-                ha="center", fontsize=11.5, fontweight="bold", color=EDGE)
-        ax.text(out_x + out_w / 2, y - 0.27, sub,
-                ha="center", fontsize=9, color=BODY_GREY)
-
-    # =====================================================================
-    # ARROWS — only essential flows, big and obvious
-    # =====================================================================
-    # Inputs → Layer 1
-    _arrow(ax, inp_x + inp_w, L1_y + layer_h / 2, L_x, L1_y + layer_h / 2,
-           lw=1.6, color=GREY_EDGE)
-    # Inputs → Layer 2 (graph data: OSM, WorldPop, JRC)
-    _arrow(ax, inp_x + inp_w, L2_y + layer_h / 2, L_x, L2_y + layer_h / 2,
-           lw=1.6, color=GREY_EDGE)
-    # Layer 1 → Layer 2 (internal)
-    _arrow(ax, L_x + L_w / 2, L1_y + layer_h, L_x + L_w / 2, L2_y,
-           lw=1.8, color=EDGE)
-    # Layer 2 → Layer 3 (internal)
-    _arrow(ax, L_x + L_w / 2, L2_y + layer_h, L_x + L_w / 2, L3_y,
-           lw=1.8, color=EDGE)
-    # Layer 2 → Outputs (briefings / reports / maps)
-    _arrow(ax, L_x + L_w, L2_y + layer_h / 2, out_x, L2_y + layer_h / 2,
-           lw=1.6, color=GREY_EDGE)
-    # Layer 3 → Outputs (action plan)
-    _arrow(ax, L_x + L_w, L3_y + layer_h / 2, out_x, L3_y + layer_h / 2,
-           lw=1.6, color=GREY_EDGE)
-
-    # =====================================================================
-    # FOOTER RIBBON — the headline claim, big and clear
-    # =====================================================================
-    foot_y = 0.45
-    foot_h = 0.75
-    _rect(ax, 0.4, foot_y, 13.2, foot_h, fc=NAVY, ec=NAVY, lw=0)
-    ax.text(1.2, foot_y + foot_h / 2 + 0.05,
-            "End-to-end metric:",
-            fontsize=10.5, color="#cad7eb", va="center")
-    ax.text(1.2, foot_y + foot_h / 2 - 0.18,
-            "time to answer the 10-question UN-OCHA questionnaire",
-            fontsize=9, color="#9fb3d8", va="center", style="italic")
-
-    ax.text(7.0, foot_y + foot_h / 2 + 0.05,
-            "Manual workflow   1–3 days",
-            fontsize=11.5, color="white", ha="center", va="center",
+    # ----- LAYER 1: PERCEPTION -----
+    _box(ax, x0 + 1 * (box_w + gap), y_box, box_w, h_box,
+         fc=TEAL_FILL, ec=TEAL_EDGE, lw=1.8)
+    ax.text(centres[1], header_y,
+            "Perception", ha="center", fontsize=17,
+            fontweight="bold", color=TEAL_EDGE)
+    ax.text(centres[1], body_y + 0.15,
+            "Layer 1",
+            ha="center", fontsize=10, color=BODY_GREY,
             fontweight="bold")
-    ax.text(7.0, foot_y + foot_h / 2 - 0.20,
-            "Dispatcher target",
-            fontsize=9, color="#9fb3d8", ha="center", va="center")
 
-    ax.annotate("", xy=(9.6, foot_y + foot_h / 2),
-                xytext=(8.2, foot_y + foot_h / 2),
-                arrowprops=dict(arrowstyle="-|>", color="white",
-                                lw=2, mutation_scale=18))
+    # ----- LAYER 2: REASONING (focal) -----
+    _box(ax, x0 + 2 * (box_w + gap), y_box, box_w, h_box,
+         fc=NAVY_FILL, ec=NAVY_EDGE, lw=2.4)
+    ax.text(centres[2], header_y,
+            "Reasoning", ha="center", fontsize=17,
+            fontweight="bold", color=NAVY_EDGE)
+    ax.text(centres[2], body_y + 0.15,
+            "Layer 2",
+            ha="center", fontsize=10, color=BODY_GREY,
+            fontweight="bold")
 
-    ax.text(10.6, foot_y + foot_h / 2 + 0.05,
+    # ----- LAYER 3: DECISION -----
+    _box(ax, x0 + 3 * (box_w + gap), y_box, box_w, h_box,
+         fc=GREY_FILL, ec=GREY_EDGE, lw=1.4, dashed=True)
+    ax.text(centres[3], header_y,
+            "Decision", ha="center", fontsize=17,
+            fontweight="bold", color=GREY_EDGE)
+    ax.text(centres[3], body_y + 0.15,
+            "Layer 3",
+            ha="center", fontsize=10, color=BODY_GREY,
+            fontweight="bold")
+
+    # ----- OUTPUT (stage 4) -----
+    _box(ax, x0 + 4 * (box_w + gap), y_box, box_w, h_box,
+         fc=OUT_FILL, ec=OUT_EDGE, lw=1.4)
+    ax.text(centres[4], header_y,
+            "Output", ha="center", fontsize=15,
+            fontweight="bold", color=OUT_EDGE)
+    ax.text(centres[4], body_y + 0.45,
+            "briefing",
+            ha="center", fontsize=11, color=EDGE)
+    ax.text(centres[4], body_y + 0.15,
+            "map",
+            ha="center", fontsize=11, color=EDGE)
+    ax.text(centres[4], body_y - 0.15,
+            "action plan",
+            ha="center", fontsize=11, color=EDGE)
+
+    # ----- Arrows between stages -----
+    for i in range(4):
+        x_start = x0 + (i + 1) * box_w + i * gap
+        x_end   = x_start + gap
+        _arrow(ax, x_start, y_box + h_box / 2, x_end, y_box + h_box / 2,
+               lw=2.2, color=EDGE)
+
+    # =====================================================================
+    # STATUS / METRIC ROW under each stage
+    # =====================================================================
+    y_status = y_box - 0.55
+    # Input: no status
+    # Layer 1
+    _pill(ax, centres[1], y_status, "VALIDATED", fg=TEAL_EDGE, bg="white", w=1.25)
+    ax.text(centres[1], y_status - 0.35,
+            "F1 = 0.85   (10-region avg 0.83)",
+            ha="center", fontsize=9.5, color=EDGE, fontweight="bold")
+    # Layer 2
+    _pill(ax, centres[2], y_status, "IMPLEMENTED", fg=NAVY_EDGE, bg="white", w=1.45)
+    ax.text(centres[2], y_status - 0.35,
+            "10 emergency questions answered",
+            ha="center", fontsize=9.5, color=EDGE, fontweight="bold")
+    # Layer 3
+    _pill(ax, centres[3], y_status, "PLANNED", fg=GREY_EDGE, bg="white", w=1.05)
+    ax.text(centres[3], y_status - 0.35,
+            "≥ 30 historical disasters atlas",
+            ha="center", fontsize=9.5, color=BODY_GREY, fontweight="bold")
+    # Output
+    ax.text(centres[4], y_status - 0.15,
+            "1 minute / question",
+            ha="center", fontsize=9.5, color=BODY_GREY,
+            fontweight="bold", style="italic")
+
+    # =====================================================================
+    # BOTTOM RIBBON — headline claim
+    # =====================================================================
+    foot_y = 0.55
+    foot_h = 0.95
+    _box(ax, 0.40, foot_y, 14.20, foot_h, fc=NAVY_EDGE, ec=NAVY_EDGE, lw=0)
+
+    ax.text(1.10, foot_y + foot_h / 2 + 0.13,
+            "End-to-end response time",
+            fontsize=11, color="#c4d4ec", va="center")
+    ax.text(1.10, foot_y + foot_h / 2 - 0.20,
+            "raw imagery → responder answers",
+            fontsize=9, color="#94aacb", va="center", style="italic")
+
+    # Baseline value
+    ax.text(6.40, foot_y + foot_h / 2,
+            "1–3 days",
+            fontsize=20, color="white", ha="center", va="center",
+            fontweight="bold")
+    ax.text(6.40, foot_y + foot_h / 2 - 0.34,
+            "manual expert workflow",
+            fontsize=9, color="#94aacb", ha="center", va="center")
+
+    # Arrow
+    _arrow(ax, 7.40, foot_y + foot_h / 2, 9.60, foot_y + foot_h / 2,
+           lw=2.6, color="white")
+
+    # Target value
+    ax.text(10.90, foot_y + foot_h / 2,
             "30 minutes",
-            fontsize=13, color="white", ha="left", va="center",
+            fontsize=20, color="white", ha="center", va="center",
             fontweight="bold")
-    ax.text(13.05, foot_y + foot_h / 2,
-            "≥ 100×", fontsize=18, color="white", ha="right", va="center",
+    ax.text(10.90, foot_y + foot_h / 2 - 0.34,
+            "Layer 1 + 2 + 3 (target)",
+            fontsize=9, color="#94aacb", ha="center", va="center")
+
+    # Improvement factor
+    ax.text(13.85, foot_y + foot_h / 2 + 0.12,
+            "≥ 100×",
+            fontsize=24, color="white", ha="center", va="center",
             fontweight="bold")
+    ax.text(13.85, foot_y + foot_h / 2 - 0.30,
+            "faster",
+            fontsize=10, color="#c4d4ec", ha="center", va="center")
 
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=300, bbox_inches="tight",
-                facecolor=BG_TINT, pad_inches=0.25)
+                facecolor=BG, pad_inches=0.25)
     plt.close()
     return out_path
 
