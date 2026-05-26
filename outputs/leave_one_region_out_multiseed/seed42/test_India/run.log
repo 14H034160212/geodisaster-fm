@@ -1,0 +1,13 @@
+2026-05-26 07:20:23,111 INFO lightning_fabric.utilities.seed Seed set to 42
+2026-05-26 07:20:23,130 INFO cli.train 2026-05-26T07:20:23.130654Z [info     ] split_sizes                    test=68 train=333 val=30
+2026-05-26 07:20:23,132 INFO cli.train 2026-05-26T07:20:23.132592Z [info     ] normalize_stats                path=data/processed/norm_stats_sen1floods11.yaml stats={'sentinel1': (-13.6717, 5.7247), 'sentinel2': (1691.0606, 1226.7856)}
+2026-05-26 07:20:23,919 INFO pytorch_lightning.utilities.rank_zero Using bfloat16 Automatic Mixed Precision (AMP)
+2026-05-26 07:20:23,927 INFO pytorch_lightning.utilities.rank_zero GPU available: True (cuda), used: True
+2026-05-26 07:20:23,928 INFO pytorch_lightning.utilities.rank_zero TPU available: False, using: 0 TPU cores
+2026-05-26 07:20:23,930 INFO pytorch_lightning.utilities.rank_zero 💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+2026-05-26 07:20:24,073 INFO pytorch_lightning.utilities.rank_zero You are using a CUDA device ('NVIDIA A100-SXM4-80GB') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+2026-05-26 07:20:24,389 INFO gcsfs gcsfs experimental features enabled via GCSFS_EXPERIMENTAL_ZB_HNS_SUPPORT.
+2026-05-26 07:20:24,391 INFO pytorch_lightning.accelerators.cuda LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [2]
+2026-05-26 07:24:43,298 INFO pytorch_lightning.utilities.rank_zero Restoring states from the checkpoint path at /data/qbao775/nature_geofm_disaster/outputs/leave_one_region_out_multiseed/seed42/test_India/checkpoints/best-epoch013.ckpt
+2026-05-26 07:24:43,548 INFO pytorch_lightning.accelerators.cuda LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [2]
+2026-05-26 07:24:43,737 INFO pytorch_lightning.utilities.rank_zero Loaded model weights from the checkpoint at /data/qbao775/nature_geofm_disaster/outputs/leave_one_region_out_multiseed/seed42/test_India/checkpoints/best-epoch013.ckpt

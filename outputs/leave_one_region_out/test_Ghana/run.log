@@ -1,0 +1,13 @@
+2026-05-26 00:18:53,112 INFO lightning_fabric.utilities.seed Seed set to 1234
+2026-05-26 00:18:53,131 INFO cli.train 2026-05-26T00:18:53.131736Z [info     ] split_sizes                    test=53 train=310 val=68
+2026-05-26 00:18:53,133 INFO cli.train 2026-05-26T00:18:53.133804Z [info     ] normalize_stats                path=data/processed/norm_stats_sen1floods11.yaml stats={'sentinel1': (-13.6717, 5.7247), 'sentinel2': (1691.0606, 1226.7856)}
+2026-05-26 00:18:54,000 INFO pytorch_lightning.utilities.rank_zero Using bfloat16 Automatic Mixed Precision (AMP)
+2026-05-26 00:18:54,009 INFO pytorch_lightning.utilities.rank_zero GPU available: True (cuda), used: True
+2026-05-26 00:18:54,010 INFO pytorch_lightning.utilities.rank_zero TPU available: False, using: 0 TPU cores
+2026-05-26 00:18:54,012 INFO pytorch_lightning.utilities.rank_zero 💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+2026-05-26 00:18:54,142 INFO pytorch_lightning.utilities.rank_zero You are using a CUDA device ('NVIDIA A100-SXM4-80GB') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+2026-05-26 00:18:54,467 INFO gcsfs gcsfs experimental features enabled via GCSFS_EXPERIMENTAL_ZB_HNS_SUPPORT.
+2026-05-26 00:18:54,471 INFO pytorch_lightning.accelerators.cuda LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [2]
+2026-05-26 00:27:07,955 INFO pytorch_lightning.utilities.rank_zero Restoring states from the checkpoint path at /data/qbao775/nature_geofm_disaster/outputs/leave_one_region_out/test_Ghana/checkpoints/best-epoch032.ckpt
+2026-05-26 00:27:08,189 INFO pytorch_lightning.accelerators.cuda LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [2]
+2026-05-26 00:27:08,213 INFO pytorch_lightning.utilities.rank_zero Loaded model weights from the checkpoint at /data/qbao775/nature_geofm_disaster/outputs/leave_one_region_out/test_Ghana/checkpoints/best-epoch032.ckpt
