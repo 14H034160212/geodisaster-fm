@@ -43,6 +43,7 @@ SUBCOMMANDS = {
     "make-figures":       ("geodisaster.cli_subcommands.make_figures",  "main"),
     "build-report":       ("geodisaster.cli_subcommands.build_report",  "main"),
     "build-blog":         ("geodisaster.cli_subcommands.build_blog",    "main"),
+    "dispatch":           ("geodisaster.cli_subcommands.dispatch",      "main"),
     "smoke":              ("geodisaster.cli_subcommands.smoke",         "main"),
 }
 

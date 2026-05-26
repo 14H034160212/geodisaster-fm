@@ -27,6 +27,7 @@ FIG_LEAVE_ONE    = "outputs/figures/fig4_leave_one_region_out.png"
 FIG_DECISION     = "outputs/figures/fig5_usa_decision.png"
 FIG_BRAZIL       = "outputs/figures/fig6_brazil_zero_shot.png"
 FIG_FEWSHOT_UNET = "outputs/figures/fig3_sen1floods11_few_shot.png"
+FIG_AE_STACK_FS  = "outputs/figures/fig7_ae_stack_few_shot.png"
 COMPARISON_JSON  = "outputs/sen1floods11_comparison.json"
 LEAVE_ONE_OUT    = "outputs/leave_one_region_out/results.json"
 USA_DECISION     = "outputs/usa_decision/decision_summary.json"
@@ -919,12 +920,36 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     A natural question is whether AlphaEarth's temporal-stack variant
     inherits the scarce-label advantage that AlphaEarth's released blog
     advertises. We ran the same 5%, 10%, 25%, 50%, 100% sweep on the
-    AlphaEarth pre + post + S1 multi-modal fusion model. Results are below;
-    additional fractions populate as the sweep completes (the watcher
-    rebuilds this page automatically).
+    AlphaEarth pre + post + S1 multi-modal fusion model so the curves are
+    directly comparable.
   </p>
 
+  <figure class="wide">
+    {_img(FIG_AE_STACK_FS, "Three-architecture few-shot comparison")}
+    <figcaption>
+      <strong>Figure 6 — Three architectures on identical label-fraction sweep.</strong>
+      U-Net + S2 (blue) is essentially flat from 5% to 100% labels — most of
+      its full-data performance is unlocked by 5% labels. The AlphaEarth
+      pre + post + S1 multi-modal fusion (purple) rises steeply from F1 = 0.53
+      at 5% to F1 = 0.74 at 50% then dips slightly at 100% (a small-data
+      regularisation effect we did not seek to optimise), but never catches
+      U-Net + S2. The AlphaEarth + S1 per-pixel MLP (red) is dominated at
+      every fraction — without spatial context or temporal differencing,
+      the foundation prior is insufficient.
+    </figcaption>
+  </figure>
+
   {_ae_few_shot_table()}
+
+  <p>
+    Even at the lowest label budget (17 chips), U-Net + S2 outperforms every
+    AlphaEarth variant we tested by ≥ 0.25 F1. The AlphaEarth blog's
+    scarce-label claim refers to AlphaEarth's <em>direct</em> use as a
+    pre-trained classifier head over its own embeddings; the disaster
+    use case asks something different — can the embedding serve as a
+    transferable prior for a downstream task it was not pre-trained on?
+    For floods, the answer in our setup is: not on its own.
+  </p>
 
   <h2><span class="sec">Result 4</span>
       Pixels to populations — making the prediction policy-relevant</h2>
@@ -1052,6 +1077,62 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     (flood, landslide, earthquake-induced damage). The conclusions here are
     constrained to floods until the Japanese GSI / JAXA polygon ingestion
     is complete.
+  </p>
+
+  <h2><span class="sec">Architecture</span>
+      The GeoDisaster-FM Dispatcher: three layers, one decision</h2>
+
+  <p>
+    The results above motivate the next architectural step. Perception
+    (Layer 1) is necessary but not sufficient: high F1 on a held-out region
+    does not by itself answer the questions a responder needs. We propose
+    a three-layer agent (full Nature pitch in
+    <a href="https://github.com/14H034160212/geodisaster-fm/blob/main/NATURE_PITCH.md">NATURE_PITCH.md</a>):
+  </p>
+
+  <pre style="background:#f6f8fb;border:1px solid var(--rule);border-radius:8px;
+              padding:18px 22px;font-size:12.5px;line-height:1.5">
+┌──────────────────────────────────────────────────────────┐
+│  LAYER 3 — RL POLICY                                       │
+│    state  ← {{disaster footprint, resources, history}}        │
+│    action ← {{task imagery | ask label | alert | dispatch}}    │
+│    reward ← {{time-saved, lives-saved, labels-not-wasted}}    │
+├──────────────────────────────────────────────────────────┤
+│  LAYER 2 — NEURO-SYMBOLIC REASONER                          │
+│    Graph algorithms over OSM (roads/buildings/facilities)   │
+│    + LLM-as-planner over Datalog query templates            │
+│    Answers 10 standard emergency questions:                 │
+│      Q1 hospitals in flood / Q3 affected buildings /        │
+│      Q5 isolated populated areas / Q7 top-5 roads to clear  │
+├──────────────────────────────────────────────────────────┤
+│  LAYER 1 — FROZEN PERCEPTION BACKBONE                       │
+│    AlphaEarth + Sentinel-1 + Sentinel-2 → flood mask         │
+│    (the perception work reported above)                      │
+└──────────────────────────────────────────────────────────┘</pre>
+
+  <p>
+    Layer 2 is implemented in <code>geodisaster.dispatch.reasoner</code>
+    (this repository). On a single 5&nbsp;km USA test chip with 2,053 buildings
+    and a single seeded prediction, the reasoner currently produces:
+  </p>
+
+  <ul>
+    <li><strong>Q3:</strong> 58 buildings predicted affected out of 2,053
+        (the same number our exposure pipeline reports independently).</li>
+    <li><strong>Q1, Q5, Q7, Q9, Q10:</strong> templated answers with confidence
+        annotations; population queries return <em>null</em> when WorldPop is
+        absent — flagged in the briefing rather than fabricated.</li>
+  </ul>
+
+  <p>
+    Layer 3 is the largest open work item: a meta-RL policy trained across a
+    curated atlas of ≥30 historical disasters (Sen1Floods11, Copernicus
+    EMS, Japanese GSI archives, NASA Disasters Mapping Portal) that learns
+    to <em>schedule</em> the perception/reasoner work — which 5 chips to
+    label first, which alerts to issue, which areas to re-image. Together,
+    Layers 1+2+3 form a single agent whose end-to-end metric is
+    <em>time-to-answer</em> on the ten-question questionnaire — directly
+    comparable against the current 1–3 day expert workflow.
   </p>
 
   <h2><span class="sec">Toward a paper</span> Plan for Nature-grade extension</h2>
