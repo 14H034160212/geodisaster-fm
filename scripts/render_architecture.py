@@ -10,10 +10,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import matplotlib as mpl
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch, Rectangle, FancyBboxPatch
+from matplotlib.patches import (
+    Arc, Circle, FancyArrowPatch, FancyBboxPatch, Polygon, Rectangle,
+)
 
 mpl.rcParams["font.family"] = "sans-serif"
 mpl.rcParams["font.sans-serif"] = [
@@ -69,6 +72,127 @@ def _arrow(ax, x0, y0, x1, y1, *, lw=2.0, color=EDGE):
     ))
 
 
+# =====================================================================
+# Academic line-art icons drawn from matplotlib primitives.
+# Each icon takes a centre (cx, cy), a size (the icon spans ~size units),
+# a colour, and a linewidth. All icons are stroke-only.
+# =====================================================================
+def icon_satellite(ax, cx, cy, size=0.50, color="#1a3d6e", lw=1.6):
+    """Stylised satellite: central body + two solar wings + dish + antenna."""
+    s = size
+    # body
+    ax.add_patch(Rectangle((cx - 0.18 * s, cy - 0.18 * s),
+                            0.36 * s, 0.36 * s,
+                            fill=False, edgecolor=color, linewidth=lw))
+    # left wing
+    ax.add_patch(Rectangle((cx - 0.65 * s, cy - 0.12 * s),
+                            0.42 * s, 0.24 * s,
+                            fill=False, edgecolor=color, linewidth=lw))
+    # right wing
+    ax.add_patch(Rectangle((cx + 0.23 * s, cy - 0.12 * s),
+                            0.42 * s, 0.24 * s,
+                            fill=False, edgecolor=color, linewidth=lw))
+    # solar-cell hatch lines on wings
+    for x_off in (-0.65, 0.23):
+        for j in (0.12, 0.24, 0.32):
+            ax.plot([cx + (x_off + j) * s, cx + (x_off + j) * s],
+                    [cy - 0.12 * s, cy + 0.12 * s],
+                    color=color, linewidth=0.6)
+    # dish (small arc on top)
+    ax.add_patch(Arc((cx, cy + 0.32 * s), 0.32 * s, 0.32 * s,
+                      theta1=0, theta2=180,
+                      edgecolor=color, linewidth=lw))
+    # antenna line connecting body to dish
+    ax.plot([cx, cx], [cy + 0.18 * s, cy + 0.32 * s], color=color, linewidth=lw)
+
+
+def icon_eye(ax, cx, cy, size=0.50, color="#0f6a72", lw=1.6):
+    """Stylised eye: almond outline + iris + pupil."""
+    s = size
+    # outer almond — two arcs
+    ax.add_patch(Arc((cx, cy - 0.18 * s), 1.30 * s, 0.85 * s,
+                     theta1=20, theta2=160,
+                     edgecolor=color, linewidth=lw))
+    ax.add_patch(Arc((cx, cy + 0.18 * s), 1.30 * s, 0.85 * s,
+                     theta1=200, theta2=340,
+                     edgecolor=color, linewidth=lw))
+    # iris
+    ax.add_patch(Circle((cx, cy), 0.28 * s, fill=False,
+                         edgecolor=color, linewidth=lw))
+    # pupil
+    ax.add_patch(Circle((cx, cy), 0.08 * s, fill=True, color=color))
+
+
+def icon_graph(ax, cx, cy, size=0.50, color="#1a3d6e", lw=1.4):
+    """Stylised neural graph: five nodes connected by edges."""
+    s = size
+    # node positions (relative)
+    nodes = [
+        (-0.55,  0.30),
+        ( 0.00,  0.50),
+        ( 0.55,  0.20),
+        (-0.30, -0.30),
+        ( 0.35, -0.40),
+    ]
+    pts = [(cx + dx * s, cy + dy * s) for dx, dy in nodes]
+    edges = [(0, 1), (1, 2), (0, 3), (1, 3), (1, 4), (2, 4), (3, 4)]
+    for a, b in edges:
+        ax.plot([pts[a][0], pts[b][0]], [pts[a][1], pts[b][1]],
+                color=color, linewidth=lw * 0.7, zorder=2)
+    for x, y in pts:
+        ax.add_patch(Circle((x, y), 0.10 * s, facecolor="white",
+                             edgecolor=color, linewidth=lw, zorder=3))
+
+
+def icon_gear(ax, cx, cy, size=0.50, color="#7d838c", lw=1.4):
+    """Stylised gear: 8-tooth wheel + central hole."""
+    s = size
+    r_outer = 0.55 * s
+    r_inner = 0.42 * s
+    n = 8
+    pts = []
+    for i in range(n * 2):
+        ang = (i / (n * 2)) * 2 * np.pi
+        r = r_outer if i % 2 == 0 else r_inner
+        pts.append((cx + r * np.cos(ang), cy + r * np.sin(ang)))
+    ax.add_patch(Polygon(pts, closed=True, fill=False,
+                          edgecolor=color, linewidth=lw))
+    # central hole
+    ax.add_patch(Circle((cx, cy), 0.15 * s, fill=False,
+                         edgecolor=color, linewidth=lw))
+
+
+def icon_document(ax, cx, cy, size=0.50, color="#3a6b48", lw=1.6):
+    """Stylised document with folded corner + horizontal lines + checkmark."""
+    s = size
+    w, h = 0.70 * s, 0.85 * s
+    fold = 0.18 * s
+    # rectangle outline with cut top-right corner
+    pts = [
+        (cx - w / 2,        cy - h / 2),
+        (cx + w / 2,        cy - h / 2),
+        (cx + w / 2,        cy + h / 2 - fold),
+        (cx + w / 2 - fold, cy + h / 2),
+        (cx - w / 2,        cy + h / 2),
+    ]
+    ax.add_patch(Polygon(pts, closed=True, fill=False,
+                          edgecolor=color, linewidth=lw))
+    # folded corner triangle
+    ax.add_patch(Polygon(
+        [(cx + w / 2,        cy + h / 2 - fold),
+         (cx + w / 2 - fold, cy + h / 2),
+         (cx + w / 2 - fold, cy + h / 2 - fold)],
+        closed=True, fill=False, edgecolor=color, linewidth=lw))
+    # text lines
+    for j in (0.25, 0.05, -0.15):
+        ax.plot([cx - w / 2 + 0.08 * s, cx + w / 2 - 0.12 * s],
+                [cy + j * s, cy + j * s], color=color, linewidth=lw * 0.6)
+    # checkmark at bottom
+    ax.plot([cx - 0.10 * s, cx - 0.02 * s, cx + 0.18 * s],
+            [cy - 0.28 * s, cy - 0.34 * s, cy - 0.20 * s],
+            color=color, linewidth=lw * 1.1, solid_capstyle="round")
+
+
 def render(out_path: str | Path = "outputs/figures/fig0_architecture.png") -> Path:
     fig = plt.figure(figsize=(15, 7.5), facecolor=BG)
     ax = fig.add_axes([0, 0, 1, 1])
@@ -97,59 +221,60 @@ def render(out_path: str | Path = "outputs/figures/fig0_architecture.png") -> Pa
     x0    = 0.40
     centres = [x0 + i * (box_w + gap) + box_w / 2 for i in range(5)]
 
-    # Layout convention inside each box:
-    #   header_y = y_box + h_box - 0.50   (big stage name)
-    #   body_y   = y_box + 0.70           (single descriptor line / chips)
-    header_y = y_box + h_box - 0.50
-    body_y   = y_box + 0.70
+    # Layout inside each box:
+    #   verb name        at  y_box + h_box - 0.40   (large, bold)
+    #   icon centre      at  y_box + h_box / 2 - 0.10  (line-art icon)
+    #   "Layer N"        at  y_box + 0.32           (small subtitle)
+    header_y = y_box + h_box - 0.40
+    icon_y   = y_box + h_box / 2 - 0.05
+    sub_y    = y_box + 0.32
 
     # ----- INPUT (stage 0) -----
     _box(ax, x0, y_box, box_w, h_box, fc=INPUT_FILL, ec=INPUT_EDGE, lw=1.4)
     ax.text(centres[0], header_y,
             "Input", ha="center", fontsize=15,
             fontweight="bold", color=INPUT_EDGE)
-    ax.text(centres[0], body_y + 0.45,
-            "satellite",
-            ha="center", fontsize=11, color=EDGE)
-    ax.text(centres[0], body_y + 0.15,
-            "maps",
-            ha="center", fontsize=11, color=EDGE)
-    ax.text(centres[0], body_y - 0.15,
-            "demographics",
-            ha="center", fontsize=11, color=EDGE)
+    icon_satellite(ax, centres[0], icon_y, size=0.85,
+                   color=INPUT_EDGE, lw=1.5)
+    ax.text(centres[0], sub_y,
+            "satellite · maps · demographics",
+            ha="center", fontsize=9.5, color=BODY_GREY)
 
     # ----- LAYER 1: PERCEPTION -----
     _box(ax, x0 + 1 * (box_w + gap), y_box, box_w, h_box,
          fc=TEAL_FILL, ec=TEAL_EDGE, lw=1.8)
     ax.text(centres[1], header_y,
-            "Perception", ha="center", fontsize=17,
+            "Perception", ha="center", fontsize=16,
             fontweight="bold", color=TEAL_EDGE)
-    ax.text(centres[1], body_y + 0.15,
-            "Layer 1",
-            ha="center", fontsize=10, color=BODY_GREY,
-            fontweight="bold")
+    icon_eye(ax, centres[1], icon_y, size=0.85,
+             color=TEAL_EDGE, lw=1.7)
+    ax.text(centres[1], sub_y,
+            "Layer 1", ha="center", fontsize=9.5,
+            color=BODY_GREY, fontweight="bold")
 
     # ----- LAYER 2: REASONING (focal) -----
     _box(ax, x0 + 2 * (box_w + gap), y_box, box_w, h_box,
          fc=NAVY_FILL, ec=NAVY_EDGE, lw=2.4)
     ax.text(centres[2], header_y,
-            "Reasoning", ha="center", fontsize=17,
+            "Reasoning", ha="center", fontsize=16,
             fontweight="bold", color=NAVY_EDGE)
-    ax.text(centres[2], body_y + 0.15,
-            "Layer 2",
-            ha="center", fontsize=10, color=BODY_GREY,
-            fontweight="bold")
+    icon_graph(ax, centres[2], icon_y, size=0.85,
+               color=NAVY_EDGE, lw=1.7)
+    ax.text(centres[2], sub_y,
+            "Layer 2", ha="center", fontsize=9.5,
+            color=BODY_GREY, fontweight="bold")
 
     # ----- LAYER 3: DECISION -----
     _box(ax, x0 + 3 * (box_w + gap), y_box, box_w, h_box,
          fc=GREY_FILL, ec=GREY_EDGE, lw=1.4, dashed=True)
     ax.text(centres[3], header_y,
-            "Decision", ha="center", fontsize=17,
+            "Decision", ha="center", fontsize=16,
             fontweight="bold", color=GREY_EDGE)
-    ax.text(centres[3], body_y + 0.15,
-            "Layer 3",
-            ha="center", fontsize=10, color=BODY_GREY,
-            fontweight="bold")
+    icon_gear(ax, centres[3], icon_y, size=0.85,
+              color=GREY_EDGE, lw=1.5)
+    ax.text(centres[3], sub_y,
+            "Layer 3", ha="center", fontsize=9.5,
+            color=BODY_GREY, fontweight="bold")
 
     # ----- OUTPUT (stage 4) -----
     _box(ax, x0 + 4 * (box_w + gap), y_box, box_w, h_box,
@@ -157,15 +282,11 @@ def render(out_path: str | Path = "outputs/figures/fig0_architecture.png") -> Pa
     ax.text(centres[4], header_y,
             "Output", ha="center", fontsize=15,
             fontweight="bold", color=OUT_EDGE)
-    ax.text(centres[4], body_y + 0.45,
-            "briefing",
-            ha="center", fontsize=11, color=EDGE)
-    ax.text(centres[4], body_y + 0.15,
-            "map",
-            ha="center", fontsize=11, color=EDGE)
-    ax.text(centres[4], body_y - 0.15,
-            "action plan",
-            ha="center", fontsize=11, color=EDGE)
+    icon_document(ax, centres[4], icon_y, size=0.85,
+                  color=OUT_EDGE, lw=1.5)
+    ax.text(centres[4], sub_y,
+            "briefing · map · action plan",
+            ha="center", fontsize=9.5, color=BODY_GREY)
 
     # ----- Arrows between stages -----
     for i in range(4):
