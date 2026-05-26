@@ -115,3 +115,14 @@ ee-credentials.json
 !outputs/sen1floods11_deeplab_s1s2/run.log
 !outputs/dispatch/
 !outputs/dispatch/**
+
+# Re-exclude checkpoints / logs inside whitelisted leave-one-out dirs
+outputs/leave_one_region_out/**/checkpoints/
+outputs/leave_one_region_out/**/lightning_logs/
+outputs/leave_one_region_out/**/*.ckpt
+outputs/leave_one_region_out_multiseed/**/checkpoints/
+outputs/leave_one_region_out_multiseed/**/lightning_logs/
+outputs/leave_one_region_out_multiseed/**/*.ckpt
+outputs/few_shot_ae_stack_seed*/**/checkpoints/
+outputs/few_shot_ae_stack_seed*/**/lightning_logs/
+outputs/few_shot_ae_stack_seed*/**/*.ckpt
