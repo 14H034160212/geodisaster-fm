@@ -57,6 +57,27 @@ UNSEEN_EVENTS = {
         "post_window": ("2023-09-12", "2023-09-30"),
         "event_date":   "2023-09-10",
     },
+    "bangladesh_sylhet_2024": {
+        "name": "2024 Bangladesh Sylhet floods",
+        "bbox":         (91.7, 24.7, 92.1, 25.0),
+        "pre_window":  ("2024-05-15", "2024-05-30"),
+        "post_window": ("2024-06-08", "2024-06-30"),
+        "event_date":   "2024-06-05",
+    },
+    "pakistan_sindh_2022": {
+        "name": "2022 Pakistan Sindh monsoon floods",
+        "bbox":         (68.2, 26.7, 68.6, 27.1),
+        "pre_window":  ("2022-06-15", "2022-07-15"),
+        "post_window": ("2022-08-25", "2022-09-25"),
+        "event_date":   "2022-08-25",
+    },
+    "indonesia_demak_2024": {
+        "name": "2024 Indonesia Demak floods (Java)",
+        "bbox":         (110.55, -6.95, 110.85, -6.65),
+        "pre_window":  ("2024-01-20", "2024-02-10"),
+        "post_window": ("2024-02-15", "2024-03-05"),
+        "event_date":   "2024-02-08",
+    },
 }
 
 

@@ -97,3 +97,21 @@ ee-credentials.json
 
 # Claude Code session settings
 .claude/
+
+# Whitelist orchestrator outputs (added 2026-05-26)
+!outputs/leave_one_region_out/
+!outputs/leave_one_region_out/**
+!outputs/leave_one_region_out_multiseed/
+!outputs/leave_one_region_out_multiseed/**
+!outputs/zero_shot/
+!outputs/zero_shot/**
+!outputs/few_shot_ae_stack/
+!outputs/few_shot_ae_stack/few_shot_results.csv
+!outputs/few_shot_ae_stack/few_shot_summary.json
+!outputs/few_shot_ae_stack_seed*/
+!outputs/few_shot_ae_stack_seed*/few_shot_results.csv
+!outputs/few_shot_ae_stack_seed*/few_shot_summary.json
+!outputs/sen1floods11_deeplab_s1s2/
+!outputs/sen1floods11_deeplab_s1s2/run.log
+!outputs/dispatch/
+!outputs/dispatch/**

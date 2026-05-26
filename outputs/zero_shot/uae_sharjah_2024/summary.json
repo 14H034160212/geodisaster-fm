@@ -1,0 +1,30 @@
+{
+  "event": "uae_sharjah_2024",
+  "name": "2024 UAE Sharjah floods",
+  "bbox": [
+    55.3,
+    25.0,
+    55.7,
+    25.5
+  ],
+  "pre_window": [
+    "2024-03-15",
+    "2024-04-10"
+  ],
+  "post_window": [
+    "2024-04-18",
+    "2024-05-05"
+  ],
+  "model_ckpt": "outputs/sen1floods11_unet_s1s2/checkpoints/best-epoch016.ckpt",
+  "n_tiles": 70,
+  "pred_shape": [
+    5566,
+    4027
+  ],
+  "water_pixel_count": 18098274,
+  "water_area_km2": 1809.83,
+  "total_area_km2": 2241.43,
+  "water_pct": 80.744,
+  "n_s1_scenes": 2,
+  "n_s2_scenes": 3
+}

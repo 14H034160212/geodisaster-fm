@@ -1,0 +1,39 @@
+{
+  "event": "bangladesh_sylhet_2024",
+  "name": "2024 Bangladesh Sylhet floods",
+  "bbox": [
+    91.7,
+    24.7,
+    92.1,
+    25.0
+  ],
+  "pre_window": [
+    "2024-05-15",
+    "2024-05-30"
+  ],
+  "post_window": [
+    "2024-06-08",
+    "2024-06-30"
+  ],
+  "model_ckpt": "outputs/sen1floods11_unet_s1s2/checkpoints/best-epoch016.ckpt",
+  "n_tiles": 42,
+  "pred_shape": [
+    3339,
+    4040
+  ],
+  "water_pixel_count": 0,
+  "water_area_km2": 0.0,
+  "total_area_km2": 1348.96,
+  "water_pct": 0.0,
+  "n_s1_scenes": 3,
+  "n_s2_scenes": 3,
+  "permanent_water_pct": 5.072,
+  "flood_only_water_pct": 0.0,
+  "flood_only_km2": 0.0,
+  "buildings_total_osm": 0,
+  "buildings_flood_affected": 0,
+  "roads_total_km_osm": 0.0,
+  "roads_flood_affected_km": 0.0,
+  "buildings_affected_pct": 0.0,
+  "roads_affected_pct": 0.0
+}

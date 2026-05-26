@@ -81,11 +81,15 @@ def main():
     p.add_argument("--stats", default="data/processed/norm_stats_sen1floods11.yaml")
     p.add_argument("--workdir-root", default="outputs/leave_one_region_out")
     p.add_argument("--cuda-visible", default="2")
+    p.add_argument("--seed", type=int, default=None,
+                   help="random seed; if set, workdir becomes <root>/seed<N>/")
     args = p.parse_args()
 
     env = os.environ.copy()
     env["CUDA_VISIBLE_DEVICES"] = args.cuda_visible
     workdir_root = Path(args.workdir_root)
+    if args.seed is not None:
+        workdir_root = workdir_root / f"seed{args.seed}"
     workdir_root.mkdir(parents=True, exist_ok=True)
     results_path = workdir_root / "results.json"
     all_results: list[dict] = []
@@ -112,6 +116,8 @@ def main():
             "--test-events", f"sen1floods11_{test_region}",
             "--stats", args.stats,
         ]
+        if args.seed is not None:
+            cmd += ["--seed", str(args.seed)]
         for r in train_regions:
             cmd += ["--train-events", f"sen1floods11_{r}"]
 

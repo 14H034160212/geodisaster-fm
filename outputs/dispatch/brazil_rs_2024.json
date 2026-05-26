@@ -1,0 +1,96 @@
+{
+  "event_id": "brazil_rs_2024_porto_alegre",
+  "bbox": [
+    -51.4,
+    -30.2,
+    -50.95,
+    -29.75
+  ],
+  "timestamp": "2026-05-26T05:34:35.606823Z",
+  "flood_mask_path": "outputs/zero_shot/brazil_rs_2024/brazil_rs_2024_flood_only.tif",
+  "n_buildings_in_aoi": 0,
+  "n_facilities_in_aoi": 0,
+  "road_km_in_aoi": 0.0,
+  "answers": [
+    {
+      "qid": "Q1",
+      "text": "Which hospitals are inside the flood footprint?",
+      "answer": [],
+      "units": "hospitals",
+      "confidence": "high",
+      "note": ""
+    },
+    {
+      "qid": "Q2",
+      "text": "Which schools / shelters are inside the flood footprint?",
+      "answer": [],
+      "units": "facilities",
+      "confidence": "high",
+      "note": ""
+    },
+    {
+      "qid": "Q3",
+      "text": "How many buildings are predicted affected?",
+      "answer": 0,
+      "units": "of 0 buildings",
+      "confidence": "high",
+      "note": ""
+    },
+    {
+      "qid": "Q4",
+      "text": "How many km of major roads are blocked?",
+      "answer": 0.0,
+      "units": "km of 0 km",
+      "confidence": "high",
+      "note": ""
+    },
+    {
+      "qid": "Q5",
+      "text": "What populated areas are now disconnected from any hospital?",
+      "answer": [],
+      "units": "components",
+      "confidence": "medium",
+      "note": "0 components without lifeline"
+    },
+    {
+      "qid": "Q6",
+      "text": "Which hospitals lose road access from their service area?",
+      "answer": [],
+      "units": "hospitals with shrunk service area",
+      "confidence": "medium",
+      "note": ""
+    },
+    {
+      "qid": "Q7",
+      "text": "Which top-5 roads, if cleared, restore the most access?",
+      "answer": [],
+      "units": "roads",
+      "confidence": "low",
+      "note": "ranked by length only; future RL refines"
+    },
+    {
+      "qid": "Q8",
+      "text": "What is the total population in the flood footprint?",
+      "answer": null,
+      "units": "n/a (no WorldPop raster)",
+      "confidence": "low",
+      "note": ""
+    },
+    {
+      "qid": "Q9",
+      "text": "What is the population in disconnected communities?",
+      "answer": 0,
+      "units": "proxy (road-node count, not absolute pop)",
+      "confidence": "low",
+      "note": "needs WorldPop for absolute numbers"
+    },
+    {
+      "qid": "Q10",
+      "text": "What is the time-to-evacuation estimate for affected populations?",
+      "answer": null,
+      "units": "n/a",
+      "confidence": "low",
+      "note": "placeholder heuristic; needs Dijkstra over walking graph"
+    }
+  ]
+}

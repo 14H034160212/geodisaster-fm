@@ -1,0 +1,39 @@
+{
+  "event": "libya_derna_2023",
+  "name": "2023 Libya Derna flood (Storm Daniel)",
+  "bbox": [
+    22.5,
+    32.6,
+    22.85,
+    32.85
+  ],
+  "pre_window": [
+    "2023-08-15",
+    "2023-09-08"
+  ],
+  "post_window": [
+    "2023-09-12",
+    "2023-09-30"
+  ],
+  "model_ckpt": "outputs/sen1floods11_unet_s1s2/checkpoints/best-epoch016.ckpt",
+  "n_tiles": 30,
+  "pred_shape": [
+    2783,
+    3277
+  ],
+  "water_pixel_count": 7792575,
+  "water_area_km2": 779.26,
+  "total_area_km2": 911.99,
+  "water_pct": 85.446,
+  "n_s1_scenes": 6,
+  "n_s2_scenes": 2,
+  "permanent_water_pct": 37.639,
+  "flood_only_water_pct": 51.569,
+  "flood_only_km2": 470.31,
+  "buildings_total_osm": 0,
+  "buildings_flood_affected": 0,
+  "roads_total_km_osm": 0.0,
+  "roads_flood_affected_km": 0.0,
+  "buildings_affected_pct": 0.0,
+  "roads_affected_pct": 0.0
+}

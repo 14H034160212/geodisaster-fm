@@ -1,0 +1,30 @@
+{
+  "event": "brazil_rs_2024",
+  "name": "2024 Rio Grande do Sul, Brazil floods (Porto Alegre lakes)",
+  "bbox": [
+    -51.4,
+    -30.2,
+    -50.95,
+    -29.75
+  ],
+  "pre_window": [
+    "2024-04-01",
+    "2024-04-25"
+  ],
+  "post_window": [
+    "2024-05-05",
+    "2024-05-25"
+  ],
+  "model_ckpt": "outputs/sen1floods11_unet_s1s2/checkpoints/best-epoch016.ckpt",
+  "n_tiles": 72,
+  "pred_shape": [
+    5009,
+    4339
+  ],
+  "water_pixel_count": 18443206,
+  "water_area_km2": 1844.32,
+  "total_area_km2": 2173.41,
+  "water_pct": 84.859,
+  "n_s1_scenes": 3,
+  "n_s2_scenes": 11
+}

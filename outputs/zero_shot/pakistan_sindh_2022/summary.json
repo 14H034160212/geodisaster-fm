@@ -1,0 +1,30 @@
+{
+  "event": "pakistan_sindh_2022",
+  "name": "2022 Pakistan Sindh monsoon floods",
+  "bbox": [
+    68.2,
+    26.7,
+    68.6,
+    27.1
+  ],
+  "pre_window": [
+    "2022-06-15",
+    "2022-07-15"
+  ],
+  "post_window": [
+    "2022-08-25",
+    "2022-09-25"
+  ],
+  "model_ckpt": "outputs/sen1floods11_unet_s1s2/checkpoints/best-epoch016.ckpt",
+  "n_tiles": 56,
+  "pred_shape": [
+    4452,
+    3970
+  ],
+  "water_pixel_count": 14485740,
+  "water_area_km2": 1448.57,
+  "total_area_km2": 1767.44,
+  "water_pct": 81.959,
+  "n_s1_scenes": 8,
+  "n_s2_scenes": 11
+}

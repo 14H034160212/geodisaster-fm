@@ -1,0 +1,141 @@
+{
+  "event_id": "USA_170264_flood_chip",
+  "bbox": [
+    -95.2990345572172,
+    38.58874999686546,
+    -95.25304081467027,
+    38.63474373941238
+  ],
+  "timestamp": "2026-05-26T05:54:07.885873Z",
+  "flood_mask_path": "outputs/usa_decision/predictions/USA_170264_S1Hand_pred.tif",
+  "n_buildings_in_aoi": 2053,
+  "n_facilities_in_aoi": 9,
+  "road_km_in_aoi": 232.2,
+  "answers": [
+    {
+      "qid": "Q1",
+      "text": "Which hospitals are inside the flood footprint?",
+      "answer": [],
+      "units": "hospitals",
+      "confidence": "high",
+      "note": ""
+    },
+    {
+      "qid": "Q2",
+      "text": "Which schools / shelters are inside the flood footprint?",
+      "answer": [],
+      "units": "facilities",
+      "confidence": "high",
+      "note": ""
+    },
+    {
+      "qid": "Q3",
+      "text": "How many buildings are predicted affected?",
+      "answer": 58,
+      "units": "of 2,053 buildings",
+      "confidence": "high",
+      "note": ""
+    },
+    {
+      "qid": "Q4",
+      "text": "How many km of major roads are blocked?",
+      "answer": 10.1,
+      "units": "km of 232 km",
+      "confidence": "high",
+      "note": ""
+    },
+    {
+      "qid": "Q5",
+      "text": "What populated areas are now disconnected from any hospital?",
+      "answer": [
+        {
+          "component_id": 1,
+          "n_nodes": 147,
+          "has_hospital": false,
+          "node_proxy_population": 147
+        },
+        {
+          "component_id": 2,
+          "n_nodes": 1,
+          "has_hospital": false,
+          "node_proxy_population": 1
+        },
+        {
+          "component_id": 3,
+          "n_nodes": 1,
+          "has_hospital": false,
+          "node_proxy_population": 1
+        }
+      ],
+      "units": "components",
+      "confidence": "medium",
+      "note": "3 components without lifeline"
+    },
+    {
+      "qid": "Q6",
+      "text": "Which hospitals lose road access from their service area?",
+      "answer": [],
+      "units": "hospitals with shrunk service area",
+      "confidence": "medium",
+      "note": ""
+    },
+    {
+      "qid": "Q7",
+      "text": "Which top-5 roads, if cleared, restore the most access?",
+      "answer": [
+        {
+          "highway": "residential",
+          "name": "West 2nd Street",
+          "length_m": 1246.4
+        },
+        {
+          "highway": "residential",
+          "name": "West 2nd Street",
+          "length_m": 1246.4
+        },
+        {
+          "highway": "tertiary",
+          "name": "South Eisenhower Avenue",
+          "length_m": 1236.2
+        },
+        {
+          "highway": "tertiary",
+          "name": "South Eisenhower Avenue",
+          "length_m": 1236.2
+        },
+        {
+          "highway": "secondary",
+          "name": "nan",
+          "length_m": 787.4
+        }
+      ],
+      "units": "roads",
+      "confidence": "low",
+      "note": "ranked by length only; future RL refines"
+    },
+    {
+      "qid": "Q8",
+      "text": "What is the total population in the flood footprint?",
+      "answer": null,
+      "units": "n/a (no WorldPop raster)",
+      "confidence": "low",
+      "note": ""
+    },
+    {
+      "qid": "Q9",
+      "text": "What is the population in disconnected communities?",
+      "answer": 149,
+      "units": "proxy (road-node count, not absolute pop)",
+      "confidence": "low",
+      "note": "needs WorldPop for absolute numbers"
+    },
+    {
+      "qid": "Q10",
+      "text": "What is the time-to-evacuation estimate for affected populations?",
+      "answer": 18.0,
+      "units": "minutes",
+      "confidence": "low",
+      "note": "placeholder heuristic; needs Dijkstra over walking graph"
+    }
+  ]
+}

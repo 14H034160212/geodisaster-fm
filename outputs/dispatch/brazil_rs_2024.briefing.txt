@@ -1,0 +1,26 @@
+=== Emergency briefing for brazil_rs_2024_porto_alegre ===
+  AOI bbox: (-51.4, -30.2, -50.95, -29.75)
+  Building polygons in AOI:        0
+  Critical facilities in AOI:      0
+  Major road km in AOI:            0.0
+
+  [Q1] Which hospitals are inside the flood footprint?
+        → (none) hospitals
+  [Q2] Which schools / shelters are inside the flood footprint?
+        → (none) facilities
+  [Q3] How many buildings are predicted affected?
+        → 0 of 0 buildings
+  [Q4] How many km of major roads are blocked?
+        → 0.0 km of 0 km
+  [Q5] What populated areas are now disconnected from any hospital?
+        → (none) components  [0 components without lifeline]
+  [Q6] Which hospitals lose road access from their service area?
+        → (none) hospitals with shrunk service area
+  [Q7] Which top-5 roads, if cleared, restore the most access?
+        → (none) roads  [ranked by length only; future RL refines]
+  [Q8] What is the total population in the flood footprint?
+        → None n/a (no WorldPop raster)
+  [Q9] What is the population in disconnected communities?
+        → 0 proxy (road-node count, not absolute pop)  [needs WorldPop for absolute numbers]
+  [Q10] What is the time-to-evacuation estimate for affected populations?
+        → None n/a  [placeholder heuristic; needs Dijkstra over walking graph]
