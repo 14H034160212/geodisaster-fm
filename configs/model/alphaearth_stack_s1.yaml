@@ -1,0 +1,24 @@
+# AlphaEarth pre-event + event-year stack + Sentinel-1.
+# Tests whether temporal differencing via separate AE stems unlocks the
+# foundation signal that single pre-event AE missed.
+# Uses multi_modal_fusion (separate stems per modality), not the per-pixel
+# MLP head which failed before.
+
+name: alphaearth_stack_s1
+family: multi_modal_fusion
+
+backbone:
+  in_channels: 64    # primary AE pre-year
+
+aux_channels:
+  alphaearth_post: 64   # AE event-year — for temporal differencing
+  sentinel1:        2   # raw SAR
+
+head:
+  hidden_dim: 128
+  out_channels: 1
+
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

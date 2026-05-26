@@ -33,9 +33,15 @@ KNOWN_SWEEPS = {
     "AlphaEarth + S1 (MLP head)": "outputs/few_shot_ae_s1/few_shot_results.csv",
 }
 KNOWN_FIGURES = [
-    ("Four-way comparison (Sen1Floods11)", "outputs/figures/fig3_four_way_comparison.png"),
-    ("Few-shot curve (U-Net S1+S2)",        "outputs/figures/fig3_sen1floods11_few_shot.png"),
+    ("Fig 3 — Four-way label-fraction comparison", "outputs/figures/fig3_four_way_comparison.png"),
+    ("Fig 3b — Few-shot curve (U-Net S1+S2 alone)", "outputs/figures/fig3_sen1floods11_few_shot.png"),
+    ("Fig 4 — Leave-one-region-out (10 holdouts) — CrossEarth-style",
+        "outputs/figures/fig4_leave_one_region_out.png"),
+    ("Fig 5 — Pixels → decisions on USA test set (Hu Nature-style)",
+        "outputs/figures/fig5_usa_decision.png"),
 ]
+LEAVE_ONE_OUT_JSON = "outputs/leave_one_region_out/results.json"
+DECISION_SUMMARY = "outputs/usa_decision/decision_summary.json"
 KNOWN_TABLES = {
     "Sen1Floods11 100%-label comparison": "outputs/sen1floods11_comparison.json",
     "Few-shot full table":                 "outputs/four_way_results_table.json",
@@ -111,6 +117,61 @@ def _sweep_tables() -> str:
         })
         parts.append(f"<h3>{_html.escape(label)}</h3>{_df_to_html(df)}")
     return "\n".join(parts)
+
+
+def _leave_one_out_table() -> str:
+    p = Path(LEAVE_ONE_OUT_JSON)
+    if not p.exists():
+        return ""
+    rows = json.loads(p.read_text())
+    if not rows:
+        return ""
+    df = pd.DataFrame([{
+        "Test region": r["test_region"],
+        "F1": round(r["f1"], 4),
+        "IoU": round(r["iou"], 4),
+        "Precision": round(r["precision"], 4),
+        "Recall": round(r["recall"], 4),
+        "AUPRC": round(r["auprc"], 4),
+        "train_time_s": r["train_time_s"],
+    } for r in rows]).sort_values("F1", ascending=False)
+    f1_mean = df["F1"].mean()
+    iou_mean = df["IoU"].mean()
+    auprc_mean = df["AUPRC"].mean()
+    f1_spread = df["F1"].max() - df["F1"].min()
+    note = (f"<p style='font-size:13px;color:#6b7280;margin-top:0'>"
+            f"<strong>{len(rows)} held-out regions</strong> · "
+            f"avg F1 = {f1_mean:.3f} · avg IoU = {iou_mean:.3f} · "
+            f"avg AUPRC = {auprc_mean:.3f} · "
+            f"F1 spread = {f1_spread:.3f} (hardest: "
+            f"{df.iloc[-1]['Test region']} F1 = {df.iloc[-1]['F1']:.3f})"
+            f"</p>")
+    return ("<h3>Leave-one-region-out — U-Net (S1+S2) on 10 unseen regions</h3>"
+            + note + _df_to_html(df))
+
+
+def _decision_summary() -> str:
+    p = Path(DECISION_SUMMARY)
+    if not p.exists():
+        return ""
+    d = json.loads(p.read_text())
+    t = d.get("totals", {})
+    n = d.get("n_chips_evaluated", 0)
+    pct = lambda a, tot: 100 * a / max(tot, 1)
+    rows = [
+        {"Quantity": "Buildings (OSM polygons in chips)",
+         "Total":     t.get("buildings_total"),
+         "Affected":  t.get("buildings_affected"),
+         "Affected %": f"{pct(t.get('buildings_affected', 0), t.get('buildings_total', 1)):.2f}%"},
+        {"Quantity": "Major roads (km)",
+         "Total":     t.get("road_km_total"),
+         "Affected":  t.get("road_km_affected"),
+         "Affected %": f"{pct(t.get('road_km_affected', 0), t.get('road_km_total', 1)):.2f}%"},
+    ]
+    df = pd.DataFrame(rows)
+    return (f"<h3>Decision metrics — USA test set, {n} chips "
+            f"(Hu et al. 2026 Nature pipeline style)</h3>"
+            + _df_to_html(df))
 
 
 def _comparison_table() -> str:
@@ -279,6 +340,12 @@ def build_report(out_dir: str | Path = "outputs/site",
 <h2>Sen1Floods11 cross-region — model comparison</h2>
 {_comparison_table()}
 {_sweep_tables()}
+
+<h2>Cross-domain robustness (CrossEarth-style)</h2>
+{_leave_one_out_table()}
+
+<h2>From pixels to decisions (Hu et al. Nature-style)</h2>
+{_decision_summary()}
 
 <h2>Figures</h2>
 {_figures_html()}

@@ -1,27 +1,35 @@
 {
-  "timestamp": "2026-05-25T23:33:02.887510Z",
+  "timestamp": "2026-05-26T04:14:00.359676Z",
   "python": "3.10.20 (main, Mar 11 2026, 17:46:40) [GCC 14.3.0]",
   "platform": "Linux-4.18.0-535.el8.x86_64-x86_64-with-glibc2.28",
-  "git_revision": null,
+  "git_revision": "9f8f78203f5aecafd1adf7e5811baf46b4252418",
   "env_seed": null,
   "package_versions": {
     "torch": "2.5.1+cu124",
     "pytorch_lightning": "2.6.4",
-    "numpy": "2.2.6",
-    "pandas": "2.3.3",
+    "numpy": "1.26.4",
+    "pandas": "2.2.3",
     "rasterio": "1.4.4",
-    "geopandas": "missing",
+    "geopandas": "0.14.4",
     "transformers": "missing",
     "earthengine-api": "missing"
   },
   "artefacts": {
-    "fig3_four_way": {
+    "fig3_five_way": {
       "path": "outputs/figures/fig3_four_way_comparison.png",
-      "sha256": "4c2a94988d99afe12e890d662abfedc36d77bc581ae41d4735e984e8ab1f2f22"
+      "sha256": "4f80eb24a10524752b27c38256f3aa1bd7f334ceadf5dad0f988a905f5716e5f"
     },
     "fig3_few_shot": {
       "path": "outputs/figures/fig3_sen1floods11_few_shot.png",
       "sha256": "7986678ba5e036a7e48025bcec09967bcb2b7afd10ba1b017a34bf2338cc1057"
+    },
+    "fig4_leave_one_region_out": {
+      "path": "outputs/figures/fig4_leave_one_region_out.png",
+      "sha256": "3b40e15174c86474a8cdd20498b2980683d5776ebefa46b5cc48c8f774ec2155"
+    },
+    "fig5_usa_decision_metrics": {
+      "path": "outputs/figures/fig5_usa_decision.png",
+      "sha256": "506da348efece5e6af0a1a716c04ba77a3d6fec177e4ccc709355502e0383588"
     },
     "few_shot_unet_s1s2_csv": {
       "path": "outputs/few_shot_unet_s1s2/few_shot_results.csv",
@@ -31,53 +39,69 @@
       "path": "outputs/few_shot_ae_s1/few_shot_results.csv",
       "sha256": "77d836a16a5d0f4cfe90265f62ce9bd78fa891694afbc594b0243ba44e28cdd0"
     },
+    "leave_one_out_results": {
+      "path": "outputs/leave_one_region_out/results.json",
+      "sha256": "99a48f4e386eb04637ef7a9748032a68a1c6d8d3e095e7a4f4e92e61faaee5e3"
+    },
+    "usa_decision_summary": {
+      "path": "outputs/usa_decision/decision_summary.json",
+      "sha256": "4160501bfff29be8db984f3c6a537bf4d4f0626d2fb00e93fbf674f5dcc56da6"
+    },
     "comparison_json": {
       "path": "outputs/sen1floods11_comparison.json",
-      "sha256": "2ca0454013d345eae8b6b004387f6fce1b0a751091afb50c7b9687c1b84ad566"
+      "sha256": "5d43c67505f785ebfce345147bd0e6311765dd773ae4fd0035849724aa6dd37a"
     },
-    "norm_stats": {
+    "four_way_table": {
+      "path": "outputs/four_way_results_table.json",
+      "sha256": "c94276c62393587abd0ea60012ee61a519837bf5915157449a26da21ec6f2f8b"
+    },
+    "norm_stats_unet": {
+      "path": "data/processed/norm_stats_sen1floods11.yaml",
+      "sha256": "01fa4414eb9da0a0ce3d0e0cb7a2837a009cfd7b280f53fec43f7d118c46589c"
+    },
+    "norm_stats_ae": {
       "path": "data/processed/norm_stats_sen1floods11_ae.yaml",
-      "sha256": "55262de5940ab87387f3af6f8fe08478e004bc03f7d67fe3317901ec94bb6cac"
+      "sha256": "6aa4290df4410c992bc9deae62f99fc07bc4626d1ec518e72c04533577cefd32"
     },
     "catalog": {
       "path": "data/catalog/sen1floods11_events.yaml",
       "sha256": "b7be787046353bd26b5730ac78b0cb86f31eddc7e40cab2fb4b4ff4ab61243d0"
     },
-    "ckpt_unet_s1_best": {
-      "path": "outputs/sen1floods11_unet_s1/checkpoints/best-epoch035-f1_0.8110.ckpt",
-      "sha256": "47140c7531d90134d9f0dc46c81881f45eaa382cdb77feabe5ceca8fc85c57d8"
-    },
-    "ckpt_unet_s1s2_best": {
+    "ckpt_unet_s1s2": {
       "path": "outputs/sen1floods11_unet_s1s2/checkpoints/best-epoch016.ckpt",
       "sha256": "4315882b441deb7ba4bc20306aea57a48e269c669358775fcfb491144dd07185"
     },
-    "ckpt_ae_s1_mlp_best": {
+    "ckpt_ae_s1_mlp": {
       "path": "outputs/sen1floods11_ae_s1/checkpoints/best-epoch044.ckpt",
       "sha256": "118d1d95af45039edf05bdd8f6feec41e6fa8eec66b321b81eb7527417d8eab1"
     },
-    "ckpt_ae_s1_conv_best": {
+    "ckpt_ae_s1_conv": {
       "path": "outputs/sen1floods11_ae_s1_conv/checkpoints/best-epoch013.ckpt",
       "sha256": "4a206ba34f8514ff15196adcc8753d5a1e515bcdad077f4381c9e82f67029cf6"
     },
-    "model_unet_s1": {
-      "path": "configs/model/unet_s1.yaml",
-      "sha256": "8cdae568274bb5aad082b56840fc153b346ac3fe2fda7b00df420f1de65e20b1"
+    "ckpt_ae_stack": {
+      "path": "outputs/sen1floods11_ae_stack/checkpoints/best-epoch004.ckpt",
+      "sha256": "662a631ff990b293e2aa2cd6241a29f89ed4563cb64bbef38a934f7c72e6db57"
     },
-    "model_unet_s1s2": {
+    "model_cfg_unet_s1s2": {
       "path": "configs/model/unet_s1s2.yaml",
       "sha256": "8996451dde36b62873bd25edf719e4f7ed4962d6a76092becddb5a7a27ae9673"
     },
-    "model_ae_s1_mlp": {
+    "model_cfg_ae_s1": {
       "path": "configs/model/alphaearth_s1.yaml",
       "sha256": "54a3c76e35ec05f622fd16689bdb65612a9e5aee98c0be8a01fa9cba88b14082"
     },
-    "model_ae_s1_conv": {
+    "model_cfg_ae_s1_conv": {
       "path": "configs/model/alphaearth_s1_conv.yaml",
       "sha256": "623e7835852c6d4bdc377b92dabe0a8090326fcdd1a078f9d58d9f16d39e5b14"
+    },
+    "model_cfg_ae_stack": {
+      "path": "configs/model/alphaearth_stack_s1.yaml",
+      "sha256": "5b505836e96ef243025b95a7a3271ea059fb93abd29638e5216b80f67b507cc6"
     }
   },
   "extra": {
-    "experiment": "Sen1Floods11 cross-region flood mapping w/ AlphaEarth foundation prior",
+    "experiment": "Sen1Floods11 cross-region flood mapping w/ AlphaEarth foundation prior + leave-one-region-out + decision metrics",
     "train_events": [
       "sen1floods11_Ghana",
       "sen1floods11_India",
@@ -94,21 +118,27 @@
     "test_events": [
       "sen1floods11_USA (69 chips)"
     ],
-    "loss": "focal_bce alpha=0.75 gamma=2.0",
-    "optimizer": "AdamW lr=1e-4 wd=1e-2",
-    "scheduler": "cosine",
-    "precision": "bf16-mixed",
-    "epochs": 50,
+    "leave_one_region_out_avg_f1": 0.828,
+    "leave_one_region_out_avg_iou": 0.72,
+    "leave_one_region_out_f1_range": [
+      0.543,
+      0.956
+    ],
+    "leave_one_region_out_hardest": "Pakistan",
+    "leave_one_region_out_easiest": "Mekong",
+    "usa_decision_buildings_affected_pct": 2.38,
+    "usa_decision_roads_affected_pct": 6.62,
     "alphaearth_collection": "GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL",
-    "alphaearth_year_strategy": "event_year - 1, clamped to >= 2017",
-    "alphaearth_chips_fetched": 431,
     "alphaearth_chip_split": "2x2 sub-tiles per chip (GEE 48 MB limit)",
+    "alphaearth_years_used": "pre_year = event_year - 1, post_year = event_year (both clamped to >= 2017)",
     "headline_findings": {
-      "modality_lift": "U-Net SAR+Optical (F1=0.849) beats SAR-only (0.618) by +0.218",
-      "label_efficiency_unet": "U-Net S1+S2 at 5% labels (0.789) ~ 93% of 100% performance",
-      "AE_negative_result_F1": "AlphaEarth+S1 MLP head F1=0.602; conv head F1=0.631; both below U-Net S1+S2 0.849",
-      "AE_AUPRC_positive": "AE+S1 AUPRC 0.79 > U-Net S1-only 0.71 \u2014 foundation prior helps ranking",
-      "interpretation": "Sen1Floods11 chips have no S1 pre/post temporal pair; AE annual prior cannot match post-event optical observation. \u00a73.4 caveat validated."
+      "modality_lift": "U-Net SAR+Optical 100%-labels F1=0.849 vs SAR-only 0.618 (+0.231)",
+      "label_efficiency": "U-Net SAR+Optical reaches 93% of full performance at just 5% labels (17 chips)",
+      "cross_region_gap": "Leave-one-out F1 range 0.54 (Pakistan) to 0.96 (Mekong) \u2014 domain gap quantified",
+      "AE_temporal_diff_helps": "AE pre+post stack F1=0.708 > AE pre-only conv 0.631 > AE pre-only MLP 0.602 \u2014 temporal differencing recovers +0.077 F1",
+      "AE_still_below_optical": "Best AE variant (pre+post stack) still 0.14 below U-Net+S2 \u2014 AE annual prior doesn't fully replace post-event optical observation",
+      "AUPRC_steady_climb": "AUPRC: S1-only 0.71 -> AE+S1 MLP 0.79 -> AE conv 0.79 -> AE stack 0.80 -> U-Net+S2 0.90 \u2014 foundation prior helps ranking quality at every level",
+      "decision_metrics": "USA test set: 130/5467 buildings (2.4%) and 77.7/1174 km roads (6.6%) predicted affected by floods \u2014 Hu Nature 2026 paradigm"
     }
   }
 }
