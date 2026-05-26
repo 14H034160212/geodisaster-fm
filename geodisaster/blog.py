@@ -974,14 +974,18 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     <figcaption>
       <strong>Figure 5 — Sen1Floods11-trained U-Net deployed on
       Rio Grande do Sul, May 2024.</strong>
-      (a) Sentinel-2 RGB composite (median, 5–25 May 2024). (b) JRC
-      permanent-water mask (occurrence ≥ 50%; 8.3% of AOI).
-      (c) Model prediction (84.9% of AOI classified as water).
-      (d) Prediction minus permanent water (78.3% of AOI). The natural
-      lake structure is preserved, but the model over-flags the
-      surrounding land surface — a near-complete failure of zero-shot
-      transfer to a continent absent from Sen1Floods11 (no South-American
-      training event in the benchmark).
+      <strong>Panels (c) and (d) are our model output</strong>; (a) is the
+      input and (b) is an external reference.
+      <em>(a) Input</em>: Sentinel-2 RGB composite (median, 5–25 May 2024).
+      <em>(b) Reference</em>: JRC permanent-water mask
+      (Pekel et&nbsp;al., 2016; occurrence ≥ 50%; 8.3% of AOI).
+      <em>(c) Our method, raw</em>: Sen1Floods11-trained U-Net (S1+S2)
+      applied zero-shot to the AOI; 84.9% of AOI classified as water.
+      <em>(d) Our method, post-processed</em>: panel (c) minus panel (b)
+      = "flood-only" estimate; 78.3% of AOI. The natural lake structure is
+      preserved, but the model over-flags surrounding land surface — a
+      near-complete failure of zero-shot transfer to a continent absent
+      from Sen1Floods11 (no South-American training event in the benchmark).
     </figcaption>
   </figure>
 

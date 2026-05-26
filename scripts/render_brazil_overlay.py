@@ -99,32 +99,32 @@ def main():
 
     # 1. RGB
     axes[0].imshow(rgb)
-    axes[0].set_title("(a) Sentinel-2 RGB\npost-event (May 2024)", fontsize=11, loc="left",
-                      fontweight="bold")
+    axes[0].set_title("(a) INPUT — Sentinel-2 RGB\npost-event (May 2024)",
+                      fontsize=10.5, loc="left", fontweight="bold", color="#444")
     axes[0].axis("off")
 
     # 2. Permanent water (JRC)
     axes[1].imshow(rgb, alpha=0.5)
     axes[1].imshow(np.where(perm_disp == 1, 1, np.nan), cmap="Blues_r",
                    alpha=0.85, vmin=0, vmax=1)
-    axes[1].set_title(f"(b) JRC permanent water mask\n{flood_summary['permanent_water_pct']:.1f}% of AOI",
-                      fontsize=11, loc="left", fontweight="bold")
+    axes[1].set_title(f"(b) REFERENCE — JRC permanent water\n{flood_summary['permanent_water_pct']:.1f}% of AOI",
+                      fontsize=10.5, loc="left", fontweight="bold", color="#444")
     axes[1].axis("off")
 
-    # 3. Model prediction
+    # 3. Model prediction — our method, raw
     axes[2].imshow(rgb, alpha=0.5)
     axes[2].imshow(np.where(pred_disp == 1, 1, np.nan), cmap="Reds_r",
                    alpha=0.85, vmin=0, vmax=1)
-    axes[2].set_title(f"(c) U-Net (S1+S2) prediction\n{summary['water_pct']:.1f}% predicted as water  →  over-prediction",
-                      fontsize=11, loc="left", fontweight="bold")
+    axes[2].set_title(f"(c) OUR METHOD — U-Net (S1+S2) prediction\n{summary['water_pct']:.1f}% predicted as water  →  over-prediction",
+                      fontsize=10.5, loc="left", fontweight="bold", color="#a01818")
     axes[2].axis("off")
 
-    # 4. flood-only
+    # 4. flood-only — our method, post-processed
     axes[3].imshow(rgb, alpha=0.5)
     axes[3].imshow(np.where(flood_disp == 1, 1, np.nan), cmap="Oranges_r",
                    alpha=0.85, vmin=0, vmax=1)
-    axes[3].set_title(f"(d) Predicted − permanent = 'flood'\n{flood_summary['flood_only_water_pct']:.1f}% of AOI ({flood_summary['flood_only_km2']:.0f} km²)",
-                      fontsize=11, loc="left", fontweight="bold")
+    axes[3].set_title(f"(d) OUR METHOD − permanent water = 'flood'\n{flood_summary['flood_only_water_pct']:.1f}% of AOI ({flood_summary['flood_only_km2']:.0f} km²)",
+                      fontsize=10.5, loc="left", fontweight="bold", color="#a01818")
     axes[3].axis("off")
 
     fig.suptitle(
