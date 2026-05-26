@@ -1,0 +1,19 @@
+# Few-shot sweep on AE pre+post + S1 stack (multi_modal_fusion).
+# Same fractions as the U-Net+S2 sweep so curves are directly comparable.
+name: few_shot_ae_stack
+label_fractions: [0.05, 0.10, 0.25, 0.50, 1.0]
+repeats: 1
+splits:
+  train_events:
+    - sen1floods11_Ghana
+    - sen1floods11_India
+    - sen1floods11_Mekong
+    - sen1floods11_Nigeria
+    - sen1floods11_Pakistan
+    - sen1floods11_Paraguay
+    - sen1floods11_Somalia
+    - sen1floods11_Sri-Lanka
+  val_events: [sen1floods11_Spain]
+  test_events: [sen1floods11_USA]
+report:
+  primary_metric: f1

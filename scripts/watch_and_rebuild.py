@@ -17,6 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from geodisaster.report import build_report   # noqa: E402
+from geodisaster.blog import build_blog       # noqa: E402
 
 WATCHED_GLOBS = (
     "outputs/few_shot_*/few_shot_results.csv",
@@ -50,9 +51,15 @@ def main() -> int:
     last = _snapshot(WATCHED_GLOBS)
     print(f"[watch] tracking {len(last)} files; rebuild every change "
           f"(poll every {args.interval}s). Ctrl-C to stop.")
-    # Initial build so the page exists even if nothing has changed yet
-    out = build_report(out_dir=args.out)
-    print(f"[watch] initial build: {out}")
+
+    def _rebuild():
+        dash = build_report(out_dir=Path(args.out), filename="dashboard.html")
+        blog = build_blog(out_path=Path(args.out) / "index.html")
+        return dash, blog
+
+    dash, blog = _rebuild()
+    print(f"[watch] initial build: dashboard={dash} ({int(dash.stat().st_size/1024)} KB), "
+          f"blog={blog} ({int(blog.stat().st_size/1024)} KB)")
 
     while True:
         try:
@@ -67,9 +74,9 @@ def main() -> int:
         if added or removed or changed:
             ts = time.strftime("%H:%M:%S")
             print(f"[watch {ts}] +{len(added)} -{len(removed)} ~{len(changed)} files; rebuilding...")
-            out = build_report(out_dir=args.out)
-            size_kb = int(Path(out).stat().st_size / 1024)
-            print(f"[watch {ts}] rebuilt {out} ({size_kb} KB)")
+            dash, blog = _rebuild()
+            print(f"[watch {ts}] rebuilt dashboard={int(dash.stat().st_size/1024)} KB "
+                  f"blog={int(blog.stat().st_size/1024)} KB")
             last = cur
 
 

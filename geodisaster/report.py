@@ -308,7 +308,8 @@ footer { margin-top:60px; padding-top:20px; border-top:1px solid var(--border);
 
 
 def build_report(out_dir: str | Path = "outputs/site",
-                 project_root: str | Path = ".") -> Path:
+                 project_root: str | Path = ".",
+                 filename: str = "dashboard.html") -> Path:
     project_root = Path(project_root).resolve()
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -326,7 +327,8 @@ def build_report(out_dir: str | Path = "outputs/site",
 </head>
 <body><div class="container">
 <header>
-  <h1>GeoDisaster-FM — geospatial foundation models for disaster mapping</h1>
+  <h1>GeoDisaster-FM — experiment dashboard</h1>
+  <p style="font-size:14px"><a href="index.html">← Back to research narrative</a></p>
   <p>Live experiment dashboard · last build {now.strftime("%Y-%m-%d %H:%M UTC")}</p>
   <p>Project: <code>{_html.escape(str(project_root))}</code></p>
 </header>
@@ -364,6 +366,6 @@ experiment to refresh. Open this file in any browser, or serve via
 </div></body></html>
 """
 
-    out_path = out_dir / "index.html"
+    out_path = out_dir / filename
     out_path.write_text(page, encoding="utf-8")
     return out_path
