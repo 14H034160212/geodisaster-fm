@@ -656,8 +656,7 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
       targeted regional adaptation.
     </p>
     <div class="meta">
-      <strong>Authors</strong>: Qiming Bao (University of Auckland), with
-      GeoDisaster-FM toolkit
+      <strong>Authors</strong>: Qiming Bao, Yanbing Bai
       &nbsp;·&nbsp; <strong>Code &amp; data</strong>:
       <a href="https://github.com/14H034160212/geodisaster-fm">github.com/14H034160212/geodisaster-fm</a>
       &nbsp;·&nbsp; <strong>Dashboard</strong>: <a href="dashboard.html">dashboard.html</a>
@@ -1104,9 +1103,10 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
   <div class="container">
     <h3>How to cite this snapshot</h3>
     <p>
-      Bao, Q., GeoDisaster-FM team. (2026).
-      <em>What foundation models can — and cannot — do for global flood mapping.</em>
-      Research notebook,
+      Bao, Q. &amp; Bai, Y. (2026).
+      <em>For flood mapping, geography matters more than labels — and modality
+      matters more than foundation models.</em>
+      GeoDisaster-FM research notebook,
       <a href="https://github.com/14H034160212/geodisaster-fm">github.com/14H034160212/geodisaster-fm</a>,
       commit snapshot {now.strftime("%Y-%m-%d")}.
     </p>
