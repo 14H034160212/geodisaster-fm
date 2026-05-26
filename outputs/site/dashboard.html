@@ -44,7 +44,7 @@ footer { margin-top:60px; padding-top:20px; border-top:1px solid var(--border);
 <header>
   <h1>GeoDisaster-FM — experiment dashboard</h1>
   <p style="font-size:14px"><a href="index.html">← Back to research narrative</a></p>
-  <p>Live experiment dashboard · last build 2026-05-26 12:14 UTC</p>
+  <p>Live experiment dashboard · last build 2026-05-26 22:26 UTC</p>
   <p>Project: <code>/data/qbao775/nature_geofm_disaster</code></p>
 </header>
 
@@ -52,7 +52,7 @@ footer { margin-top:60px; padding-top:20px; border-top:1px solid var(--border);
 <div class="cards"><div class="card" style="border-left-color:#1f77b4"><div class="card-title">modality lift</div><div class="card-body">U-Net SAR+Optical 100%-labels F1=0.849 vs SAR-only 0.618 (+0.231)</div></div><div class="card" style="border-left-color:#d62728"><div class="card-title">label efficiency</div><div class="card-body">U-Net SAR+Optical reaches 93% of full performance at just 5% labels (17 chips)</div></div><div class="card" style="border-left-color:#2ca02c"><div class="card-title">cross region gap</div><div class="card-body">Leave-one-out F1 range 0.54 (Pakistan) to 0.96 (Mekong) — domain gap quantified</div></div><div class="card" style="border-left-color:#9467bd"><div class="card-title">AE temporal diff helps</div><div class="card-body">AE pre+post stack F1=0.708 &gt; AE pre-only conv 0.631 &gt; AE pre-only MLP 0.602 — temporal differencing recovers +0.077 F1</div></div><div class="card" style="border-left-color:#ff7f0e"><div class="card-title">AE still below optical</div><div class="card-body">Best AE variant (pre+post stack) still 0.14 below U-Net+S2 — AE annual prior doesn&#x27;t fully replace post-event optical observation</div></div><div class="card" style="border-left-color:#1f77b4"><div class="card-title">AUPRC steady climb</div><div class="card-body">AUPRC: S1-only 0.71 -&gt; AE+S1 MLP 0.79 -&gt; AE conv 0.79 -&gt; AE stack 0.80 -&gt; U-Net+S2 0.90 — foundation prior helps ranking quality at every level</div></div><div class="card" style="border-left-color:#d62728"><div class="card-title">decision metrics</div><div class="card-body">USA test set: 130/5467 buildings (2.4%) and 77.7/1174 km roads (6.6%) predicted affected by floods — Hu Nature 2026 paradigm</div></div></div>
 
 <h2>Experiment status</h2>
-<table class='results'><thead><tr><th>Artefact</th><th>Status</th><th>Updated</th></tr></thead><tbody><tr><td>U-Net SAR+Optical (S1+S2)</td><td>5 fractions</td><td>2026-05-25 05:49</td></tr><tr><td>AlphaEarth + S1 (MLP head)</td><td>5 fractions</td><td>2026-05-25 12:13</td></tr><tr><td>Sen1Floods11 100%-label comparison</td><td>ok</td><td>2026-05-26 04:11</td></tr><tr><td>Few-shot full table</td><td>ok</td><td>2026-05-25 23:39</td></tr><tr><td>Single-run results table</td><td>ok</td><td>2026-05-25 05:52</td></tr></tbody></table>
+<table class='results'><thead><tr><th>Artefact</th><th>Status</th><th>Updated</th></tr></thead><tbody><tr><td>U-Net SAR+Optical (S1+S2)</td><td>5 fractions</td><td>2026-05-25 05:49</td></tr><tr><td>AlphaEarth + S1 (MLP head)</td><td>5 fractions</td><td>2026-05-25 12:13</td></tr><tr><td>Sen1Floods11 100%-label comparison</td><td>ok</td><td>2026-05-26 22:14</td></tr><tr><td>Few-shot full table</td><td>ok</td><td>2026-05-25 23:39</td></tr><tr><td>Single-run results table</td><td>ok</td><td>2026-05-25 05:52</td></tr></tbody></table>
 
 <h2>Sen1Floods11 cross-region — model comparison</h2>
 <h3>Models @ 100% labels — test on USA (held-out, 69 chips)</h3><table class="dataframe results">
@@ -76,6 +76,15 @@ footer { margin-top:60px; padding-top:20px; border-top:1px solid var(--border);
       <td>0.8648</td>
       <td>0.8987</td>
       <td>0.2026</td>
+    </tr>
+    <tr>
+      <td>DeepLabV3plus S1 plus S2</td>
+      <td>0.8030</td>
+      <td>0.6708</td>
+      <td>0.7546</td>
+      <td>0.8579</td>
+      <td>0.8878</td>
+      <td>0.1804</td>
     </tr>
     <tr>
       <td>AE pre post S1 stack</td>

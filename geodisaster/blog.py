@@ -29,6 +29,8 @@ FIG_BRAZIL       = "outputs/figures/fig6_brazil_zero_shot.png"
 FIG_FEWSHOT_UNET = "outputs/figures/fig3_sen1floods11_few_shot.png"
 FIG_AE_STACK_FS  = "outputs/figures/fig7_ae_stack_few_shot.png"
 FIG_ARCHITECTURE = "outputs/figures/fig0_architecture.png"
+FIG_MULTISEED    = "outputs/figures/fig8_multiseed_cross_region.png"
+FIG_GLOBAL_ATLAS = "outputs/figures/fig9_global_atlas.png"
 DISPATCH_USA_JSON = "outputs/dispatch/USA_170264.json"
 DISPATCH_USA_BRIEF = "outputs/dispatch/USA_170264.briefing.txt"
 COMPARISON_JSON  = "outputs/sen1floods11_comparison.json"
@@ -533,6 +535,7 @@ def _models_table_html() -> str:
         "U-Net_S1_only":        "U-Net (S1 only, 2 ch)",
         "AlphaEarth_plus_S1":   "AlphaEarth+S1 (MLP head, frozen 64-d)",
         "AE_pre_post_S1_stack": "AlphaEarth pre+post + S1 (multi-modal fusion)",
+        "DeepLabV3plus_S1_plus_S2": "DeepLabV3+ ResNet-50 (S1+S2, 15 ch)",
         "U-Net_S1_plus_S2":     "U-Net (S1+S2, 15 ch)",
     }
     body = ""
@@ -905,6 +908,28 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     foundation-model prior we tested.
   </div>
 
+  <h3>Multi-seed confirmation: the gap is structural, not stochastic</h3>
+  <p>
+    To rule out single-seed luck, we repeated the entire leave-one-region-out
+    matrix under four random seeds (1234, 42, 1337, 2024) — 40 training runs.
+    Per-region F1 means and standard deviations are shown in Fig.&nbsp;6.
+    Most regions are extremely stable (s.d. ≤ 0.016); Pakistan is the singular
+    high-variance outlier (s.d. = 0.068, 5–8× every other region), confirming
+    that its difficulty is a structural property of the cross-region transfer,
+    not a sampling artefact.
+  </p>
+
+  <figure class="wide">
+    {_img(FIG_MULTISEED, "Multi-seed cross-region matrix")}
+    <figcaption>
+      <strong>Figure 6 — Multi-seed leave-one-region-out (4 seeds × 10 regions).</strong>
+      Bars are mean test F1 with standard-deviation whiskers; colour encodes
+      difficulty tier (green ≥ 0.85, amber ≥ 0.70, red &lt; 0.70). Grand mean
+      F1 = 0.825. Pakistan's error bar dwarfs all others, marking it as the
+      reproducible hard case for cross-region flood transfer.
+    </figcaption>
+  </figure>
+
   <h2><span class="sec">Result 2</span>
       Foundation priors improve AUPRC; they do not close the F1 gap</h2>
 
@@ -1072,6 +1097,32 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     The remaining open question is how much in-region label data closes
     the gap, which is the natural follow-on experiment.
   </p>
+
+  <h3>A five-event global atlas: the failure mode replicates everywhere</h3>
+  <p>
+    We extended the zero-shot deployment to five real flood events from
+    2022–2024 spanning four continents — Brazil (Rio Grande do Sul),
+    Pakistan (Sindh), the UAE (Sharjah), Libya (Derna) and Indonesia (Demak,
+    Java). For each, Sentinel-1 and Sentinel-2 composites were pulled from
+    Google Earth Engine, the Sen1Floods11-trained U-Net + S2 was applied
+    without fine-tuning, and the JRC permanent-water mask was subtracted
+    (Fig.&nbsp;7). The model over-predicts water in every case (68–82% of AOI
+    after permanent-water removal), reproducing the single-event Brazil
+    finding across continents. This is the strongest evidence in the study
+    that the cross-region gap — not labels, not model scale — is the binding
+    constraint for operational global deployment.
+  </p>
+
+  <figure class="wide">
+    {_img(FIG_GLOBAL_ATLAS, "Global zero-shot atlas")}
+    <figcaption>
+      <strong>Figure 7 — Zero-shot global atlas.</strong>
+      Predicted flood-only area (after JRC permanent-water subtraction) for
+      five unseen 2022–2024 events across four continents. The same model,
+      no fine-tuning, over-predicts consistently — a systematic, not
+      idiosyncratic, failure of cross-region transfer.
+    </figcaption>
+  </figure>
 
   <h2><span class="sec">Discussion</span> Where this leaves the field</h2>
 
