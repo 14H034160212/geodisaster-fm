@@ -130,3 +130,4 @@ outputs/few_shot_ae_stack_seed*/**/*.ckpt
 # Layer 3 active-adaptation results (small JSON only)
 !outputs/active_adapt/
 !outputs/active_adapt/*.json
+!outputs/active_adapt/summary_all_regions.json

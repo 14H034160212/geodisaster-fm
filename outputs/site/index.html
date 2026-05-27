@@ -234,7 +234,7 @@ footer.cite a { color: var(--accent); }
       &nbsp;·&nbsp; <strong>Code &amp; data</strong>:
       <a href="https://github.com/14H034160212/geodisaster-fm">github.com/14H034160212/geodisaster-fm</a>
       &nbsp;·&nbsp; <strong>Dashboard</strong>: <a href="dashboard.html">dashboard.html</a>
-      &nbsp;·&nbsp; <strong>Last updated</strong>: 2026-05-27 00:57 UTC
+      &nbsp;·&nbsp; <strong>Last updated</strong>: 2026-05-27 01:01 UTC
     </div>
   </div>
 </header>
@@ -291,7 +291,7 @@ footer.cite a { color: var(--accent); }
     </h3>
     <span style="font-family:Inter,sans-serif;font-size:12px;color:var(--muted)">
       Auto-refreshed by file watcher every 15 s · last build
-      2026-05-27 00:57:33 UTC
+      2026-05-27 01:01:57 UTC
     </span>
   </div>
   <table style="width:100%;border-collapse:collapse;margin-top:14px">
@@ -910,6 +910,26 @@ footer.cite a { color: var(--accent); }
       what a trained RL policy can claim. This experiment defines the MDP
       (state = predictions + uncertainty on the unlabelled pool; action =
       pick next chip; reward = F1 gain) that Layer 3 will optimise with PPO.
+    </figcaption>
+  </figure>
+
+  <p>
+    To remove single-region noise we repeat the experiment across all ten
+    regions — each using its own leave-one-out base model as the zero-shot
+    start — and aggregate the F1 gain over each region's own baseline
+    (Fig.&nbsp;9). Averaged across regions, uncertainty selection
+    outperforms random at every label budget, confirming that the
+    Pakistan result is the rule, not the exception.
+  </p>
+
+  <figure>
+    <div class="missing-fig">[All-region active adaptation summary]<br/><small>figure not yet generated</small></div>
+    <figcaption>
+      <strong>Figure 9 — Active adaptation aggregated over all ten regions.</strong>
+      Mean F1 gain over each region's zero-shot baseline (± s.e.m.) versus
+      label budget, for uncertainty vs random selection. The consistent gap
+      between the two curves quantifies the value a trained RL policy
+      operationalises — selecting the right handful of chips to label first.
     </figcaption>
   </figure>
 

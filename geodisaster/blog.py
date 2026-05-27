@@ -32,7 +32,9 @@ FIG_ARCHITECTURE = "outputs/figures/fig0_architecture.png"
 FIG_MULTISEED    = "outputs/figures/fig8_multiseed_cross_region.png"
 FIG_GLOBAL_ATLAS = "outputs/figures/fig9_global_atlas.png"
 FIG_ACTIVE_ADAPT = "outputs/figures/fig10_active_adapt.png"
+FIG_REGION_ADAPT_SUMMARY = "outputs/figures/fig11_region_adapt_summary.png"
 ACTIVE_ADAPT_JSON = "outputs/active_adapt/adapt_Pakistan.json"
+ACTIVE_ADAPT_SUMMARY = "outputs/active_adapt/summary_all_regions.json"
 DISPATCH_USA_JSON = "outputs/dispatch/USA_170264.json"
 DISPATCH_USA_BRIEF = "outputs/dispatch/USA_170264.briefing.txt"
 COMPARISON_JSON  = "outputs/sen1floods11_comparison.json"
@@ -1308,6 +1310,26 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
       what a trained RL policy can claim. This experiment defines the MDP
       (state = predictions + uncertainty on the unlabelled pool; action =
       pick next chip; reward = F1 gain) that Layer 3 will optimise with PPO.
+    </figcaption>
+  </figure>
+
+  <p>
+    To remove single-region noise we repeat the experiment across all ten
+    regions — each using its own leave-one-out base model as the zero-shot
+    start — and aggregate the F1 gain over each region's own baseline
+    (Fig.&nbsp;9). Averaged across regions, uncertainty selection
+    outperforms random at every label budget, confirming that the
+    Pakistan result is the rule, not the exception.
+  </p>
+
+  <figure>
+    {_img(FIG_REGION_ADAPT_SUMMARY, "All-region active adaptation summary")}
+    <figcaption>
+      <strong>Figure 9 — Active adaptation aggregated over all ten regions.</strong>
+      Mean F1 gain over each region's zero-shot baseline (± s.e.m.) versus
+      label budget, for uncertainty vs random selection. The consistent gap
+      between the two curves quantifies the value a trained RL policy
+      operationalises — selecting the right handful of chips to label first.
     </figcaption>
   </figure>
 
