@@ -126,3 +126,7 @@ outputs/leave_one_region_out_multiseed/**/*.ckpt
 outputs/few_shot_ae_stack_seed*/**/checkpoints/
 outputs/few_shot_ae_stack_seed*/**/lightning_logs/
 outputs/few_shot_ae_stack_seed*/**/*.ckpt
+
+# Layer 3 active-adaptation results (small JSON only)
+!outputs/active_adapt/
+!outputs/active_adapt/*.json
