@@ -31,6 +31,8 @@ FIG_AE_STACK_FS  = "outputs/figures/fig7_ae_stack_few_shot.png"
 FIG_ARCHITECTURE = "outputs/figures/fig0_architecture.png"
 FIG_MULTISEED    = "outputs/figures/fig8_multiseed_cross_region.png"
 FIG_GLOBAL_ATLAS = "outputs/figures/fig9_global_atlas.png"
+FIG_ACTIVE_ADAPT = "outputs/figures/fig10_active_adapt.png"
+ACTIVE_ADAPT_JSON = "outputs/active_adapt/adapt_Pakistan.json"
 DISPATCH_USA_JSON = "outputs/dispatch/USA_170264.json"
 DISPATCH_USA_BRIEF = "outputs/dispatch/USA_170264.briefing.txt"
 COMPARISON_JSON  = "outputs/sen1floods11_comparison.json"
@@ -596,6 +598,45 @@ def _brazil_summary_html() -> str:
     <td class='num'>{b.get("flood_only_water_pct", 0):.2f}% — over-prediction</td></tr>
 </tbody></table>
 """
+
+
+def _active_adapt_block() -> str:
+    """Layer 3 active-adaptation result table (if available)."""
+    d = _load_json(ACTIVE_ADAPT_JSON)
+    if not d:
+        return ("<p style='color:var(--muted)'><em>Layer 3 active-adaptation "
+                "experiment running — results will appear here automatically.</em></p>")
+    zs = d.get("zero_shot_f1", 0)
+    region = d.get("region", "?")
+    unc = {c["k"]: c["f1"] for c in d["curves"].get("uncertainty", [])}
+    rnd = {c["k"]: c for c in d["curves"].get("random", [])}
+    budgets = d.get("budgets", [])
+    rows = (f"<tr><td>0 (zero-shot)</td><td class='num'>{zs:.3f}</td>"
+            f"<td class='num'>{zs:.3f}</td><td class='num'>—</td></tr>")
+    for k in budgets:
+        u = unc.get(k)
+        r = rnd.get(k, {})
+        rf = r.get("f1")
+        rstd = r.get("f1_std", 0)
+        best = " highlight" if (u is not None and rf is not None and u >= rf) else ""
+        rows += (
+            f"<tr class='{best.strip()}'><td>{k}</td>"
+            f"<td class='num'>{u:.3f}</td>" if u is not None else f"<tr><td>{k}</td><td class='num'>—</td>"
+        )
+        rows += (f"<td class='num'>{rf:.3f} ± {rstd:.3f}</td>"
+                 f"<td class='num'>{(u - rf):+.3f}</td></tr>"
+                 if (u is not None and rf is not None) else "<td class='num'>—</td><td>—</td></tr>")
+    best_f1 = max([zs] + list(unc.values()) +
+                  [c["f1"] for c in d["curves"].get("random", [])])
+    note = (f"<p style='font-size:13px;color:#6b7280;margin-top:0'>"
+            f"Hard hold-out region <strong>{region}</strong>: "
+            f"{d.get('n_pool', '?')} pool chips, {d.get('n_test', '?')} test chips. "
+            f"Zero-shot F1 = {zs:.3f}; best after adaptation = {best_f1:.3f} "
+            f"(+{best_f1 - zs:.3f}).</p>")
+    return (note + "<table class='results'><thead><tr>"
+            "<th>In-region labels</th><th>Uncertainty F1</th>"
+            "<th>Random F1</th><th>Δ (unc − rand)</th></tr></thead>"
+            f"<tbody>{rows}</tbody></table>")
 
 
 def _dispatch_demo_block() -> str:
@@ -1242,6 +1283,33 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     <em>time-to-answer</em> on the ten-question questionnaire — directly
     comparable against the current 1–3 day expert workflow.
   </p>
+
+  <h3>Layer 3 environment + baselines (prototype)</h3>
+  <p>
+    We have built the environment a Layer-3 RL policy would act in, and
+    measured two non-RL baseline policies inside it. The task: take the
+    model trained on the other nine regions (zero-shot on the hard
+    Pakistan hold-out), then choose a small budget of in-region chips to
+    label, fine-tune, and measure recovery. The RL policy's job is to
+    pick those chips optimally; here we bound the problem with
+    <em>random</em> and <em>uncertainty (entropy)</em> selection.
+  </p>
+
+  {_active_adapt_block()}
+
+  <figure>
+    {_img(FIG_ACTIVE_ADAPT, "Active region adaptation curve")}
+    <figcaption>
+      <strong>Figure 8 — Layer 3 environment: active region adaptation on Pakistan.</strong>
+      Test F1 versus number of in-region labelled chips, starting from the
+      zero-shot cross-region baseline. Uncertainty sampling (blue) versus
+      random selection (red, ±s.d.). A handful of in-region labels recover
+      most of the cross-region gap; the headroom between the two curves is
+      what a trained RL policy can claim. This experiment defines the MDP
+      (state = predictions + uncertainty on the unlabelled pool; action =
+      pick next chip; reward = F1 gain) that Layer 3 will optimise with PPO.
+    </figcaption>
+  </figure>
 
   <h2><span class="sec">Toward a paper</span> Plan for Nature-grade extension</h2>
 

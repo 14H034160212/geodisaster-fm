@@ -26,8 +26,24 @@ WATCHED_GLOBS = (
     "outputs/four_way_results_table.json",
     "outputs/reproducibility.json",
     "outputs/figures/*.png",
+    "outputs/active_adapt/*.json",
+    "outputs/leave_one_region_out_multiseed/seed*/results.json",
+    "outputs/zero_shot/*/flood_decision_summary.json",
     "data/catalog/*.yaml",
 )
+
+
+def _refresh_derived_figures():
+    """Re-render derived figures (Fig 10 etc.) from their JSON sources
+    before each blog rebuild, so live experiment outputs appear on the site."""
+    import subprocess
+    try:
+        subprocess.run(
+            ["python", "scripts/refresh_derived_figures.py"],
+            capture_output=True, timeout=120,
+        )
+    except Exception:
+        pass
 
 
 def _snapshot(globs) -> dict[str, float]:
@@ -53,6 +69,7 @@ def main() -> int:
           f"(poll every {args.interval}s). Ctrl-C to stop.")
 
     def _rebuild():
+        _refresh_derived_figures()
         dash = build_report(out_dir=Path(args.out), filename="dashboard.html")
         blog = build_blog(out_path=Path(args.out) / "index.html")
         return dash, blog
