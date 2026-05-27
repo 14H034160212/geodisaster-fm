@@ -1,0 +1,22 @@
+# Ablation (added 2026-05-27): does the AlphaEarth annual embedding add ANY
+# marginal value on top of the winning U-Net S1+S2? Same trainable U-Net, but
+# the 64-d AlphaEarth prior is channel-stacked alongside event-day S1+S2.
+# If F1 does not improve over unet_s1s2 (0.835), the foundation prior is
+# redundant once event-day optical is present.
+
+name: unet_s1s2_ae
+family: smp_unet
+
+backbone:
+  type: resnet34
+  encoder_weights: null
+  in_channels: 79            # 2 (S1) + 13 (S2) + 64 (AlphaEarth annual)
+  sources: [sentinel1, sentinel2, alphaearth]
+
+head:
+  out_channels: 1
+
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

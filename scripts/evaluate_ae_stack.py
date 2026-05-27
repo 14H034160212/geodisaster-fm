@@ -22,6 +22,8 @@ def main():
     p.add_argument("--workdir", default="outputs/sen1floods11_ae_stack")
     p.add_argument("--stats", default="data/processed/norm_stats_sen1floods11_ae.yaml")
     p.add_argument("--out-comp", default="outputs/sen1floods11_comparison.json")
+    p.add_argument("--key", default="AE_pre_post_S1_stack",
+                   help="Key under which to store this model's metrics in the comparison JSON.")
     args = p.parse_args()
 
     ckpt_dir = Path(args.workdir) / "checkpoints"
@@ -66,7 +68,7 @@ def main():
     m["auprc"] = auprc(s, t)
     m["ece"] = expected_calibration_error(s, t)
 
-    print("\n=== AlphaEarth pre+post + S1 stack (test USA) ===")
+    print(f"\n=== {args.key} (test USA) ===")
     print(f"  sources: {sources}")
     for k in ["f1", "iou", "precision", "recall", "auprc", "ece"]:
         print(f"  {k:10s} {m[k]:.4f}")
@@ -75,7 +77,7 @@ def main():
     # Update comparison JSON
     cp = Path(args.out_comp)
     existing = json.loads(cp.read_text()) if cp.exists() else {}
-    existing["AE_pre_post_S1_stack"] = {k: float(v) for k, v in m.items()}
+    existing[args.key] = {k: float(v) for k, v in m.items()}
     cp.write_text(json.dumps(existing, indent=2))
     print(f"\nUpdated {cp}")
 

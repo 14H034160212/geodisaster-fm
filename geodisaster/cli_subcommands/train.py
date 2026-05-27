@@ -53,11 +53,19 @@ def main(argv: list[str]) -> int:
                    help="Normalize-stats YAML (from `geodisaster compute-stats`). "
                         "Falls back to EMPIRICAL_FALLBACKS if file is absent.")
     p.add_argument("--seed", type=int, default=None)
+    p.add_argument("--batch-size", type=int, default=None,
+                   help="Override train batch size (lower to fit a busy GPU).")
+    p.add_argument("--accumulate", type=int, default=None,
+                   help="Override gradient accumulation (keep effective batch).")
     args = p.parse_args(argv)
 
     defaults = load_config(args.default_config)
     model_cfg = load_config(args.model_config)
     data_cfg = load_config(args.data_config)
+    if args.batch_size is not None:
+        defaults.train.batch_size = int(args.batch_size)
+    if args.accumulate is not None:
+        defaults.train.accumulate_grad_batches = int(args.accumulate)
     workdir = ensure_dir(Path(args.workdir or f"{defaults.project.workdir}/{model_cfg.name}"))
     setup_logging(level=defaults.logging.level, log_file=workdir / "run.log")
 

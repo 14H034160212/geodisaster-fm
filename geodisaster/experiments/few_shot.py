@@ -38,8 +38,13 @@ def run_few_shot(
     patch_root: Path,
     workdir: Path,
     stats_path: str | Path | None = None,
+    seed: int | None = None,
 ) -> pd.DataFrame:
     import pytorch_lightning as pl
+
+    # Base seed: explicit --seed overrides the config default so that
+    # multi-seed sweeps actually differ (config seed alone is constant).
+    base_seed = int(seed) if seed is not None else int(defaults.project.seed)
 
     fractions = list(experiment_cfg.get("label_fractions", [0.001, 0.01, 0.05, 0.1, 0.5, 1.0]))
     repeats = int(experiment_cfg.get("repeats", 3))
@@ -62,10 +67,10 @@ def run_few_shot(
     rows: list[dict[str, Any]] = []
     for frac in fractions:
         for rep in range(repeats):
-            pl.seed_everything(int(defaults.project.seed) + rep)
+            pl.seed_everything(base_seed + rep)
             sub = split_mod.few_shot_subsample(
                 train_patches_full, fraction=frac,
-                seed=int(defaults.project.seed) + rep,
+                seed=base_seed + rep,
                 stratify_by_pos=True,
             )
             log.info("few_shot_run", fraction=frac, repeat=rep,
@@ -86,7 +91,8 @@ def run_few_shot(
             trainer.fit(module, datamodule=dm)
             test_out = trainer.test(module, datamodule=dm, ckpt_path="best")
             metrics = test_out[0] if test_out else {}
-            row = {"label_fraction": frac, "repeat": rep, "n_train": len(sub)}
+            row = {"label_fraction": frac, "repeat": rep, "n_train": len(sub),
+                   "seed": base_seed + rep}
             row.update({k: float(v) for k, v in metrics.items() if isinstance(v, (int, float))})
             rows.append(row)
 

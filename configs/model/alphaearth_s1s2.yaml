@@ -1,0 +1,30 @@
+# FAIR comparison config (added 2026-05-27 after a reviewer critique):
+# the original alphaearth_s1.yaml deliberately withheld Sentinel-2 ("AlphaEarth
+# already fuses optical"), so AlphaEarth never saw the event-day optical that
+# the U-Net S1+S2 baseline did. This gives the frozen AlphaEarth head the SAME
+# event-day inputs as U-Net (S1 + all 13 S2 bands) PLUS its 64-d annual prior,
+# isolating whether the foundation embedding adds value on equal footing.
+
+name: alphaearth_s1s2
+family: alphaearth_head
+
+backbone:
+  type: alphaearth_embedding
+  frozen: true          # foundation value proposition = frozen features + light head
+  in_channels: 64
+
+aux_channels:
+  sentinel1: 2          # VV + VH (event-day SAR)
+  sentinel2: 13         # all S2 bands (event-day optical) — the previously-missing modality
+
+head:
+  type: mlp
+  hidden: [256, 128]
+  dropout: 0.2
+  out_channels: 1
+  activation: gelu
+
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

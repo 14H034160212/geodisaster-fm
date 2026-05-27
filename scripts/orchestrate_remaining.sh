@@ -77,6 +77,7 @@ for SEED in 42 1337 ; do
         --patch-root data/processed/patches \
         --workdir "outputs/few_shot_ae_stack_seed${SEED}" \
         --stats data/processed/norm_stats_sen1floods11_ae.yaml \
+        --seed "$SEED" \
         >> "$LOG" 2>&1 || say "  (seed $SEED failed)"
 done
 commit_progress "Stage 3: AE-stack few-shot multi-seed (seeds 42, 1337)"

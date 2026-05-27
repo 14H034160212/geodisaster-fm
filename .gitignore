@@ -108,6 +108,7 @@ ee-credentials.json
 !outputs/few_shot_ae_stack/
 !outputs/few_shot_ae_stack/few_shot_results.csv
 !outputs/few_shot_ae_stack/few_shot_summary.json
+!outputs/few_shot_ae_stack/few_shot_multiseed_summary.json
 !outputs/few_shot_ae_stack_seed*/
 !outputs/few_shot_ae_stack_seed*/few_shot_results.csv
 !outputs/few_shot_ae_stack_seed*/few_shot_summary.json
