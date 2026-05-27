@@ -1095,7 +1095,7 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
   </figure>
 
   <h2><span class="sec">Result 2</span>
-      On equal inputs, the AlphaEarth foundation model matches the U-Net</h2>
+      On equal inputs AlphaEarth is competitive — but does not beat the U-Net</h2>
 
   <p>
     We benchmark AlphaEarth variants against U-Net baselines on the same
@@ -1142,30 +1142,37 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
   </p>
 
   <div class="callout" style="border-left:4px solid #1c7f4f;padding:14px 20px;margin:20px 0">
-    <strong>The fair result — and a retraction.</strong> Once AlphaEarth is given
-    the same event-day Sentinel-2, its F1 jumps from
+    <strong>The fair result — a retraction, but not a victory lap.</strong> Once
+    AlphaEarth is given the same event-day Sentinel-2, its F1 jumps from
     {cmp.get("AlphaEarth_plus_S1", {}).get("f1", 0.610):.3f} to
     <strong>{cmp.get("AlphaEarth_plus_S1_S2", {}).get("f1", 0.807):.3f}</strong>
-    — almost the entire apparent "gap" was the modality we had withheld, not a
-    weakness of the foundation model. AlphaEarth+S1+S2 is now within
-    {cmp.get("U-Net_S1_plus_S2", {}).get("f1", 0.835) - cmp.get("AlphaEarth_plus_S1_S2", {}).get("f1", 0.807):.3f}
-    F1 of the U-Net and has the <strong>highest AUPRC
-    ({cmp.get("AlphaEarth_plus_S1_S2", {}).get("auprc", 0.909):.3f}) and recall
-    ({cmp.get("AlphaEarth_plus_S1_S2", {}).get("recall", 0.903):.3f}) of any model</strong>
-    — achieved with a frozen backbone and a ~53&nbsp;K-parameter head, versus a
-    fully-trained U-Net. So we explicitly retract the earlier "foundation prior
-    does not close the F1 gap" framing: on equal inputs it essentially does.
+    — so almost the entire apparent "gap" was the modality we had withheld, not a
+    weakness of the model. We retract the earlier "foundation prior loses on F1"
+    claim. <strong>But to be equally honest in the other direction: AlphaEarth
+    still does not beat the U-Net.</strong> The U-Net keeps a slight edge on F1
+    ({cmp.get("U-Net_S1_plus_S2", {}).get("f1", 0.835):.3f} vs
+    {cmp.get("AlphaEarth_plus_S1_S2", {}).get("f1", 0.807):.3f}) and a clear one
+    on precision
+    ({cmp.get("U-Net_S1_plus_S2", {}).get("precision", 0.807):.3f} vs
+    {cmp.get("AlphaEarth_plus_S1_S2", {}).get("precision", 0.730):.3f}); AlphaEarth
+    leads only on AUPRC and recall. The fair verdict is <em>comparable, not
+    superior</em>.
   </div>
 
   <p>
-    Two honest qualifications remain. (1) The reverse ablation —
-    U-Net&nbsp;+&nbsp;S1+S2&nbsp;+&nbsp;AlphaEarth (channel-stacked) — scores
+    This is the expected outcome, and it sharpens the real question. When you
+    already have a clean event-day S1+S2 acquisition, a trained U-Net on the raw
+    bands is hard to beat — a foundation prior has little to add. AlphaEarth's
+    genuine promise is elsewhere: <strong>needing fewer labels</strong> (its
+    frozen features should reach good F1 from a handful of examples) and
+    <strong>robustness when event-day optical is missing</strong> (cloud cover,
+    no acquisition). Those — not single-benchmark F1 — are where a foundation
+    model should win, and we test the label-efficiency claim directly below
+    (Result&nbsp;3). The reverse ablation is also telling:
+    U-Net&nbsp;+&nbsp;S1+S2&nbsp;+&nbsp;AlphaEarth (channel-stacked) scores only
     F1&nbsp;{cmp.get("U-Net_S1_plus_S2_plus_AE", {}).get("f1", 0.769):.3f},
-    <em>below</em> the plain U-Net: naively concatenating the 64-d annual prior
-    onto event-day optical adds noise rather than value, so AlphaEarth helps as a
-    <em>backbone</em>, not as a bolt-on feature. (2) AUPRC stays high while F1 at
-    the fixed 0.5 threshold is more fragile on unseen regions — a calibration
-    problem, which is precisely the gap the Layer-3 RL policy below closes.
+    <em>below</em> the plain U-Net — the annual prior is useful as a backbone but
+    adds noise when bolted onto event-day optical.
   </p>
 
   <h2><span class="sec">Result 3</span>
