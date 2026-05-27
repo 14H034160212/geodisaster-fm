@@ -1322,14 +1322,19 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     Pakistan result is the rule, not the exception.
   </p>
 
-  <figure>
+  <figure class="wide">
     {_img(FIG_REGION_ADAPT_SUMMARY, "All-region active adaptation summary")}
     <figcaption>
-      <strong>Figure 9 — Active adaptation aggregated over all ten regions.</strong>
-      Mean F1 gain over each region's zero-shot baseline (± s.e.m.) versus
-      label budget, for uncertainty vs random selection. The consistent gap
-      between the two curves quantifies the value a trained RL policy
-      operationalises — selecting the right handful of chips to label first.
+      <strong>Figure 9 — Active adaptation across all ten regions.</strong>
+      <em>Left</em>: mean F1 gain over each region's zero-shot baseline
+      (± s.e.m., 10 regions) versus label budget — uncertainty selection
+      (blue) beats random (red) by +0.024 F1 on average; at the smallest
+      budget (1 chip) both briefly hurt, a tiny-data fine-tuning artefact.
+      <em>Right</em>: best F1 gain per region, sorted. The hardest region —
+      Pakistan, lowest zero-shot F1 = 0.62 — gains the most (+0.114); regions
+      already above F1 = 0.85 (USA, Mekong, Nigeria) have no gap left to
+      close. Adaptation concentrates its value exactly where cross-region
+      transfer fails, which is precisely what a Layer-3 policy should exploit.
     </figcaption>
   </figure>
 

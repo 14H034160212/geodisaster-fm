@@ -23,17 +23,21 @@ def main():
         d = json.loads(f.read_text())
         per_region[d["region"]] = d
 
-    # collect gains by budget
-    budgets = None
+    # Only aggregate budgets present in EVERY region (avoids mixing
+    # Pakistan's extra budgets, which would give misleading sem=0 points).
+    common = None
+    for d in per_region.values():
+        ks = set(d["budgets"])
+        common = ks if common is None else (common & ks)
+    common = sorted(common) if common else []
+
     unc_gain = {}   # budget -> list of gains across regions
     rnd_gain = {}
     for region, d in per_region.items():
         zs = d["zero_shot_f1"]
-        if budgets is None:
-            budgets = d["budgets"]
         unc = {c["k"]: c["f1"] for c in d["curves"]["uncertainty"]}
         rnd = {c["k"]: c["f1"] for c in d["curves"]["random"]}
-        for k in d["budgets"]:
+        for k in common:
             if k in unc:
                 unc_gain.setdefault(k, []).append(unc[k] - zs)
             if k in rnd:
@@ -61,8 +65,9 @@ def main():
     Path("outputs/active_adapt/summary_all_regions.json").write_text(
         json.dumps(summary, indent=2))
 
-    # ---- Fig 11 ----
-    fig, ax = plt.subplots(figsize=(8.5, 5.5))
+    # ---- Fig 11 (2 panels) ----
+    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14, 5.5),
+                                  gridspec_kw={"width_ratios": [1, 1.15]})
     ax.axhline(0, ls="--", color="#999", lw=1, label="zero-shot (no adaptation)")
     ax.errorbar(uk, um, yerr=us, fmt="o-", color="#1f77b4", lw=2.4, ms=9,
                 capsize=4, label="uncertainty (entropy) selection")
@@ -85,8 +90,33 @@ def main():
                 color="#1c5e3a",
                 bbox=dict(boxstyle="round,pad=0.4", fc="#dcecdc", ec="#1c7f4f"))
 
-    fig.suptitle("Smart label selection consistently outperforms random across regions — "
-                 "the value an RL policy operationalises",
+    # ---- Panel 2: per-region best gain (adaptation helps where needed) ----
+    reg_gain = []
+    for region, d in per_region.items():
+        zs = d["zero_shot_f1"]
+        best = max([zs] + [c["f1"] for c in d["curves"]["uncertainty"]]
+                   + [c["f1"] for c in d["curves"]["random"]])
+        reg_gain.append((region, zs, best - zs))
+    reg_gain.sort(key=lambda t: -t[2])
+    regions_sorted = [t[0] for t in reg_gain]
+    gains = [t[2] for t in reg_gain]
+    zss = [t[1] for t in reg_gain]
+    yy = np.arange(len(regions_sorted))
+    bar_colors = ["#1c7f4f" if g > 0.05 else "#a86a1f" if g > 0.01 else "#bbbbbb"
+                  for g in gains]
+    ax2.barh(yy, gains, color=bar_colors, edgecolor="black", linewidth=0.5)
+    for i, (g, z) in enumerate(zip(gains, zss)):
+        ax2.text(g + 0.002, i, f"+{g:.3f}  (zs {z:.2f})", va="center", fontsize=8.5)
+    ax2.set_yticks(yy); ax2.set_yticklabels(regions_sorted, fontsize=9)
+    ax2.invert_yaxis()
+    ax2.set_xlabel("Best F1 gain from adaptation (any budget)", fontsize=10.5)
+    ax2.set_title("Adaptation helps most where the gap is largest",
+                  fontsize=12, loc="left", fontweight="bold")
+    ax2.grid(True, alpha=0.3, axis="x")
+    ax2.set_xlim(0, max(gains) * 1.45 + 0.01)
+
+    fig.suptitle("Smart label selection beats random; the hardest regions "
+                 "(low zero-shot F1) gain the most from a few in-region labels",
                  fontsize=10, color="#444")
     fig.tight_layout()
     out = "outputs/figures/fig11_region_adapt_summary.png"
