@@ -131,3 +131,7 @@ outputs/few_shot_ae_stack_seed*/**/*.ckpt
 !outputs/active_adapt/
 !outputs/active_adapt/*.json
 !outputs/active_adapt/summary_all_regions.json
+
+# Layer 3 PPO policy results (small JSON only)
+!outputs/layer3_ppo/
+!outputs/layer3_ppo/*.json

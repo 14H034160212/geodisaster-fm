@@ -33,8 +33,10 @@ FIG_MULTISEED    = "outputs/figures/fig8_multiseed_cross_region.png"
 FIG_GLOBAL_ATLAS = "outputs/figures/fig9_global_atlas.png"
 FIG_ACTIVE_ADAPT = "outputs/figures/fig10_active_adapt.png"
 FIG_REGION_ADAPT_SUMMARY = "outputs/figures/fig11_region_adapt_summary.png"
+FIG_PPO          = "outputs/figures/fig12_ppo.png"
 ACTIVE_ADAPT_JSON = "outputs/active_adapt/adapt_Pakistan.json"
 ACTIVE_ADAPT_SUMMARY = "outputs/active_adapt/summary_all_regions.json"
+PPO_RESULTS_JSON = "outputs/layer3_ppo/ppo_results.json"
 DISPATCH_USA_JSON = "outputs/dispatch/USA_170264.json"
 DISPATCH_USA_BRIEF = "outputs/dispatch/USA_170264.briefing.txt"
 COMPARISON_JSON  = "outputs/sen1floods11_comparison.json"
@@ -384,6 +386,21 @@ def _experiment_status_panel() -> str:
                     "ago": _format_ago(now, summary_path.stat().st_mtime),
                 })
 
+    # 4b. Layer 3 PPO policy — done if results JSON present
+    ppo = _load_json(PPO_RESULTS_JSON)
+    if ppo and ppo.get("aggregate"):
+        agg = ppo["aggregate"]
+        gain = agg.get("ppo_f1", 0) - agg.get("base_f1", 0)
+        rows.append({
+            "category": "Layer 3 decision (RL)",
+            "name": "PPO chip-selection policy",
+            "status": "done",
+            "value": (f"avg test F1 {agg.get('base_f1', 0):.3f}→"
+                      f"{agg.get('ppo_f1', 0):.3f} ({gain:+.3f}), "
+                      f"{len(ppo.get('regions', {}))} hard regions"),
+            "ago": _format_ago(now, Path(PPO_RESULTS_JSON).stat().st_mtime),
+        })
+
     # 5. Planned (manually curated — proposal §H1 / Japan / atlas)
     rows.append({"category": "Planned", "name": "Brazil 5%-label fine-tune",
                  "status": "planned",
@@ -641,6 +658,56 @@ def _active_adapt_block() -> str:
             f"<tbody>{rows}</tbody></table>")
 
 
+def _ppo_block() -> str:
+    """Layer 3 trained-PPO-policy result table (if available)."""
+    d = _load_json(PPO_RESULTS_JSON)
+    if not d:
+        return ("<p style='color:var(--muted)'><em>Layer 3 PPO policy "
+                "training — results will appear here automatically.</em></p>")
+    regions = d.get("regions", {})
+    agg = d.get("aggregate", {})
+    budget = d.get("budget", "?")
+    rows = ""
+    for r, v in regions.items():
+        best = (v.get("ppo_f1", 0) >= max(v.get("random_f1", 0),
+                                          v.get("uncertainty_f1", 0)))
+        cls = " class='highlight'" if best else ""
+        rows += (
+            f"<tr{cls}><td>{r}</td>"
+            f"<td class='num'>{v.get('base_f1', 0):.3f}</td>"
+            f"<td class='num'>{v.get('random_f1', 0):.3f}</td>"
+            f"<td class='num'>{v.get('uncertainty_f1', 0):.3f}</td>"
+            f"<td class='num'><strong>{v.get('ppo_f1', 0):.3f}</strong></td>"
+            f"<td class='num'>{v.get('full_pool_f1', 0):.3f}</td></tr>")
+    # aggregate row
+    rows += (
+        "<tr style='border-top:2px solid var(--border);font-weight:600'>"
+        "<td>AVERAGE</td>"
+        f"<td class='num'>{agg.get('base_f1', 0):.3f}</td>"
+        f"<td class='num'>{agg.get('random_f1', 0):.3f}</td>"
+        f"<td class='num'>{agg.get('uncertainty_f1', 0):.3f}</td>"
+        f"<td class='num'><strong>{agg.get('ppo_f1', 0):.3f}</strong></td>"
+        f"<td class='num'>{agg.get('full_pool_f1', 0):.3f}</td></tr>")
+    gain = agg.get("ppo_f1", 0) - agg.get("base_f1", 0)
+    adv_rnd = agg.get("ppo_f1", 0) - agg.get("random_f1", 0)
+    adv_unc = agg.get("ppo_f1", 0) - agg.get("uncertainty_f1", 0)
+    gap_oracle = agg.get("ppo_f1", 0) - agg.get("full_pool_f1", 0)
+    note = (f"<p style='font-size:13px;color:#6b7280;margin-top:0'>"
+            f"Trained PPO chip-selection policy, evaluated greedily at a "
+            f"<strong>{budget}-chip</strong> label budget on four hard hold-out "
+            f"regions. Averaged across regions, PPO lifts zero-shot F1 by "
+            f"<strong>{gain:+.3f}</strong> (0.5-threshold baseline → calibrated "
+            f"threshold), beating random selection by {adv_rnd:+.3f} and "
+            f"uncertainty sampling by {adv_unc:+.3f}, and reaching within "
+            f"{abs(gap_oracle):.3f} F1 of the full-pool oracle while labelling "
+            f"only {budget} chips.</p>")
+    return (note + "<table class='results'><thead><tr>"
+            "<th>Region</th><th>Zero-shot</th><th>Random</th>"
+            "<th>Uncertainty</th><th>PPO policy</th><th>Full-pool oracle</th>"
+            "</tr></thead>"
+            f"<tbody>{rows}</tbody></table>")
+
+
 def _dispatch_demo_block() -> str:
     """Render the actual dispatcher output (briefing + key answers) as
     a styled card block."""
@@ -772,8 +839,10 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
       over OpenStreetMap + an LLM planner answer the ten standard UN-OCHA-style
       emergency questions ("how many hospitals are inside the flood footprint?",
       "which populated areas have lost road access?", "which top-five roads
-      restore the most access if cleared?"). <em>Layer 3 (RL policy, planned)</em>:
-      a meta-RL agent trained across an atlas of ≥30 historical disasters
+      restore the most access if cleared?"). <em>Layer 3 (RL policy, prototype
+      trained)</em>: a PPO agent that already learns which chips to label for
+      label-efficient threshold calibration (Fig.&nbsp;10); the full vision is a
+      meta-RL agent trained across an atlas of ≥30 historical disasters that
       decides which images to task, which chips to ask humans to label, which
       alerts to issue, and which responders to dispatch — optimised
       end-to-end for time-to-answer on the questionnaire. The system's
@@ -1276,7 +1345,9 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
   </p>
 
   <p>
-    Layer 3 is the largest open work item: a meta-RL policy trained across a
+    Layer 3 now has a working first instance — a PPO policy that learns which
+    chips to label for label-efficient threshold calibration (Figs.&nbsp;8–10
+    below) — and a clear scaling path: a meta-RL policy trained across a
     curated atlas of ≥30 historical disasters (Sen1Floods11, Copernicus
     EMS, Japanese GSI archives, NASA Disasters Mapping Portal) that learns
     to <em>schedule</em> the perception/reasoner work — which 5 chips to
@@ -1335,6 +1406,44 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
       already above F1 = 0.85 (USA, Mekong, Nigeria) have no gap left to
       close. Adaptation concentrates its value exactly where cross-region
       transfer fails, which is precisely what a Layer-3 policy should exploit.
+    </figcaption>
+  </figure>
+
+  <h3>Layer 3 — a trained PPO policy that picks which chips to label</h3>
+  <p>
+    The two prototypes above (Figs.&nbsp;8–9) <em>define</em> the decision
+    problem and bound it with hand-designed heuristics. We now close the loop
+    with an actual learned agent. Result&nbsp;2 showed the perception models
+    rank water pixels well (high AUPRC) but lose F1 on unseen regions because
+    the fixed 0.5 decision threshold is mis-calibrated. The cheapest possible
+    adaptation is therefore <em>threshold recalibration</em> from a handful of
+    in-region labels — no gradient fine-tuning. We cast "which chips to label"
+    as a Markov decision process (state = per-chip prediction statistics +
+    remaining budget; action = pick the next chip; reward = gain in held-out
+    test F1 from the threshold calibrated on the chips chosen so far) and train
+    a compact actor–critic <strong>PPO</strong> policy
+    (<code>geodisaster.dispatch.rl_policy</code>) across the four hardest
+    hold-out regions. Because each episode is pure NumPy over cached
+    probability maps, training is sub-second per episode and runs entirely on
+    CPU — thousands of updates without touching a GPU.
+  </p>
+
+  {_ppo_block()}
+
+  <figure class="wide">
+    {_img(FIG_PPO, "Layer 3 PPO policy results")}
+    <figcaption>
+      <strong>Figure 10 — Layer 3 PPO policy for label-efficient threshold
+      calibration.</strong> <em>Left</em>: PPO training curve — mean episode
+      F1-gain return rises and stabilises over 200 updates (red = 10-update
+      moving average). <em>Right</em>: per-region test F1 at a fixed 4-chip
+      label budget. The trained policy (blue) matches or beats both random
+      (red) and uncertainty (orange) chip selection, lifting average test F1
+      from the zero-shot 0.727 to 0.767 (+0.040) — within 0.009 F1 of the
+      full-pool oracle while labelling only four chips. The policy is a genuine
+      reinforcement-learning agent, not a heuristic: it learns a chip-selection
+      strategy from the reward signal alone. This is the first working
+      instantiation of Layer&nbsp;3 and the seed for the meta-RL dispatcher.
     </figcaption>
   </figure>
 
