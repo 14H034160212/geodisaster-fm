@@ -1,0 +1,2237 @@
+{
+  "n_events": 10,
+  "n_chips": 431,
+  "flooded_area_pearson_r": 0.9714,
+  "mean_region_rel_area_error": 0.2485,
+  "perception_s_per_chip_mean": 0.031,
+  "device": "cuda",
+  "per_region": {
+    "Ghana": {
+      "n_chips": 53,
+      "gt_area_km2": 57.771,
+      "pred_area_km2": 54.189,
+      "rel_area_error": 0.062,
+      "perception_s_per_chip": 0.035
+    },
+    "India": {
+      "n_chips": 68,
+      "gt_area_km2": 185.569,
+      "pred_area_km2": 203.187,
+      "rel_area_error": 0.095,
+      "perception_s_per_chip": 0.02
+    },
+    "Mekong": {
+      "n_chips": 30,
+      "gt_area_km2": 172.018,
+      "pred_area_km2": 178.011,
+      "rel_area_error": 0.035,
+      "perception_s_per_chip": 0.031
+    },
+    "Nigeria": {
+      "n_chips": 18,
+      "gt_area_km2": 94.833,
+      "pred_area_km2": 102.122,
+      "rel_area_error": 0.077,
+      "perception_s_per_chip": 0.05
+    },
+    "Pakistan": {
+      "n_chips": 28,
+      "gt_area_km2": 40.311,
+      "pred_area_km2": 98.463,
+      "rel_area_error": 1.443,
+      "perception_s_per_chip": 0.034
+    },
+    "Paraguay": {
+      "n_chips": 67,
+      "gt_area_km2": 139.914,
+      "pred_area_km2": 124.162,
+      "rel_area_error": 0.113,
+      "perception_s_per_chip": 0.022
+    },
+    "Somalia": {
+      "n_chips": 26,
+      "gt_area_km2": 34.987,
+      "pred_area_km2": 46.788,
+      "rel_area_error": 0.337,
+      "perception_s_per_chip": 0.037
+    },
+    "Spain": {
+      "n_chips": 30,
+      "gt_area_km2": 101.65,
+      "pred_area_km2": 126.224,
+      "rel_area_error": 0.242,
+      "perception_s_per_chip": 0.034
+    },
+    "Sri-Lanka": {
+      "n_chips": 42,
+      "gt_area_km2": 117.541,
+      "pred_area_km2": 124.453,
+      "rel_area_error": 0.059,
+      "perception_s_per_chip": 0.028
+    },
+    "USA": {
+      "n_chips": 69,
+      "gt_area_km2": 80.48,
+      "pred_area_km2": 82.261,
+      "rel_area_error": 0.022,
+      "perception_s_per_chip": 0.022
+    }
+  },
+  "per_chip": [
+    {
+      "region": "Ghana",
+      "gt_km2": 0.1558,
+      "pred_km2": 0.1251
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0484,
+      "pred_km2": 0.0048
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.353,
+      "pred_km2": 0.0346
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.2772,
+      "pred_km2": 0.2077
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.4913
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0651,
+      "pred_km2": 0.0734
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0771,
+      "pred_km2": 0.0801
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 7.065,
+      "pred_km2": 8.2628
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.001
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.569,
+      "pred_km2": 0.584
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0004,
+      "pred_km2": 0.0003
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 1.8364,
+      "pred_km2": 1.8335
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.2907,
+      "pred_km2": 0.2329
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 1.0075,
+      "pred_km2": 1.0515
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 2.665,
+      "pred_km2": 2.094
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0533,
+      "pred_km2": 0.0055
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0252,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.8697,
+      "pred_km2": 0.6763
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 14.4051,
+      "pred_km2": 14.6681
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.3959,
+      "pred_km2": 0.3498
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 9.6811,
+      "pred_km2": 10.1106
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.803,
+      "pred_km2": 0.8005
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 1.4933,
+      "pred_km2": 0.9412
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.1407,
+      "pred_km2": 0.0285
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0032
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.3496,
+      "pred_km2": 0.2867
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 3.9521,
+      "pred_km2": 3.4854
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 10.5971,
+      "pred_km2": 7.3424
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.4305,
+      "pred_km2": 0.414
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Ghana",
+      "gt_km2": 0.1636,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "India",
+      "gt_km2": 3.6006,
+      "pred_km2": 5.8318
+    },
+    {
+      "region": "India",
+      "gt_km2": 2.2546,
+      "pred_km2": 3.1322
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.3883,
+      "pred_km2": 0.603
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.1595,
+      "pred_km2": 0.175
+    },
+    {
+      "region": "India",
+      "gt_km2": 2.5989,
+      "pred_km2": 3.3211
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.8839,
+      "pred_km2": 0.7789
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.7434,
+      "pred_km2": 1.3699
+    },
+    {
+      "region": "India",
+      "gt_km2": 3.0959,
+      "pred_km2": 2.9428
+    },
+    {
+      "region": "India",
+      "gt_km2": 4.0096,
+      "pred_km2": 4.1664
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.5437,
+      "pred_km2": 1.8458
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.3526,
+      "pred_km2": 2.2963
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.5007,
+      "pred_km2": 0.4549
+    },
+    {
+      "region": "India",
+      "gt_km2": 2.1028,
+      "pred_km2": 3.3245
+    },
+    {
+      "region": "India",
+      "gt_km2": 3.8181,
+      "pred_km2": 5.2836
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.1592,
+      "pred_km2": 1.6799
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.7914,
+      "pred_km2": 3.1652
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.8855,
+      "pred_km2": 2.6384
+    },
+    {
+      "region": "India",
+      "gt_km2": 3.9228,
+      "pred_km2": 2.4306
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.1509,
+      "pred_km2": 0.245
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.9936,
+      "pred_km2": 0.6952
+    },
+    {
+      "region": "India",
+      "gt_km2": 9.8143,
+      "pred_km2": 10.1624
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.0388,
+      "pred_km2": 1.2253
+    },
+    {
+      "region": "India",
+      "gt_km2": 2.9594,
+      "pred_km2": 4.0099
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.0315,
+      "pred_km2": 0.0398
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.3224,
+      "pred_km2": 0.2143
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.4719,
+      "pred_km2": 2.2153
+    },
+    {
+      "region": "India",
+      "gt_km2": 5.0228,
+      "pred_km2": 6.4789
+    },
+    {
+      "region": "India",
+      "gt_km2": 2.6977,
+      "pred_km2": 2.6055
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0184
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.5929,
+      "pred_km2": 0.6188
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.1559,
+      "pred_km2": 1.8591
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.0082,
+      "pred_km2": 0.0476
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.0312,
+      "pred_km2": 1.2018
+    },
+    {
+      "region": "India",
+      "gt_km2": 2.1795,
+      "pred_km2": 2.8641
+    },
+    {
+      "region": "India",
+      "gt_km2": 4.7609,
+      "pred_km2": 4.4276
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.6252,
+      "pred_km2": 0.4186
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.1054,
+      "pred_km2": 0.7931
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.5446,
+      "pred_km2": 0.0978
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.5668,
+      "pred_km2": 0.6326
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.8533,
+      "pred_km2": 0.8823
+    },
+    {
+      "region": "India",
+      "gt_km2": 4.9005,
+      "pred_km2": 5.3637
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.3146,
+      "pred_km2": 0.2401
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.0782,
+      "pred_km2": 0.7864
+    },
+    {
+      "region": "India",
+      "gt_km2": 4.907,
+      "pred_km2": 4.8676
+    },
+    {
+      "region": "India",
+      "gt_km2": 7.5763,
+      "pred_km2": 7.4544
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.0005,
+      "pred_km2": 0.0108
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.8394,
+      "pred_km2": 1.1128
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.8582,
+      "pred_km2": 1.0609
+    },
+    {
+      "region": "India",
+      "gt_km2": 15.071,
+      "pred_km2": 15.3454
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.505,
+      "pred_km2": 0.8554
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.1881,
+      "pred_km2": 0.2225
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.3188,
+      "pred_km2": 1.3373
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.8262,
+      "pred_km2": 1.8492
+    },
+    {
+      "region": "India",
+      "gt_km2": 4.796,
+      "pred_km2": 4.9743
+    },
+    {
+      "region": "India",
+      "gt_km2": 12.3953,
+      "pred_km2": 12.1883
+    },
+    {
+      "region": "India",
+      "gt_km2": 11.4039,
+      "pred_km2": 11.5082
+    },
+    {
+      "region": "India",
+      "gt_km2": 11.7322,
+      "pred_km2": 12.7741
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.5165,
+      "pred_km2": 0.5902
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.5848,
+      "pred_km2": 0.9032
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.6994,
+      "pred_km2": 0.6572
+    },
+    {
+      "region": "India",
+      "gt_km2": 1.4548,
+      "pred_km2": 2.0456
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0143
+    },
+    {
+      "region": "India",
+      "gt_km2": 11.4506,
+      "pred_km2": 11.395
+    },
+    {
+      "region": "India",
+      "gt_km2": 3.6649,
+      "pred_km2": 4.0378
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.9044,
+      "pred_km2": 0.8077
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.1345,
+      "pred_km2": 0.2275
+    },
+    {
+      "region": "India",
+      "gt_km2": 0.0802,
+      "pred_km2": 0.1199
+    },
+    {
+      "region": "India",
+      "gt_km2": 13.6292,
+      "pred_km2": 13.2436
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 21.0673,
+      "pred_km2": 21.5617
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 17.7144,
+      "pred_km2": 17.8276
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 19.7802,
+      "pred_km2": 20.1245
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 1.5265,
+      "pred_km2": 1.4934
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 7.7043,
+      "pred_km2": 8.0756
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.0111,
+      "pred_km2": 0.0033
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.2996,
+      "pred_km2": 0.3583
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.0483,
+      "pred_km2": 0.0691
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.7535,
+      "pred_km2": 0.8766
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.7449,
+      "pred_km2": 1.63
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 2.6551,
+      "pred_km2": 2.774
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 6.2211,
+      "pred_km2": 6.3264
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 2.8914,
+      "pred_km2": 3.0477
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 1.8875,
+      "pred_km2": 2.0265
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 11.9765,
+      "pred_km2": 12.4487
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 14.5007,
+      "pred_km2": 15.6198
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 20.4588,
+      "pred_km2": 20.902
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 1.726,
+      "pred_km2": 1.7886
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 6.5567,
+      "pred_km2": 6.6799
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.578,
+      "pred_km2": 0.6507
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 3.0677,
+      "pred_km2": 3.1428
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.2512,
+      "pred_km2": 0.2192
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 8.5667,
+      "pred_km2": 8.7693
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.3284,
+      "pred_km2": 0.2306
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.0296,
+      "pred_km2": 0.039
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 19.2783,
+      "pred_km2": 19.7209
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.9808,
+      "pred_km2": 1.0317
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.0135,
+      "pred_km2": 0.1822
+    },
+    {
+      "region": "Mekong",
+      "gt_km2": 0.4003,
+      "pred_km2": 0.3904
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 22.3651,
+      "pred_km2": 23.2781
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.2777,
+      "pred_km2": 0.3408
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.1468,
+      "pred_km2": 0.1832
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.3756,
+      "pred_km2": 0.306
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 17.795,
+      "pred_km2": 20.7538
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.0286,
+      "pred_km2": 0.0083
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 4.6528,
+      "pred_km2": 5.2228
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.9735,
+      "pred_km2": 1.0706
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.5494,
+      "pred_km2": 0.6252
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 8.3661,
+      "pred_km2": 9.319
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.0816,
+      "pred_km2": 0.0299
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 22.168,
+      "pred_km2": 22.7361
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 4.6091,
+      "pred_km2": 5.5227
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.1176,
+      "pred_km2": 0.1523
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.1384,
+      "pred_km2": 0.002
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.1131,
+      "pred_km2": 0.1457
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 12.0118,
+      "pred_km2": 12.3995
+    },
+    {
+      "region": "Nigeria",
+      "gt_km2": 0.0629,
+      "pred_km2": 0.0261
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.1414,
+      "pred_km2": 1.1446
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0015
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.1316,
+      "pred_km2": 0.9148
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 5.2301,
+      "pred_km2": 8.8787
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 1.0741,
+      "pred_km2": 0.2531
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.1219,
+      "pred_km2": 4.4703
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.0002,
+      "pred_km2": 2.6916
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.3439,
+      "pred_km2": 3.4066
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.0,
+      "pred_km2": 5.0056
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.6859,
+      "pred_km2": 5.9045
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.3324,
+      "pred_km2": 0.6207
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 1.3126,
+      "pred_km2": 1.5584
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.8893,
+      "pred_km2": 4.6126
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0151
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 2.2673,
+      "pred_km2": 4.7742
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.0,
+      "pred_km2": 2.0759
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.0271,
+      "pred_km2": 0.5746
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 5.3566,
+      "pred_km2": 10.3363
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.0,
+      "pred_km2": 0.1171
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 2.387,
+      "pred_km2": 9.5379
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.0,
+      "pred_km2": 2.3965
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.1196,
+      "pred_km2": 1.0789
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 17.1908,
+      "pred_km2": 20.9296
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.2383,
+      "pred_km2": 0.8656
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 1.8481,
+      "pred_km2": 5.1049
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.4667,
+      "pred_km2": 0.3467
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.0,
+      "pred_km2": 0.7411
+    },
+    {
+      "region": "Pakistan",
+      "gt_km2": 0.1458,
+      "pred_km2": 0.106
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 1.0934,
+      "pred_km2": 0.8058
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 4.1142,
+      "pred_km2": 1.376
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0291
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0,
+      "pred_km2": 0.6131
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 14.4382,
+      "pred_km2": 7.9269
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.004,
+      "pred_km2": 0.002
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 2.0976,
+      "pred_km2": 2.1074
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0042,
+      "pred_km2": 0.0008
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 6.1197,
+      "pred_km2": 6.2285
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0036,
+      "pred_km2": 0.0077
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 2.657,
+      "pred_km2": 0.5213
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0222,
+      "pred_km2": 0.0741
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.735,
+      "pred_km2": 0.3312
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 6.8353,
+      "pred_km2": 6.9854
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 7.544,
+      "pred_km2": 8.9324
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 1.9947,
+      "pred_km2": 1.3405
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.2229,
+      "pred_km2": 0.085
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.009,
+      "pred_km2": 0.0018
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.3029,
+      "pred_km2": 0.3838
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0,
+      "pred_km2": 7.8402
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 1.0446,
+      "pred_km2": 0.6792
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 8.019,
+      "pred_km2": 8.1879
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.3421,
+      "pred_km2": 0.3315
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 5.8043,
+      "pred_km2": 6.0503
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.5046,
+      "pred_km2": 0.5379
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.1202,
+      "pred_km2": 0.1162
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 4.0091,
+      "pred_km2": 4.0661
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.1346,
+      "pred_km2": 0.1579
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 4.7452,
+      "pred_km2": 4.6155
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 1.5308,
+      "pred_km2": 0.0174
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.1206,
+      "pred_km2": 0.0661
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0608
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.1907,
+      "pred_km2": 0.1986
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0133,
+      "pred_km2": 0.0053
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.1309,
+      "pred_km2": 0.0737
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 3.6591,
+      "pred_km2": 3.5755
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0047,
+      "pred_km2": 0.0145
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 4.3791,
+      "pred_km2": 1.8338
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 1.8394,
+      "pred_km2": 0.4581
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.2815,
+      "pred_km2": 0.3085
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 14.8808,
+      "pred_km2": 11.0122
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0,
+      "pred_km2": 0.005
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.517,
+      "pred_km2": 0.1864
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 1.7683,
+      "pred_km2": 1.8383
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.03,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0002
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 4.9299,
+      "pred_km2": 4.9067
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 6.4974,
+      "pred_km2": 6.7514
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 2.0358,
+      "pred_km2": 0.0247
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0641,
+      "pred_km2": 0.0052
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.5517,
+      "pred_km2": 0.2968
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.6585,
+      "pred_km2": 0.7376
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 3.1947,
+      "pred_km2": 3.2414
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 2.9477,
+      "pred_km2": 1.6394
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.2613,
+      "pred_km2": 0.248
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 5.0336,
+      "pred_km2": 5.1462
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.277,
+      "pred_km2": 0.3842
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.7409,
+      "pred_km2": 0.6552
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 5.0026,
+      "pred_km2": 5.0026
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 1.5787,
+      "pred_km2": 2.0808
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 1.1544,
+      "pred_km2": 0.7273
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 0.0022,
+      "pred_km2": 0.0014
+    },
+    {
+      "region": "Paraguay",
+      "gt_km2": 2.7156,
+      "pred_km2": 2.3233
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.2307,
+      "pred_km2": 0.5856
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0948
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 3.4678,
+      "pred_km2": 4.0634
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0058,
+      "pred_km2": 0.3277
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 8.2995,
+      "pred_km2": 10.5377
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.7852,
+      "pred_km2": 1.0567
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0366
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0369
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0001,
+      "pred_km2": 0.012
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 1.0021,
+      "pred_km2": 1.5591
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 1.6239,
+      "pred_km2": 2.221
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 3.8112,
+      "pred_km2": 4.7985
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 2.1727,
+      "pred_km2": 2.6714
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.6495,
+      "pred_km2": 1.1238
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0093,
+      "pred_km2": 0.0842
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 3.7192,
+      "pred_km2": 4.7211
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0023,
+      "pred_km2": 0.3531
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0,
+      "pred_km2": 0.237
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.5187,
+      "pred_km2": 0.9684
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0225,
+      "pred_km2": 0.3526
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.329,
+      "pred_km2": 0.5965
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0677,
+      "pred_km2": 0.0762
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 2.5254,
+      "pred_km2": 3.2305
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 0.0012,
+      "pred_km2": 0.2256
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 1.2694,
+      "pred_km2": 1.5453
+    },
+    {
+      "region": "Somalia",
+      "gt_km2": 4.4737,
+      "pred_km2": 5.2725
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 20.1713,
+      "pred_km2": 20.3031
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.3768,
+      "pred_km2": 0.7878
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.9637,
+      "pred_km2": 2.1744
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.7664,
+      "pred_km2": 0.8954
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.002,
+      "pred_km2": 0.0125
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.3484,
+      "pred_km2": 0.8145
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.0379,
+      "pred_km2": 0.0471
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.2429,
+      "pred_km2": 0.3823
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.0783,
+      "pred_km2": 0.2076
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.4582,
+      "pred_km2": 1.2922
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 4.2519,
+      "pred_km2": 6.6885
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.9772,
+      "pred_km2": 0.9802
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.357,
+      "pred_km2": 0.8522
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.2644,
+      "pred_km2": 0.5804
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 5.6389,
+      "pred_km2": 5.7685
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.8182,
+      "pred_km2": 1.4611
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 2.6075,
+      "pred_km2": 4.7364
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.2877,
+      "pred_km2": 0.3479
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 1.009,
+      "pred_km2": 1.2852
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 9.3104,
+      "pred_km2": 11.0155
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 2.0919,
+      "pred_km2": 2.1715
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.3046,
+      "pred_km2": 0.3175
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 9.8131,
+      "pred_km2": 11.7741
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 5.2356,
+      "pred_km2": 6.9634
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.0246,
+      "pred_km2": 0.0456
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 0.2137,
+      "pred_km2": 0.6614
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 10.4207,
+      "pred_km2": 11.2281
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 7.0035,
+      "pred_km2": 10.3724
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 2.2736,
+      "pred_km2": 4.1198
+    },
+    {
+      "region": "Spain",
+      "gt_km2": 15.3006,
+      "pred_km2": 17.9374
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.2198,
+      "pred_km2": 0.1859
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 1.5268,
+      "pred_km2": 1.5418
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 5.539,
+      "pred_km2": 4.2333
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 5.0464,
+      "pred_km2": 6.1508
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 23.4546,
+      "pred_km2": 23.4648
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 3.8866,
+      "pred_km2": 4.5617
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 1.8112,
+      "pred_km2": 1.9282
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.0645,
+      "pred_km2": 0.084
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.507,
+      "pred_km2": 0.2521
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.6877,
+      "pred_km2": 0.7139
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0077
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.1219,
+      "pred_km2": 0.2308
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 1.4466,
+      "pred_km2": 1.9689
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 8.1524,
+      "pred_km2": 8.7339
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 1.35,
+      "pred_km2": 1.3416
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.0,
+      "pred_km2": 0.0
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.238,
+      "pred_km2": 0.3001
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 2.4669,
+      "pred_km2": 2.1026
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.2486,
+      "pred_km2": 0.0691
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 1.7982,
+      "pred_km2": 2.3679
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.7918,
+      "pred_km2": 0.8958
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.0011,
+      "pred_km2": 0.0176
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.6958,
+      "pred_km2": 2.4915
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 1.96,
+      "pred_km2": 1.8781
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.1941,
+      "pred_km2": 0.3056
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.7005,
+      "pred_km2": 0.1718
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 4.3125,
+      "pred_km2": 4.369
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 1.7843,
+      "pred_km2": 1.4191
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.1713,
+      "pred_km2": 2.0745
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.0464,
+      "pred_km2": 0.0315
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.3081,
+      "pred_km2": 0.4921
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.2958,
+      "pred_km2": 0.1497
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 9.6905,
+      "pred_km2": 9.2067
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.6731,
+      "pred_km2": 0.6052
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.2577,
+      "pred_km2": 1.8365
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 25.7268,
+      "pred_km2": 25.664
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.103,
+      "pred_km2": 0.3039
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.8603,
+      "pred_km2": 1.8449
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 1.7343,
+      "pred_km2": 1.8387
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.4277,
+      "pred_km2": 0.2966
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 0.1892,
+      "pred_km2": 0.2132
+    },
+    {
+      "region": "Sri-Lanka",
+      "gt_km2": 8.0506,
+      "pred_km2": 8.1075
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1897,
+      "pred_km2": 0.2875
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.0987,
+      "pred_km2": 0.1206
+    },
+    {
+      "region": "USA",
+      "gt_km2": 3.602,
+      "pred_km2": 3.8042
+    },
+    {
+      "region": "USA",
+      "gt_km2": 3.5838,
+      "pred_km2": 3.7239
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.0354,
+      "pred_km2": 0.0536
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.2454,
+      "pred_km2": 0.2353
+    },
+    {
+      "region": "USA",
+      "gt_km2": 6.6362,
+      "pred_km2": 6.8261
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.6481,
+      "pred_km2": 0.7854
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1065,
+      "pred_km2": 0.1405
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.3031,
+      "pred_km2": 0.31
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.2359,
+      "pred_km2": 0.2739
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.6518,
+      "pred_km2": 0.5323
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1642,
+      "pred_km2": 0.2695
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1846,
+      "pred_km2": 0.2838
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.113,
+      "pred_km2": 0.1421
+    },
+    {
+      "region": "USA",
+      "gt_km2": 2.0957,
+      "pred_km2": 1.8824
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.4815,
+      "pred_km2": 0.5558
+    },
+    {
+      "region": "USA",
+      "gt_km2": 3.4427,
+      "pred_km2": 4.1071
+    },
+    {
+      "region": "USA",
+      "gt_km2": 4.5255,
+      "pred_km2": 4.0975
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.5164,
+      "pred_km2": 0.2579
+    },
+    {
+      "region": "USA",
+      "gt_km2": 1.3453,
+      "pred_km2": 1.7885
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.0161,
+      "pred_km2": 0.0231
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.3839,
+      "pred_km2": 0.186
+    },
+    {
+      "region": "USA",
+      "gt_km2": 4.3535,
+      "pred_km2": 4.3687
+    },
+    {
+      "region": "USA",
+      "gt_km2": 1.5894,
+      "pred_km2": 1.8364
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1481,
+      "pred_km2": 0.1964
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.8737,
+      "pred_km2": 0.9376
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.7242,
+      "pred_km2": 0.3355
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.502,
+      "pred_km2": 0.3892
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.0511,
+      "pred_km2": 0.1914
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.3811,
+      "pred_km2": 0.4923
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.6641,
+      "pred_km2": 0.5784
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1724,
+      "pred_km2": 0.2007
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1713,
+      "pred_km2": 0.1996
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1145,
+      "pred_km2": 0.1472
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.8527,
+      "pred_km2": 0.6166
+    },
+    {
+      "region": "USA",
+      "gt_km2": 3.1182,
+      "pred_km2": 3.0383
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.5787,
+      "pred_km2": 0.2857
+    },
+    {
+      "region": "USA",
+      "gt_km2": 11.1448,
+      "pred_km2": 10.9427
+    },
+    {
+      "region": "USA",
+      "gt_km2": 2.7154,
+      "pred_km2": 2.4242
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1194,
+      "pred_km2": 0.1638
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.4498,
+      "pred_km2": 0.4981
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.3375,
+      "pred_km2": 0.3856
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.2722,
+      "pred_km2": 0.2033
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1391,
+      "pred_km2": 0.1823
+    },
+    {
+      "region": "USA",
+      "gt_km2": 4.9325,
+      "pred_km2": 5.0048
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.2907,
+      "pred_km2": 0.4889
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1611,
+      "pred_km2": 0.2391
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.0695,
+      "pred_km2": 0.0828
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.2206,
+      "pred_km2": 0.1768
+    },
+    {
+      "region": "USA",
+      "gt_km2": 1.678,
+      "pred_km2": 1.6795
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.9092,
+      "pred_km2": 0.9243
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.2424,
+      "pred_km2": 0.3444
+    },
+    {
+      "region": "USA",
+      "gt_km2": 1.2117,
+      "pred_km2": 0.98
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1446,
+      "pred_km2": 0.1907
+    },
+    {
+      "region": "USA",
+      "gt_km2": 4.4467,
+      "pred_km2": 4.5747
+    },
+    {
+      "region": "USA",
+      "gt_km2": 1.5439,
+      "pred_km2": 1.6971
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1285,
+      "pred_km2": 0.1767
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1646,
+      "pred_km2": 0.2187
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.3823,
+      "pred_km2": 0.5139
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.2727,
+      "pred_km2": 0.1045
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.2152,
+      "pred_km2": 0.3186
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.3838,
+      "pred_km2": 0.5106
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.9491,
+      "pred_km2": 1.0465
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.2122,
+      "pred_km2": 0.2943
+    },
+    {
+      "region": "USA",
+      "gt_km2": 2.0531,
+      "pred_km2": 2.7401
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.301,
+      "pred_km2": 0.0892
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.3262,
+      "pred_km2": 0.4279
+    },
+    {
+      "region": "USA",
+      "gt_km2": 0.1617,
+      "pred_km2": 0.1354
+    }
+  ]
+}

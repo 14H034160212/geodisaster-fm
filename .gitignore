@@ -143,3 +143,7 @@ outputs/few_shot_ae_stack_seed*/**/*.ckpt
 !outputs/xbd_damage_sdi/
 !outputs/xbd_damage_sdi/sdi_results.json
 !outputs/xbd_damage_sdi/sdi_offline_results.json
+
+# Decision answer-fidelity result (small JSON)
+!outputs/decision/
+!outputs/decision/answer_fidelity.json
