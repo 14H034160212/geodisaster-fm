@@ -39,12 +39,17 @@ from geodisaster.utils.logging import get_logger, setup_logging
 
 log = get_logger("layer3_ppo_sig")
 
-HARD_REGIONS = {
-    "Pakistan": "outputs/leave_one_region_out/test_Pakistan/checkpoints",
-    "Somalia":  "outputs/leave_one_region_out/test_Somalia/checkpoints",
-    "Paraguay": "outputs/leave_one_region_out/test_Paraguay/checkpoints",
-    "India":    "outputs/leave_one_region_out/test_India/checkpoints",
-}
+HARD_REGION_NAMES = ["Pakistan", "Somalia", "Paraguay", "India"]
+
+
+def _hard_regions(ckpt_root: str) -> dict[str, str]:
+    """Build {region: <ckpt_root>/test_<region>/checkpoints}. Lets us point the
+    same PPO protocol at any backbone's leave-one-region-out checkpoints."""
+    return {r: f"{ckpt_root}/test_{r}/checkpoints" for r in HARD_REGION_NAMES}
+
+
+# Default (back-compat): U-Net leave-one-region-out checkpoints.
+HARD_REGIONS = _hard_regions("outputs/leave_one_region_out")
 
 
 def _latest_ckpt(d: str) -> Path | None:
@@ -169,7 +174,11 @@ def main():
     p.add_argument("--seeds", type=int, default=10)
     p.add_argument("--cache", default="outputs/layer3_ppo/chip_cache.pkl")
     p.add_argument("--out", default="outputs/layer3_ppo/ppo_significance.json")
+    p.add_argument("--ckpt-root", default="outputs/leave_one_region_out",
+                   help="dir containing test_<Region>/checkpoints — lets the same "
+                        "PPO protocol target U-Net or AlphaEarth LOO models.")
     args = p.parse_args()
+    HARD = _hard_regions(args.ckpt_root)
 
     # ---- cache every chip once (re-used across seeds) ----
     cache_path = Path(args.cache)
@@ -178,7 +187,7 @@ def main():
         caches = pickle.loads(cache_path.read_bytes())
     else:
         caches = {}
-        for region, ckdir in HARD_REGIONS.items():
+        for region, ckdir in HARD.items():
             ck = _latest_ckpt(ckdir)
             if ck is None:
                 log.warning("no_ckpt", region=region); continue
