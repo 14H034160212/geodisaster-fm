@@ -1,0 +1,20 @@
+# U-Net for xBD (xView2) building localization from post-disaster RGB optical.
+# Binary segmentation: building footprint (any damage class) vs background.
+# 3-channel high-res optical; one source "optical" (already scaled to [0,1]).
+
+name: unet_xbd
+family: smp_unet
+
+backbone:
+  type: resnet34
+  encoder_weights: null
+  in_channels: 3
+  sources: [optical]
+
+head:
+  out_channels: 1
+
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

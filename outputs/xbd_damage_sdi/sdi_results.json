@@ -1,0 +1,53 @@
+{
+  "disasters": [
+    "hurricane-harvey",
+    "palu-tsunami"
+  ],
+  "n_buildings": 14285,
+  "n_damaged": 4074,
+  "test_buildings": 9273,
+  "tuned_b3_thr": 0.30000000000000004,
+  "tuned_sdi_lambda": 1.5,
+  "methods": {
+    "B1_raw_threshold": {
+      "precision": 0.8966382338183643,
+      "recall": 0.7113853503184714,
+      "f1": 0.7933407325194229,
+      "tp": 1787,
+      "fp": 206,
+      "fn": 725
+    },
+    "B2_any_intersection": {
+      "precision": 0.8620689655172413,
+      "recall": 0.8061305732484076,
+      "f1": 0.8331619008434478,
+      "tp": 2025,
+      "fp": 324,
+      "fn": 487
+    },
+    "B3_prob_threshold": {
+      "precision": 0.787052810902896,
+      "recall": 0.9195859872611465,
+      "f1": 0.8481733064071966,
+      "tp": 2310,
+      "fp": 625,
+      "fn": 202
+    },
+    "SDI_ours": {
+      "precision": 0.9341085271317829,
+      "recall": 0.6715764331210191,
+      "f1": 0.7813802686428901,
+      "tp": 1687,
+      "fp": 119,
+      "fn": 825
+    },
+    "SDI_no_structure(lambda0)": {
+      "precision": 0.9154346540508574,
+      "recall": 0.6162420382165605,
+      "f1": 0.7366167023554604,
+      "tp": 1548,
+      "fp": 143,
+      "fn": 964
+    }
+  }
+}

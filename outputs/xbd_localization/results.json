@@ -1,0 +1,102 @@
+[
+  {
+    "test_hazard": "hurricane-harvey",
+    "train_hazards": [
+      "guatemala-volcano",
+      "mexico-earthquake",
+      "palu-tsunami"
+    ],
+    "val": "hurricane-florence",
+    "n_train": 1008,
+    "n_test": 1276,
+    "iou": 0.17510016945119777,
+    "f1": 0.29801743545484144,
+    "precision": 0.5942594790996724,
+    "recall": 0.1988763426368969,
+    "tp": 8193018.0,
+    "fp": 5593919.0,
+    "fn": 33003526.0,
+    "tn": 287705281.0,
+    "auprc": 0.4333409697714079
+  },
+  {
+    "test_hazard": "hurricane-florence",
+    "train_hazards": [
+      "guatemala-volcano",
+      "mexico-earthquake",
+      "palu-tsunami"
+    ],
+    "val": "hurricane-harvey",
+    "n_train": 1008,
+    "n_test": 1276,
+    "iou": 0.27572942931082445,
+    "f1": 0.43226944989389987,
+    "precision": 0.7138876640419948,
+    "recall": 0.3099849378915966,
+    "tp": 2039934.0,
+    "fp": 817566.0,
+    "fn": 4540818.0,
+    "tn": 327097426.0,
+    "auprc": 0.4846206657432458
+  },
+  {
+    "test_hazard": "guatemala-volcano",
+    "train_hazards": [
+      "hurricane-florence",
+      "mexico-earthquake",
+      "palu-tsunami"
+    ],
+    "val": "hurricane-harvey",
+    "n_train": 2212,
+    "n_test": 72,
+    "iou": 0.43002990906815086,
+    "f1": 0.6014278531396184,
+    "precision": 0.5500276861593278,
+    "recall": 0.6634250171326357,
+    "tp": 228465.0,
+    "fp": 186905.0,
+    "fn": 115907.0,
+    "tn": 18343091.0,
+    "auprc": 0.6144950455247664
+  },
+  {
+    "test_hazard": "mexico-earthquake",
+    "train_hazards": [
+      "hurricane-florence",
+      "guatemala-volcano",
+      "palu-tsunami"
+    ],
+    "val": "hurricane-harvey",
+    "n_train": 1800,
+    "n_test": 484,
+    "iou": 0.4650710344233423,
+    "f1": 0.6348784782389696,
+    "precision": 0.6154428127467166,
+    "recall": 0.6555817295139328,
+    "tp": 22391550.0,
+    "fp": 13991278.0,
+    "fn": 11763688.0,
+    "tn": 78731180.0,
+    "auprc": 0.672533176776574
+  },
+  {
+    "test_hazard": "palu-tsunami",
+    "train_hazards": [
+      "hurricane-florence",
+      "guatemala-volcano",
+      "mexico-earthquake"
+    ],
+    "val": "hurricane-harvey",
+    "n_train": 1832,
+    "n_test": 452,
+    "iou": 0.41442101978788165,
+    "f1": 0.5859938646132842,
+    "precision": 0.4397807315360626,
+    "recall": 0.8778516832517744,
+    "tp": 16433919.0,
+    "fp": 20934519.0,
+    "fn": 2286691.0,
+    "tn": 78833959.0,
+    "auprc": 0.6438747695126359
+  }
+]

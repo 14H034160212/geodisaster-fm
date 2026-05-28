@@ -35,6 +35,8 @@ FIG_ACTIVE_ADAPT = "outputs/figures/fig10_active_adapt.png"
 FIG_REGION_ADAPT_SUMMARY = "outputs/figures/fig11_region_adapt_summary.png"
 FIG_PPO          = "outputs/figures/fig12_ppo.png"
 FIG_PPO_SIG      = "outputs/figures/fig13_ppo_significance.png"
+FIG_XBD_HAZARD   = "outputs/figures/fig15_xbd_cross_hazard.png"
+FIG_CALIB_STRUCT = "outputs/figures/fig16_calibration_vs_structure.png"
 ACTIVE_ADAPT_JSON = "outputs/active_adapt/adapt_Pakistan.json"
 ACTIVE_ADAPT_SUMMARY = "outputs/active_adapt/summary_all_regions.json"
 PPO_RESULTS_JSON = "outputs/layer3_ppo/ppo_results.json"
@@ -1094,6 +1096,32 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     </figcaption>
   </figure>
 
+  <h3>From cross-region to cross-hazard: generalising beyond floods (xBD)</h3>
+  <p>
+    Floods are one hazard. To test whether the generalisation story holds across
+    hazard types we ran the same leave-one-out protocol on the xView2/xBD
+    building dataset — training a building-localisation model on four hazards and
+    testing on the fifth held-out hazard, across earthquake, volcano, tsunami and
+    two hurricanes. The cross-hazard gap mirrors the cross-region one: geophysical
+    events transfer reasonably (mexico-earthquake 0.635, guatemala-volcano 0.601,
+    palu-tsunami 0.586), while <strong>hurricanes are the hardest to transfer to</strong>
+    (florence 0.432, harvey 0.298) — their water-and-wind scenes look least like
+    the others. The same "difficulty is structural" pattern recurs across a
+    completely different sensor (sub-metre optical), hazard set, and task.
+  </p>
+  <figure>
+    {_img(FIG_XBD_HAZARD, "xBD cross-hazard generalization")}
+    <figcaption>
+      <strong>Figure 7 — Cross-hazard generalisation on xBD (leave-one-hazard-out).</strong>
+      Held-out-hazard building-localisation F1 (mean 0.511). Geophysical hazards
+      (green) transfer; hurricanes (red) are hardest. Absolute F1 is modest —
+      post-event optical only, single seed, small heterogeneous training set — so
+      we read the <em>gap structure</em>, not the absolute number. This is a first
+      multi-hazard result; pre/post change-detection + multi-seed is the planned
+      strengthening.
+    </figcaption>
+  </figure>
+
   <h2><span class="sec">Result 2</span>
       On equal inputs AlphaEarth is competitive — but does not beat the U-Net</h2>
 
@@ -1566,6 +1594,34 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
       pool distribution, whereas the policy picks a few chips that generalise
       better to unseen test data. This supersedes the single-split number above
       and is the kind of statistical control a Nature-grade claim requires.
+    </figcaption>
+  </figure>
+
+  <h3>Why calibration, not structure: a negative result we report in full</h3>
+  <p>
+    Before settling on threshold calibration as the Layer-3 lever, we tested a
+    more ambitious idea: a <strong>Structured Decision Inference (SDI)</strong>
+    method — a Markov-random-field over the building graph that jointly infers
+    which buildings are affected, combining each building's evidence with spatial
+    smoothness. The intuition (after Xu et&nbsp;al.'s causal graph) is that
+    structure should denoise the decision. We validated it honestly on xBD
+    building <em>damage</em> (thousands of ground-truth-labelled buildings) against
+    three baselines, with hyper-parameters tuned on a held-out split.
+  </p>
+  <figure>
+    {_img(FIG_CALIB_STRUCT, "Calibration beats structure on xBD building damage")}
+    <figcaption>
+      <strong>Figure 12 — Calibration &gt; structure (xBD building-damage decision).</strong>
+      A simple <em>calibrated probability threshold</em> (B3) matches or beats the
+      structured method (SDI). Symmetric smoothing (Potts) collapses recall —
+      damage is not spatially contiguous like flood water; a one-sided
+      "attractive" variant recovers to parity but still does not win. Per hazard
+      the threshold wins outright (palu-tsunami 0.58 vs 0.35; harvey 0.64 vs 0.58).
+      <strong>We report this negative result in full:</strong> across this project
+      the recurring lesson is that simple calibration is a remarkably strong
+      baseline that our fancier methods (foundation embeddings, structured
+      inference) tie or lose to — which is exactly why the label-efficient RL
+      <em>calibration</em> policy above is the contribution we stand behind.
     </figcaption>
   </figure>
 
