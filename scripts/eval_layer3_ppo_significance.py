@@ -131,8 +131,17 @@ def split_eval(cache, seed, budget, n_rand=5, test_cap=2_000_000):
         for _ in range(n_rand))
     unc_order = np.argsort(feats_raw[:, 3])[::-1]      # highest entropy
     unc = _cal(list(unc_order[:budget]))
+    # CoreSet / diversity: k-center greedy in (normalised) chip-feature space
+    fz = (feats_raw - feats_raw.mean(0)) / (feats_raw.std(0) + 1e-6)
+    sel = [int(rng.randint(np_n))]
+    dist = np.linalg.norm(fz - fz[sel[0]], axis=1)
+    while len(sel) < min(budget, np_n):
+        nxt = int(np.argmax(dist)); sel.append(nxt)
+        dist = np.minimum(dist, np.linalg.norm(fz - fz[nxt], axis=1))
+    core = _cal(sel)
     full = _cal(list(range(np_n)))
-    return make_env, {"base": base, "random": rnd, "uncertainty": unc, "full_pool": full}
+    return make_env, {"base": base, "random": rnd, "uncertainty": unc,
+                      "coreset": core, "full_pool": full}
 
 
 def paired(diffs):
@@ -182,9 +191,9 @@ def main():
 
     seeds = list(range(args.seeds))
     # per-region per-method F1 across seeds
-    rec = {r: {k: [] for k in ["base", "random", "uncertainty", "ppo", "full_pool"]}
+    rec = {r: {k: [] for k in ["base", "random", "uncertainty", "coreset", "ppo", "full_pool"]}
            for r in regions}
-    agg = {k: [] for k in ["base", "random", "uncertainty", "ppo", "full_pool"]}
+    agg = {k: [] for k in ["base", "random", "uncertainty", "coreset", "ppo", "full_pool"]}
 
     for s in seeds:
         # build per-region split + baselines for this seed
@@ -208,8 +217,8 @@ def main():
             ppo_roll = rollout_greedy(policy, builders[r]())
             b = bases[r]
             vals = {"base": b["base"], "random": b["random"],
-                    "uncertainty": b["uncertainty"], "ppo": ppo_roll["f1"],
-                    "full_pool": b["full_pool"]}
+                    "uncertainty": b["uncertainty"], "coreset": b["coreset"],
+                    "ppo": ppo_roll["f1"], "full_pool": b["full_pool"]}
             for k, v in vals.items():
                 rec[r][k].append(v); per_seed[k].append(v)
         for k in agg:
@@ -239,6 +248,7 @@ def main():
     out["paired"] = {
         "ppo_vs_random": paired(ppo_arr - rnd_arr),
         "ppo_vs_uncertainty": paired(ppo_arr - unc_arr),
+        "ppo_vs_coreset": paired(ppo_arr - np.asarray(agg["coreset"])),
         "ppo_vs_zeroshot": paired(ppo_arr - base_arr),
     }
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
@@ -248,7 +258,7 @@ def main():
     a = out["aggregate"]
     print("\n=== Layer 3 PPO — multi-seed significance "
           f"({args.seeds} seeds, {args.budget}-chip budget, {args.updates} updates) ===")
-    for k in ["base", "random", "uncertainty", "ppo", "full_pool"]:
+    for k in ["base", "random", "uncertainty", "coreset", "ppo", "full_pool"]:
         m = a[k]; print(f"  {k:12s} {m['mean']:.4f}  (95% CI {m['ci95'][0]:.4f}–{m['ci95'][1]:.4f})")
     for name, pr in out["paired"].items():
         sig = "SIGNIFICANT" if pr["t_p"] < 0.05 else "not significant"

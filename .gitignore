@@ -147,3 +147,8 @@ outputs/few_shot_ae_stack_seed*/**/*.ckpt
 # Decision answer-fidelity result (small JSON)
 !outputs/decision/
 !outputs/decision/answer_fidelity.json
+
+# Strengthening round results (small JSON only)
+!outputs/decision/calibration_analysis.json
+!outputs/xbd_prepost/
+!outputs/xbd_prepost/results.json

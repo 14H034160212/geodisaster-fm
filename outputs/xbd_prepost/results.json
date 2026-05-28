@@ -1,0 +1,34 @@
+{
+  "disasters": [
+    "hurricane-harvey",
+    "palu-tsunami",
+    "hurricane-florence",
+    "mexico-earthquake"
+  ],
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "arms": {
+    "post_only": {
+      "f1_mean": 0.7229,
+      "f1_std": 0.0124,
+      "f1_seeds": [
+        0.7190680778776846,
+        0.7367921361633245,
+        0.712830882683074
+      ]
+    },
+    "pre_post": {
+      "f1_mean": 0.8098,
+      "f1_std": 0.0162,
+      "f1_seeds": [
+        0.8127455149707434,
+        0.8243189651104129,
+        0.7922928709194378
+      ]
+    }
+  },
+  "prepost_gain": 0.0869
+}

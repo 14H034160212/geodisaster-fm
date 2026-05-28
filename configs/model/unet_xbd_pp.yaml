@@ -1,0 +1,15 @@
+# U-Net for xBD building localization from PRE+POST optical (change detection).
+# optical = 6 channels [pre RGB, post RGB]; otherwise identical to unet_xbd.
+name: unet_xbd_pp
+family: smp_unet
+backbone:
+  type: resnet34
+  encoder_weights: null
+  in_channels: 6
+  sources: [optical]
+head:
+  out_channels: 1
+loss:
+  type: focal_bce
+  alpha: 0.75
+  gamma: 2.0

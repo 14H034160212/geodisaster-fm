@@ -27,8 +27,10 @@ def render(results_json: str | Path, out_path: str | Path) -> Path:
     methods = [("base", "zero-shot\n(0.5 thr)", "#bbbbbb"),
                ("random", "random\ncalib", "#d62728"),
                ("uncertainty", "uncertainty\ncalib", "#ff7f0e"),
+               ("coreset", "coreset\ncalib", "#8c564b"),
                ("ppo", "PPO\npolicy", "#1f77b4"),
                ("full_pool", "full-pool\noracle", "#2ca02c")]
+    methods = [m for m in methods if m[0] in agg]   # tolerate missing keys
     xs = np.arange(len(methods))
     means = [agg[m]["mean"] for m, _, _ in methods]
     lo = [agg[m]["mean"] - agg[m]["ci95"][0] for m, _, _ in methods]
@@ -48,7 +50,9 @@ def render(results_json: str | Path, out_path: str | Path) -> Path:
     # (b) paired-difference forest plot
     rows = [("ppo_vs_zeroshot", "PPO − zero-shot"),
             ("ppo_vs_random", "PPO − random"),
-            ("ppo_vs_uncertainty", "PPO − uncertainty")]
+            ("ppo_vs_uncertainty", "PPO − uncertainty"),
+            ("ppo_vs_coreset", "PPO − coreset")]
+    rows = [r for r in rows if r[0] in paired]   # tolerate missing
     ys = np.arange(len(rows))[::-1]
     for y, (key, lab) in zip(ys, rows):
         pr = paired[key]
