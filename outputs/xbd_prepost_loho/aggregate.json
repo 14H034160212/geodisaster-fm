@@ -1,0 +1,51 @@
+{
+  "hazards": [
+    "hurricane-harvey",
+    "hurricane-florence",
+    "mexico-earthquake",
+    "palu-tsunami"
+  ],
+  "post_only_single_seed": {
+    "hurricane-harvey": 0.298,
+    "hurricane-florence": 0.4323,
+    "mexico-earthquake": 0.6349,
+    "palu-tsunami": 0.586
+  },
+  "pre_post_2seed": {
+    "hurricane-harvey": {
+      "seeds": [
+        0.4552238775002178,
+        0.4982693985093715
+      ],
+      "mean": 0.4767,
+      "std": 0.0215
+    },
+    "hurricane-florence": {
+      "seeds": [
+        0.4361915805932231,
+        0.45866987122693637
+      ],
+      "mean": 0.4474,
+      "std": 0.0112
+    },
+    "mexico-earthquake": {
+      "seeds": [
+        0.578970223760918,
+        0.5453541322017864
+      ],
+      "mean": 0.5622,
+      "std": 0.0168
+    },
+    "palu-tsunami": {
+      "seeds": [
+        0.6327867373392434,
+        0.5608535817911338
+      ],
+      "mean": 0.5968,
+      "std": 0.036
+    }
+  },
+  "post_only_mean": 0.4878,
+  "pre_post_mean": 0.5208,
+  "gain": 0.033
+}

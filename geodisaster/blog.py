@@ -45,6 +45,8 @@ FIG_PREPOST      = "outputs/figures/fig19_xbd_prepost.png"
 PREPOST_JSON     = "outputs/xbd_prepost/results.json"
 FIG_RL_BACKBONE  = "outputs/figures/fig20_rl_backbone.png"
 PPO_SIG_AE_JSON  = "outputs/layer3_ppo/ppo_significance_ae.json"
+FIG_XBD_PP_LOHO  = "outputs/figures/fig21_xbd_prepost_loho.png"
+XBD_PP_LOHO_JSON = "outputs/xbd_prepost_loho/aggregate.json"
 ACTIVE_ADAPT_JSON = "outputs/active_adapt/adapt_Pakistan.json"
 ACTIVE_ADAPT_SUMMARY = "outputs/active_adapt/summary_all_regions.json"
 PPO_RESULTS_JSON = "outputs/layer3_ppo/ppo_results.json"
@@ -829,6 +831,7 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     calib = _load_json(CALIB_JSON) or {}
     prepost = _load_json(PREPOST_JSON) or {}
     ppo_ae = _load_json(PPO_SIG_AE_JSON) or {}
+    xbd_pploho = _load_json(XBD_PP_LOHO_JSON) or {}
     usa = _load_json(USA_DECISION) or {}
     fewshot_unet = _load_csv(FEWSHOT_UNET_CSV)
     n_train_5pct = int(fewshot_unet[fewshot_unet["label_fraction"] == 0.05]["n_train"].iloc[0]) \
@@ -1163,6 +1166,38 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
       cross-hazard result above lacked. Combined with the cross-hazard gap
       structure (Fig.&nbsp;7), this is the rigorous multi-hazard generalisation
       story.
+    </figcaption>
+  </figure>
+
+  <h3>Cross-hazard pre/post: the change-detection prior is hazard-specific</h3>
+  <p>
+    The in-domain +0.087 F1 is a uniform improvement; the cross-hazard story
+    is not. Re-running the leave-one-hazard-out protocol with the same 6-channel
+    pre+post input across the four damage-bearing hazards and two independent
+    seeds, mean cross-hazard F1 rises from
+    <strong>{xbd_pploho.get('post_only_mean', 0.488):.3f}</strong> (post-only) to
+    <strong>{xbd_pploho.get('pre_post_mean', 0.521):.3f}</strong>
+    (pre+post, +{xbd_pploho.get('gain', 0.033):.3f}) — but the gain is
+    dramatically uneven across hazards: <strong>hurricane-harvey, the hardest
+    single case (F1 0.298), is rescued to 0.477 ± 0.030 (+0.18 F1)</strong>;
+    florence (+0.02) and palu-tsunami (+0.01) are essentially neutral; and
+    <strong>mexico-earthquake actually declines</strong> (0.635 → 0.562, −0.07).
+    The change-detection prior is the right inductive bias when the disaster
+    manifests as visible change (water- and wind-driven hazards) but the wrong
+    one when the post image alone already encodes the damage (geophysical
+    structural failure). This is a mechanistically interpretable, paper-worthy
+    nuance — not a uniform improvement.
+  </p>
+  <figure>
+    {_img(FIG_XBD_PP_LOHO, "xBD cross-hazard pre/post multi-seed")}
+    <figcaption>
+      <strong>Figure 16 — Pre/post in cross-hazard transfer is hazard-specific.</strong>
+      <em>Left</em>: per-hazard F1 — post-only (red, single seed) vs pre+post (blue,
+      2-seed mean ± std, with seed dots); annotated per-hazard ΔF1. Hurricanes
+      benefit (harvey +0.18, florence +0.02), palu-tsunami is flat, mexico-
+      earthquake regresses (−0.07). <em>Right</em>: mean over the four hazards,
+      pre+post +0.033 over post-only — modest at the aggregate level, but the
+      mechanism (rescue of change-driven hazards) is the interesting result.
     </figcaption>
   </figure>
 

@@ -1,0 +1,78 @@
+[
+  {
+    "test_hazard": "hurricane-harvey",
+    "train_hazards": [
+      "mexico-earthquake",
+      "palu-tsunami"
+    ],
+    "val": "hurricane-florence",
+    "n_train": 936,
+    "n_test": 1276,
+    "iou": 0.33179679365579,
+    "f1": 0.4982693985093715,
+    "precision": 0.6480371420620522,
+    "recall": 0.4047318872185007,
+    "tp": 16673555.0,
+    "fp": 9055765.0,
+    "fn": 24522989.0,
+    "tn": 284243435.0,
+    "auprc": 0.6074408255663998
+  },
+  {
+    "test_hazard": "hurricane-florence",
+    "train_hazards": [
+      "mexico-earthquake",
+      "palu-tsunami"
+    ],
+    "val": "hurricane-harvey",
+    "n_train": 936,
+    "n_test": 1276,
+    "iou": 0.2975805524492334,
+    "f1": 0.45866987122693637,
+    "precision": 0.46311335616597504,
+    "recall": 0.45431084471805044,
+    "tp": 2989707.0,
+    "fp": 3465963.0,
+    "fn": 3591045.0,
+    "tn": 324449029.0,
+    "auprc": 0.45766444194852657
+  },
+  {
+    "test_hazard": "mexico-earthquake",
+    "train_hazards": [
+      "hurricane-florence",
+      "palu-tsunami"
+    ],
+    "val": "hurricane-harvey",
+    "n_train": 1728,
+    "n_test": 484,
+    "iou": 0.3749050846493981,
+    "f1": 0.5453541322017864,
+    "precision": 0.8093545717407647,
+    "recall": 0.4112198251992857,
+    "tp": 14045311.0,
+    "fp": 3308407.0,
+    "fn": 20109927.0,
+    "tn": 89414051.0,
+    "auprc": 0.7416052785620888
+  },
+  {
+    "test_hazard": "palu-tsunami",
+    "train_hazards": [
+      "hurricane-florence",
+      "mexico-earthquake"
+    ],
+    "val": "hurricane-harvey",
+    "n_train": 1760,
+    "n_test": 452,
+    "iou": 0.38971266209949734,
+    "f1": 0.5608535817911338,
+    "precision": 0.4129587477870256,
+    "recall": 0.87378696527517,
+    "tp": 16357825.0,
+    "fp": 23253456.0,
+    "fn": 2362785.0,
+    "tn": 76515022.0,
+    "auprc": 0.6927595823820488
+  }
+]
