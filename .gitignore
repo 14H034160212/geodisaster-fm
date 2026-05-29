@@ -157,3 +157,5 @@ outputs/few_shot_ae_stack_seed*/**/*.ckpt
 !outputs/xbd_prepost_loho/aggregate.json
 !outputs/xbd_prepost_loho/results_seed*.json
 !outputs/decision/calibration_analysis_xbd.json
+!outputs/layer3_ppo/decision_ab_unet.json
+!outputs/layer3_ppo/decision_ab_ae.json

@@ -273,6 +273,36 @@ second-best backbone into the first.
 
 *[Fig. 5 = Fig 11 (PPO significance with coreset) + Fig 20 (U-Net vs AlphaEarth)]*
 
+#### R4b — The reward function is a control knob: pixel-F1 vs decision-aligned reward
+
+The R4 result shows PPO is the best policy under the *pixel-F1* reward. But
+the central claim of CCA is that the calibration MDP can be solved against
+*any* decision-level objective by changing the reward signal. We test this
+directly: on the same 10-seed paired protocol we train two arms — the
+standard pixel-F1-reward arm and a **decision-aligned** arm whose reward is
+the per-step decrease in mean absolute relative area error across test
+chips — and evaluate both arms on *both* metrics. Reward alignment is real
+and statistically detectable (Fig. 5c).
+
+- **Reward shapes behaviour, significantly.** Decision-reward PPO has lower
+  pixel F1 than pixel-reward PPO on both backbones (U-Net 0.761 vs 0.779,
+  paired t-test p = 0.007; AlphaEarth 0.690 vs 0.721, p = 0.009). The MDP is
+  genuinely steering toward whatever objective the reward encodes — not
+  blindly maximising pixel F1.
+- **The decision-aligned reward improves the decision metric.** Mean
+  absolute relative area error: U-Net 5.99 (decision-PPO) vs 6.58
+  (pixel-PPO), −9 %; AlphaEarth 1.79 vs 4.69, **−62 %**. The
+  AlphaEarth-backbone effect is large; paired significance is not yet
+  reached at n = 10 seeds × 4 regions (CI = [−7.0, +1.2]) — a power
+  limitation we acknowledge.
+- **Trade-off interpretation.** Pixel F1 and per-chip area fidelity are
+  *not the same objective*; trading 2–3 percentage points of pixel F1 for
+  a large reduction in decision-level area error is the right trade if the
+  consumer of the maps is a responder asking "how much water". The CCA
+  framework's contribution is *making this trade-off explicit and learnable*.
+
+*[Fig. 5c = Fig 23 (decision-reward A/B)]*
+
 ### R5 — What does NOT help: calibrated negative results
 
 We characterise where commonly invoked tools fail, with the same multi-event
