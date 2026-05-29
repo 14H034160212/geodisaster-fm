@@ -27,8 +27,8 @@ log = get_logger("xbd_loc")
 PATCH_ROOT = Path("data/processed/patches")
 
 
-def _patches(disasters):
-    return merge_manifests([PATCH_ROOT / f"xbd_{d}" for d in disasters])
+def _patches(disasters, prefix="xbd"):
+    return merge_manifests([PATCH_ROOT / f"{prefix}_{d}" for d in disasters])
 
 
 @torch.no_grad()
@@ -60,6 +60,9 @@ def main():
     p.add_argument("--batch-size", type=int, default=8)
     p.add_argument("--accumulate", type=int, default=2)
     p.add_argument("--val-cap", type=int, default=150)
+    p.add_argument("--prefix", default="xbd",
+                   help="patch dir prefix — 'xbd' = post-only, 'xbdpp' = pre+post")
+    p.add_argument("--seed", type=int, default=None)
     p.add_argument("--out", default="outputs/xbd_localization/results.json")
     args = p.parse_args()
 
@@ -70,11 +73,13 @@ def main():
     workdir = ensure_dir(args.workdir or f"outputs/xbd_localization/test_{args.test}")
 
     import pytorch_lightning as pl
-    pl.seed_everything(int(defaults.project.seed))
+    pl.seed_everything(int(args.seed if args.seed is not None else defaults.project.seed))
 
     sources = ["optical"]
     norm = stats_with_fallbacks(args.stats, sources)
-    train_p = _patches(args.train); val_p = _patches([args.val]); test_p = _patches([args.test])
+    train_p = _patches(args.train, args.prefix)
+    val_p = _patches([args.val], args.prefix)
+    test_p = _patches([args.test], args.prefix)
     # cap val for speed/memory (a held-out disaster can have >1000 patches)
     import random as _rnd
     if len(val_p) > args.val_cap:
