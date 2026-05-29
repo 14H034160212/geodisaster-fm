@@ -64,11 +64,21 @@ def f1_at_threshold(probs: np.ndarray, labels: np.ndarray, t: float) -> float:
 # --------------------------------------------------------------------------- #
 @dataclass
 class ChipCalibEnv:
-    """Chip-selection MDP for label-efficient threshold calibration.
+    """Active-Calibration MDP for label-efficient threshold calibration.
+
+    Two reward modes formalising the same MDP at different objective levels:
+      - "pixel"         : reward = test-set pixel F1 gain (the standard signal).
+      - "decision_area" : reward = decrease in mean absolute relative error of
+                          the per-chip predicted flooded AREA — the
+                          decision-level quantity a responder actually asks for.
+                          Requires `test_probs_per_chip` and
+                          `test_labels_per_chip` (per-chip, not concatenated).
 
     pool_probs / pool_labels : list of per-chip flat prob/label arrays (pool)
     test_probs / test_labels : concatenated flat arrays for the test set
-    budget                   : number of chips the agent may label
+    test_probs_per_chip / test_labels_per_chip :
+        per-chip lists used by the decision-level reward (optional unless
+        reward_mode != "pixel").
     chip_features            : (n_pool, feat_dim) per-chip feature matrix
     """
     pool_probs: list
@@ -77,18 +87,29 @@ class ChipCalibEnv:
     test_labels: np.ndarray
     chip_features: np.ndarray
     budget: int = 4
+    reward_mode: str = "pixel"
+    test_probs_per_chip: list | None = None
+    test_labels_per_chip: list | None = None
 
     def __post_init__(self):
         self.n = len(self.pool_probs)
         self.feat_dim = self.chip_features.shape[1]
-        # F1 of the global 0.5 threshold (zero-shot) on test — the baseline
         self.base_f1 = f1_at_threshold(self.test_probs, self.test_labels, 0.5)
+        if self.reward_mode == "decision_area":
+            assert self.test_probs_per_chip is not None and self.test_labels_per_chip is not None, \
+                "decision_area reward requires test_probs_per_chip + test_labels_per_chip"
+            # pre-compute per-chip GT areas (in pixel count)
+            self._gt_areas = np.array(
+                [float((l == 1).sum()) for l in self.test_labels_per_chip], dtype=np.float64)
+            self.base_decision_error = self._calibrated_decision_error_at(0.5)
         self.reset()
 
     def reset(self):
         self.selected: list[int] = []
         self.steps = 0
         self.prev_f1 = self.base_f1
+        if self.reward_mode == "decision_area":
+            self.prev_decision_error = self.base_decision_error
         return self._obs()
 
     def _obs(self) -> np.ndarray:
@@ -101,13 +122,28 @@ class ChipCalibEnv:
         budget_col = np.full((self.n, 1), budget_left, dtype=np.float32)
         return np.concatenate([self.chip_features, mask, budget_col], axis=1)
 
-    def _calibrated_test_f1(self) -> float:
+    def _calibrated_threshold(self) -> float:
         if not self.selected:
-            return self.base_f1
+            return 0.5
         probs = np.concatenate([self.pool_probs[i] for i in self.selected])
         labels = np.concatenate([self.pool_labels[i] for i in self.selected])
         t, _ = best_threshold_f1(probs, labels)
-        return f1_at_threshold(self.test_probs, self.test_labels, t)
+        return t
+
+    def _calibrated_test_f1(self) -> float:
+        return f1_at_threshold(self.test_probs, self.test_labels, self._calibrated_threshold())
+
+    def _calibrated_decision_error_at(self, threshold: float) -> float:
+        """Mean absolute relative AREA error across test chips at given threshold."""
+        errs = []
+        for p, gt_area in zip(self.test_probs_per_chip, self._gt_areas):
+            pred_area = float((p >= threshold).sum())
+            denom = max(gt_area, 100.0)   # avoid div-by-zero on dry chips
+            errs.append(abs(pred_area - gt_area) / denom)
+        return float(np.mean(errs))
+
+    def _calibrated_decision_error(self) -> float:
+        return self._calibrated_decision_error_at(self._calibrated_threshold())
 
     def step(self, action: int):
         # mask invalid (already-selected) actions by no-op penalty
@@ -115,6 +151,12 @@ class ChipCalibEnv:
             return self._obs(), -0.05, self.steps >= self.budget, {}
         self.selected.append(action)
         self.steps += 1
+        if self.reward_mode == "decision_area":
+            err = self._calibrated_decision_error()
+            reward = self.prev_decision_error - err     # decrease in error
+            self.prev_decision_error = err
+            done = self.steps >= self.budget
+            return self._obs(), reward, done, {"decision_error": err}
         f1 = self._calibrated_test_f1()
         reward = f1 - self.prev_f1      # incremental F1 gain
         self.prev_f1 = f1
