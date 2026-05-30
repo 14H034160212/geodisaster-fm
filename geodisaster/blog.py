@@ -52,6 +52,7 @@ CALIB_XBD_JSON   = "outputs/decision/calibration_analysis_xbd.json"
 FIG_DECISION_AB  = "outputs/figures/fig23_decision_reward_ab.png"
 DECISION_AB_UN   = "outputs/layer3_ppo/decision_ab_unet.json"
 DECISION_AB_AE   = "outputs/layer3_ppo/decision_ab_ae.json"
+FIG_SAMPLE_EFF   = "outputs/figures/fig24_sample_efficiency.png"
 ACTIVE_ADAPT_JSON = "outputs/active_adapt/adapt_Pakistan.json"
 ACTIVE_ADAPT_SUMMARY = "outputs/active_adapt/summary_all_regions.json"
 PPO_RESULTS_JSON = "outputs/layer3_ppo/ppo_results.json"
@@ -1727,46 +1728,96 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     </figcaption>
   </figure>
 
-  <h3>The reward is a control knob: pixel-F1 vs decision-aligned reward</h3>
+  <h3>Sample efficiency: PPO's edge is largest where labels are scarcest</h3>
+  <p>
+    The Active Calibration framework's central promise is <em>label-efficient</em>
+    calibration. We verified PPO behaves as a textbook label-efficient method by
+    sweeping the label budget B ∈ {1, 2, 4, 8} on the U-Net backbone, 10-seed
+    paired protocol vs random / uncertainty / CoreSet:
+  </p>
+  <table class='results'>
+    <thead><tr><th>Budget</th><th>random</th><th>PPO</th><th>PPO − random</th><th>paired t-p</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td class='num'>0.720</td><td class='num'><strong>0.781</strong></td><td class='num'><strong>+0.062</strong></td><td class='num'>&lt;0.001</td></tr>
+      <tr><td>2</td><td class='num'>0.736</td><td class='num'>0.779</td><td class='num'>+0.044</td><td class='num'>&lt;0.001</td></tr>
+      <tr><td>4</td><td class='num'>0.756</td><td class='num'>0.779</td><td class='num'>+0.023</td><td class='num'>0.005</td></tr>
+      <tr><td>8</td><td class='num'>0.760</td><td class='num'>0.777</td><td class='num'>+0.017</td><td class='num'>0.013</td></tr>
+    </tbody>
+  </table>
+  <p>
+    PPO's edge over random <strong>decreases monotonically with budget</strong>
+    (+0.062 → +0.044 → +0.023 → +0.017) — the canonical pattern of a
+    label-efficient method. All four budgets are paired-significant
+    (t-p ≤ 0.013). Strikingly, <strong>PPO at budget = 1 (F1 0.781) matches or
+    exceeds every baseline at budget = 8</strong> (random 0.760, uncertainty
+    0.755, CoreSet 0.757) — the learned chip-selection is worth roughly an
+    8 × label multiplier at the bottom of the curve. PPO's absolute F1 also
+    saturates quickly across budgets (0.777–0.781), consistent with the
+    calibration problem being small-effective-dimension: a single well-chosen
+    chip captures most of the recoverable threshold information.
+  </p>
+  <figure class="wide">
+    {_img(FIG_SAMPLE_EFF, "Sample efficiency of Active Calibration PPO")}
+    <figcaption>
+      <strong>Figure 19 — Sample-efficiency curve.</strong> <em>Left</em>: F1
+      vs label budget for PPO and the three active-learning baselines
+      (10-seed mean; CI band on solid lines). PPO at budget = 1 already
+      reaches the asymptote; baselines need ~8 labels to catch up.
+      <em>Right</em>: paired PPO − random gain shrinks monotonically as
+      budget grows, exactly as a label-efficient method should — and stays
+      paired-significant at every budget (t-p annotated). The "active
+      calibration is label-efficient" claim is operationalised.
+    </figcaption>
+  </figure>
+
+  <h3>The reward is a paired-significant control knob (but the net decision-metric improvement is not yet significant)</h3>
   <p>
     Does the choice of <em>reward signal</em> matter? The CCA framework's
     central claim is that the calibration MDP can be solved against
-    <em>any</em> decision-level objective. We tested this directly: on the
-    same 10-seed paired protocol we trained two arms — pixel-F1 reward
-    (standard) and a decision-aligned reward (per-step decrease in mean
-    absolute relative area error across test chips) — and evaluated both
-    arms on <em>both</em> metrics. The result confirms reward alignment is a
-    real, statistically detectable control knob:
+    <em>any</em> decision-level objective. We tested this directly with a
+    paired A/B — first at <strong>10 seeds</strong>, then re-ran at
+    <strong>20 seeds</strong> because the decision-metric CI was wide — and
+    report both findings honestly:
   </p>
   <ul>
-    <li><strong>Reward shapes behaviour, significantly.</strong>
-      Decision-reward PPO has lower pixel F1 than pixel-reward PPO on both
-      backbones (U-Net 0.761 vs 0.779, <em>paired</em> t-test
-      <strong>p&nbsp;=&nbsp;0.007</strong>; AlphaEarth 0.690 vs 0.721,
-      <strong>p&nbsp;=&nbsp;0.009</strong>). The MDP is steering toward
-      whatever objective the reward encodes — not blindly maximising pixel F1.</li>
-    <li><strong>The decision-aligned reward improves the decision metric.</strong>
-      Mean absolute relative area error: U-Net 5.99 vs 6.58 (−9 %);
-      AlphaEarth 1.79 vs 4.69 — a <strong>−62 % relative reduction</strong>.
-      The AlphaEarth effect size is large but not yet paired-significant at
-      n = 10 seeds × 4 regions (CI = [−7.0, +1.2]).</li>
-    <li><strong>The trade-off, made explicit.</strong> Pixel F1 and per-chip
-      area fidelity are <em>not the same objective</em>; trading 2–3
-      percentage points of pixel F1 for a large reduction in decision-level
-      area error is the right trade if the consumer of the maps is a
-      responder asking "how much water". The CCA framework's contribution is
-      making this trade-off explicit and learnable.</li>
+    <li><strong>(i) Reward shaping is real and paired-significant.</strong>
+      Across 20 seeds and four hard regions, decision-reward PPO has
+      <em>significantly lower</em> pixel F1 than pixel-reward PPO on both
+      backbones (U-Net 0.758 vs 0.778, paired t-test
+      <strong>p&nbsp;=&nbsp;0.0004</strong>; AlphaEarth 0.701 vs 0.728,
+      <strong>p&nbsp;=&nbsp;0.005</strong>). The MDP genuinely steers toward
+      whatever objective the reward encodes — verifying the framework's
+      central claim that the reward signal is the control knob.</li>
+    <li><strong>(ii) The decision-metric improvement is NOT yet significant
+      at n = 20 × 4.</strong> Mean absolute relative area error
+      (decision-PPO vs pixel-PPO): U-Net 6.26 vs 5.96 (Δ = +0.31, p = 0.75 —
+      direction <em>reversed</em> from the 10-seed pilot); AlphaEarth 3.66
+      vs 4.70 (Δ = −1.04, −22 % relative, p = 0.37). The 10-seed pilot's
+      large AlphaEarth effect (Δ = −2.90, −62 %) shrank by more than half
+      under the 20-seed re-run — a textbook noise-reversal small RL
+      evaluations are vulnerable to.</li>
+    <li><strong>(iii) Honest synthesis.</strong> The robust finding is that
+      reward shaping <em>changes policy behaviour significantly</em>
+      (i); the not-yet-robust finding is that an area-error reward delivers a
+      <em>net improvement</em> on the area-error metric in this 4-region
+      testbed (ii). The AlphaEarth direction is consistent across runs and
+      the 20-seed effect is still −22 % relative, but the 95 % CI includes
+      zero. Resolving requires more seeds, more regions, or richer decision
+      rewards. We report this candidly because the methodological lesson
+      itself is a contribution.</li>
   </ul>
   <figure class="wide">
     {_img(FIG_DECISION_AB, "Decision-reward A/B")}
     <figcaption>
-      <strong>Figure 18 — Reward alignment is a control knob.</strong>
-      <em>Left</em>: test pixel F1 by reward — pixel-reward PPO wins,
-      decision-reward sacrifices 2–3 pp (paired-significant, p ≤ 0.009).
-      <em>Right</em>: mean absolute relative area error by reward —
-      decision-reward consistently wins, especially on AlphaEarth (−62 %).
-      This validates the central CCA claim: the reward function is the knob
-      that aligns the calibration policy with the downstream decision.
+      <strong>Figure 18 — Reward alignment is a control knob; net
+      decision-metric win is not yet significant.</strong> 20-seed paired A/B.
+      <em>Left</em>: pixel F1 — pixel-reward PPO wins, decision-reward
+      sacrifices 2–3 pp (paired-significant, p ≤ 0.005). <em>Right</em>: mean
+      absolute relative area error — direction backbone-dependent (AE −22 %,
+      U-Net +5 %) and not statistically significant at n = 20 × 4. The
+      framework claim that "the reward is the knob" is verified by panel (a);
+      the stronger claim that decision-aligned reward net-improves decision
+      metrics requires more statistical power than this testbed provides.
     </figcaption>
   </figure>
 

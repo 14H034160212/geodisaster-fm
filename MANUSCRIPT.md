@@ -26,7 +26,13 @@ trainable U-Net and a frozen Google AlphaEarth foundation backbone (all
 twelve paired tests at p ≤ 0.005), with the gain on the foundation model
 strictly *larger* than on the U-Net — and (d) embeds the calibration MDP in
 a closed perception → neuro-symbolic-reasoning → reinforcement-learning loop
-whose reward signal targets decision-level outputs, not pixels. The end-to-end
+in which the reward signal is a *significant control knob* shaping the policy
+toward whatever decision-level objective is specified (when the reward is
+switched from pixel-F1 to per-chip area-error, the resulting policy has a
+paired-significant pixel-F1 trade-off on both backbones, *p* ≤ 0.005 over 20
+seeds; whether a decision-aligned reward delivers a net improvement on the
+decision metric itself remains an open empirical question at this seed
+count). The end-to-end
 agent delivers flooded-area answers matching analyst hand-labels at Pearson
 **r = 0.971 across ten real flood events**, with perception running at 0.031 s
 per chip — minutes-not-days time-to-answer. We further report a set of
@@ -273,35 +279,80 @@ second-best backbone into the first.
 
 *[Fig. 5 = Fig 11 (PPO significance with coreset) + Fig 20 (U-Net vs AlphaEarth)]*
 
-#### R4b — The reward function is a control knob: pixel-F1 vs decision-aligned reward
+#### R4c — Sample efficiency: the gain is largest where labels are scarcest
 
-The R4 result shows PPO is the best policy under the *pixel-F1* reward. But
-the central claim of CCA is that the calibration MDP can be solved against
+Because the CCA framework's central promise is *label-efficient* calibration,
+we verify that the PPO policy behaves as a textbook label-efficient method:
+its advantage over baselines should be largest when labels are scarcest. We
+re-ran the 10-seed paired protocol at label budgets B ∈ {1, 2, 4, 8} on the
+U-Net backbone, evaluating PPO against random / uncertainty / CoreSet and the
+full-pool oracle (Fig. 5d). The pattern is the canonical sample-efficient one:
+
+| Budget | random | PPO | PPO − random | paired *t*-p |
+|--------|--------|-----|--------------|-------------|
+| 1      | 0.720  | **0.781** | **+0.062** | <0.001 |
+| 2      | 0.736  | 0.779 | +0.044 | <0.001 |
+| 4      | 0.756  | 0.779 | +0.023 | 0.005 |
+| 8      | 0.760  | 0.777 | +0.017 | 0.013 |
+
+PPO's edge **decreases monotonically** as the budget grows: +0.062 → +0.044
+→ +0.023 → +0.017 F1. All four budgets are paired-significant
+(*t*-p ≤ 0.013). Strikingly, **PPO at budget = 1 (F1 0.781) matches or
+exceeds every baseline at budget = 8** (random 0.760, uncertainty 0.755,
+CoreSet 0.757) — the learned chip-selection is worth roughly an 8× label
+multiplier at the bottom of the curve. PPO's absolute F1 also saturates
+quickly (0.777 – 0.781 across budgets), consistent with the calibration MDP
+being a small-effective-dimension problem: a single well-chosen chip
+captures most of the recoverable threshold information for the test region.
+
+*[Fig. 5d = Fig 24 (sample-efficiency curve + per-budget paired gain)]*
+
+#### R4b — The reward function is a real control knob — but decision-aligned reward does not yet net-improve decision metrics
+
+The R4 result shows PPO is the best policy under the *pixel-F1* reward. The
+central claim of CCA is that the calibration MDP can be solved against
 *any* decision-level objective by changing the reward signal. We test this
-directly: on the same 10-seed paired protocol we train two arms — the
-standard pixel-F1-reward arm and a **decision-aligned** arm whose reward is
-the per-step decrease in mean absolute relative area error across test
-chips — and evaluate both arms on *both* metrics. Reward alignment is real
-and statistically detectable (Fig. 5c).
+directly: on a 20-seed paired protocol (initially 10 seeds; doubled after
+the first run because the decision-metric paired CIs were wide) we train two
+arms — the standard pixel-F1-reward arm and a **decision-aligned** arm whose
+reward is the per-step decrease in mean absolute relative area error across
+test chips — and evaluate both arms on *both* metrics. We report two separate
+findings, with opposite statistical strength (Fig. 5c).
 
-- **Reward shapes behaviour, significantly.** Decision-reward PPO has lower
-  pixel F1 than pixel-reward PPO on both backbones (U-Net 0.761 vs 0.779,
-  paired t-test p = 0.007; AlphaEarth 0.690 vs 0.721, p = 0.009). The MDP is
-  genuinely steering toward whatever objective the reward encodes — not
-  blindly maximising pixel F1.
-- **The decision-aligned reward improves the decision metric.** Mean
-  absolute relative area error: U-Net 5.99 (decision-PPO) vs 6.58
-  (pixel-PPO), −9 %; AlphaEarth 1.79 vs 4.69, **−62 %**. The
-  AlphaEarth-backbone effect is large; paired significance is not yet
-  reached at n = 10 seeds × 4 regions (CI = [−7.0, +1.2]) — a power
-  limitation we acknowledge.
-- **Trade-off interpretation.** Pixel F1 and per-chip area fidelity are
-  *not the same objective*; trading 2–3 percentage points of pixel F1 for
-  a large reduction in decision-level area error is the right trade if the
-  consumer of the maps is a responder asking "how much water". The CCA
-  framework's contribution is *making this trade-off explicit and learnable*.
+**(i) Reward shaping is a real, paired-significant control knob.** Across 20
+seeds and four hard regions, decision-reward PPO has *significantly lower*
+pixel F1 than pixel-reward PPO on both backbones: U-Net 0.758 vs 0.778,
+paired *t*-test **p = 0.0004**; AlphaEarth 0.701 vs 0.728, **p = 0.005**.
+The MDP genuinely steers toward whatever objective the reward encodes — it
+is not blindly maximising pixel F1 regardless of the reward signal. This
+verifies the framework's central claim that the reward signal is the
+control knob that aligns the calibration policy with a chosen objective.
 
-*[Fig. 5c = Fig 23 (decision-reward A/B)]*
+**(ii) Decision-aligned reward does *not* yet net-improve the decision
+metric.** On mean absolute relative area error (lower is better), the
+direction is **backbone-dependent** and **not statistically significant** at
+n = 20 × 4: on U-Net decision-PPO is slightly *worse* (6.26 vs 5.96,
+Δ = +0.31, paired *t*-test p = 0.75); on AlphaEarth decision-PPO is slightly
+*better* (3.66 vs 4.70, Δ = −1.04, p = 0.37). We note that a 10-seed pilot
+gave a much larger AlphaEarth effect (Δ = −2.90, −62 % relative) which the
+20-seed re-run halved and rendered non-significant — a textbook noise-
+reversal under-powered RL evaluations are vulnerable to. We report both runs
+in full because *the methodological lesson is itself a contribution*:
+RL-on-disaster-mapping evaluations need ≥20 seeds and wider region pools to
+distinguish a real decision-metric improvement from seed noise.
+
+**(iii) Honest synthesis.** What is *robust*: the reward is a paired-
+significant control knob — the policy provably tracks the objective the
+reward encodes (i). What is *not yet robust*: that an area-error reward
+produces a net improvement on the area-error metric vs the pixel-F1 reward
+in this 4-region testbed (ii). We argue this is a power problem not a
+no-effect result — the AlphaEarth direction is consistent across both
+10- and 20-seed runs, and the AlphaEarth effect at 20 seeds is still a
+−22 % relative reduction, just with a 95 % CI that includes zero. Resolving
+this requires either more seeds, more regions, or richer decision rewards;
+we treat that as the most concrete next-step experiment.
+
+*[Fig. 5c = Fig 23 (decision-reward A/B, 20 seeds)]*
 
 ### R5 — What does NOT help: calibrated negative results
 

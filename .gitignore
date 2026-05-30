@@ -159,3 +159,9 @@ outputs/few_shot_ae_stack_seed*/**/*.ckpt
 !outputs/decision/calibration_analysis_xbd.json
 !outputs/layer3_ppo/decision_ab_unet.json
 !outputs/layer3_ppo/decision_ab_ae.json
+!outputs/layer3_ppo/ppo_sig_b1.json
+!outputs/layer3_ppo/ppo_sig_b2.json
+!outputs/layer3_ppo/ppo_sig_b4.json
+!outputs/layer3_ppo/ppo_sig_b8.json
+!outputs/layer3_ppo/decision_ab_unet_20s.json
+!outputs/layer3_ppo/decision_ab_ae_20s.json
