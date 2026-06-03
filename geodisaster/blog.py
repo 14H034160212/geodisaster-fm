@@ -57,6 +57,11 @@ ACTIVE_ADAPT_JSON = "outputs/active_adapt/adapt_Pakistan.json"
 ACTIVE_ADAPT_SUMMARY = "outputs/active_adapt/summary_all_regions.json"
 PPO_RESULTS_JSON = "outputs/layer3_ppo/ppo_results.json"
 PPO_SIG_JSON = "outputs/layer3_ppo/ppo_significance.json"
+# Leakage-free leave-one-event-out PPO (v2 = with GAE-λ + terminal_pixel + ent schedule)
+PPO_LOEO_V2_JSON = "outputs/layer3_ppo/ppo_loeo_v2_aggregate.json"
+PPO_LOEO_V1_JSON = "outputs/layer3_ppo/ppo_loeo_aggregate.json"
+FIG_LOEO_V1_V2 = "outputs/figures/fig26_loeo_v1_v2.png"
+FIG_LEAKAGE_FREE = "outputs/figures/fig25_leakage_free.png"
 DISPATCH_USA_JSON = "outputs/dispatch/USA_170264.json"
 DISPATCH_USA_BRIEF = "outputs/dispatch/USA_170264.briefing.txt"
 COMPARISON_JSON  = "outputs/sen1floods11_comparison.json"
@@ -780,6 +785,85 @@ def _ppo_sig_block() -> str:
             "<th>Paired difference</th><th>Δ F1</th><th>95% CI</th>"
             "<th>t-test p</th><th>Wilcoxon p</th><th>verdict</th></tr></thead>"
             f"<tbody>{prows}</tbody></table>")
+
+
+def _ppo_loeo_v2_block() -> str:
+    """Leakage-free leave-one-event-out aggregate (10 folds × 10 seeds = 100 pairs).
+
+    Headline result table for the corrected R4: PPO trained on 9 events,
+    evaluated on the 10th held out. PPO is statistically equivalent to the
+    full-pool oracle and significantly beats zero-shot and CoreSet under
+    this strict event-level holdout.
+    """
+    d2 = _load_json(PPO_LOEO_V2_JSON)
+    d1 = _load_json(PPO_LOEO_V1_JSON)
+    if not d2:
+        return ("<p style='color:var(--muted)'><em>LOEO-v2 aggregate pending — "
+                "scripts/aggregate_loeo.py --variant v2 will populate this.</em></p>")
+    pm = d2["pooled_mean"]; pp = d2["paired_vs_ppo"]
+    methods = [("base", "zero-shot (τ=0.5)"), ("random", "random"),
+               ("coreset", "CoreSet"), ("uncertainty", "uncertainty"),
+               ("ppo", "PPO (ours)"), ("full_pool", "full-pool oracle")]
+    mrows = ""
+    for k, lab in methods:
+        hi = " highlight" if k == "ppo" else ""
+        mrows += (f"<tr class='{hi.strip()}'><td>{lab}</td>"
+                  f"<td class='num'>{pm[k]:.4f}</td></tr>")
+    prows = ""
+    for key, lab in [("full_pool", "PPO − full-pool oracle"),
+                     ("base", "PPO − zero-shot"),
+                     ("coreset", "PPO − CoreSet"),
+                     ("uncertainty", "PPO − uncertainty"),
+                     ("random", "PPO − random")]:
+        x = pp[key]
+        sig_t = x["t_p"] < 0.05
+        sig_w = x["wilcoxon_p"] < 0.05
+        if x["t_p"] < 0.001:    badge = "<span style='color:#1c7f4f;font-weight:700'>*** </span>"
+        elif x["t_p"] < 0.01:   badge = "<span style='color:#1c7f4f;font-weight:700'>** </span>"
+        elif x["t_p"] < 0.05:   badge = "<span style='color:#1c7f4f;font-weight:600'>* </span>"
+        elif x["t_p"] < 0.10:   badge = "<span style='color:#a86a1f'>(*)</span>"
+        else:                   badge = "<span style='color:#6b7280'>n.s.</span>"
+        if sig_w and not sig_t:
+            badge += " <small style='color:#6b7280'>(Wilcoxon p&lt;.05)</small>"
+        prows += (f"<tr><td>{lab}</td>"
+                  f"<td class='num'>{x['mean']:+.4f}</td>"
+                  f"<td class='num'>[{x['ci95'][0]:+.4f}, {x['ci95'][1]:+.4f}]</td>"
+                  f"<td class='num'>{x['t_p']:.3f}</td>"
+                  f"<td class='num'>{x['wilcoxon_p']:.4f}</td><td>{badge}</td></tr>")
+
+    v1_note = ""
+    if d1:
+        d1p = d1["paired_vs_ppo"]
+        v1_note = (f"<p style='font-size:12.5px;color:#6b7280;margin:8px 0 0'>"
+                   f"<strong>Comparison with the earlier within-event protocol "
+                   f"(leakage-suspect, n=10 paired pairs):</strong> "
+                   f"PPO − random = {d1p['random']['mean']:+.4f} "
+                   f"(t-p={d1p['random']['t_p']:.3f}), "
+                   f"PPO − full-pool = {d1p['full_pool']['mean']:+.4f} "
+                   f"(t-p={d1p['full_pool']['t_p']:.3f}). Under the leakage-free "
+                   f"LOEO-v2 protocol (this table, n=100) the apparent PPO &gt; random "
+                   f"advantage narrows to a Wilcoxon-only signal while PPO matches "
+                   f"the full-pool oracle. We treat both protocols transparently.</p>")
+
+    note = (f"<p style='font-size:13px;color:#6b7280;margin-top:0'>"
+            f"<strong>Leave-one-event-out (LOEO)</strong> protocol: "
+            f"for each of the 10 Sen1Floods11 events the PPO policy is trained "
+            f"on the other 9 events only, frozen, then evaluated on the held-out "
+            f"event with 10 re-shuffled pool/test seeds. Pooled across folds × seeds "
+            f"= {d2['n_pairs']} paired pairs. Improved PPO (v2): GAE-λ = 0.95, "
+            f"episode-terminal F1-gain reward, entropy schedule 0.10 → 0.01, 300 "
+            f"updates. Budget = 4 chips.</p>")
+
+    fig = _img(FIG_LOEO_V1_V2, "Fig 26 — Leakage-free LOEO: PPO-v1 vs PPO-v2")
+    return (fig + note
+            + "<table class='results'><thead><tr><th>Method</th>"
+            "<th>Pooled mean F1 (n=100)</th></tr></thead>"
+            f"<tbody>{mrows}</tbody></table>"
+            "<table class='results' style='margin-top:14px'><thead><tr>"
+            "<th>Paired difference</th><th>Δ F1</th><th>95% CI</th>"
+            "<th>t-test p</th><th>Wilcoxon p</th><th>verdict</th></tr></thead>"
+            f"<tbody>{prows}</tbody></table>"
+            + v1_note)
 
 
 def _dispatch_demo_block() -> str:
@@ -1653,14 +1737,45 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     </figcaption>
   </figure>
 
+  <h3>Leakage-free leave-one-event-out (LOEO) — the headline result</h3>
   <p>
-    A single train/test split is not enough to claim a +0.04 effect is real —
-    the per-region test sets here are small (8–22 chips). So we ran a
-    <strong>paired multi-seed significance test</strong>: ten independent
-    pool/test re-splits, a fresh PPO policy trained on each, with every method
-    evaluated on the same held-out split, and a paired <em>t</em>-test +
-    Wilcoxon signed-rank on the per-seed differences. The PPO advantage holds
-    up — and is statistically significant against every baseline.
+    The earlier within-event protocol (10 seeds re-shuffling pool/test on the
+    same four hard regions) was subsequently flagged for event-level leakage:
+    the policy was trained and scored on the <em>same</em> four events, only
+    the seed-level split differed. We re-ran the experiment under a strict
+    <strong>leave-one-event-out (LOEO)</strong> protocol — for each of the ten
+    Sen1Floods11 events the PPO policy is trained on the other nine events
+    only, frozen, then evaluated on the held-out event with ten re-shuffled
+    pool/test seeds (= 100 paired pairs total). Three RL-side fixes were
+    necessary for the policy to learn anything transferable under LOEO:
+    GAE-λ = 0.95 for credit assignment, an episode-terminal F1-gain reward
+    (removes step-level noise), and a linear entropy schedule 0.10 → 0.01
+    (prevents premature policy collapse). The resulting numbers are honest
+    and the headline is precise.
+  </p>
+
+  {_ppo_loeo_v2_block()}
+
+  <p style="margin-top:14px">
+    Reading the table: PPO with a 4-chip budget is <strong>statistically
+    equivalent to the full-pool oracle</strong> (Δ = −0.002 F1, n.s.) — i.e.
+    four actively selected chips capture as much calibration information as
+    re-fitting the threshold on every available pool chip. It
+    <strong>significantly beats the zero-shot 0.5 default</strong> (Δ = +0.015,
+    <em>p</em> = 0.009) and <strong>significantly beats CoreSet active
+    learning</strong> (Δ = +0.008, <em>p</em> = 0.024). Against random
+    selection the mean Δ is +0.005 F1 with a Wilcoxon rank-test <em>p</em> =
+    0.0006 (PPO wins more per-pair than it loses); the parametric paired
+    <em>t</em>-test sits at <em>p</em> = 0.084 — the gap from random to oracle
+    is +0.007 F1, so the absolute headroom is small and the parametric test
+    is sensitive to a few high-variance seeds. We report both tests.
+  </p>
+
+  <h3>Historical: within-event protocol (10 seeds, leakage-suspect)</h3>
+  <p>
+    For completeness we retain the original within-event protocol below. Its
+    numbers were inflated by event leakage; the LOEO-v2 table above is the
+    one that should be cited.
   </p>
 
   {_ppo_sig_block()}
