@@ -1,0 +1,40 @@
+{
+  "n_events": 4,
+  "mean_calib_gain": 0.0417,
+  "max_calib_gain": 0.119,
+  "best_threshold_range": [
+    0.49999999999999994,
+    0.65
+  ],
+  "frac_events_optimal_not_0.5": 1.0,
+  "per_region": {
+    "Pakistan": {
+      "f1_at_0.5": 0.7209,
+      "f1_at_best": 0.7209,
+      "best_threshold": 0.49999999999999994,
+      "calib_gain": 0.0,
+      "ece": 0.2291
+    },
+    "Somalia": {
+      "f1_at_0.5": 0.6425,
+      "f1_at_best": 0.6763,
+      "best_threshold": 0.5499999999999999,
+      "calib_gain": 0.0338,
+      "ece": 0.1706
+    },
+    "Paraguay": {
+      "f1_at_0.5": 0.7486,
+      "f1_at_best": 0.7624,
+      "best_threshold": 0.5499999999999999,
+      "calib_gain": 0.0139,
+      "ece": 0.1993
+    },
+    "India": {
+      "f1_at_0.5": 0.6843,
+      "f1_at_best": 0.8033,
+      "best_threshold": 0.65,
+      "calib_gain": 0.119,
+      "ece": 0.1837
+    }
+  }
+}

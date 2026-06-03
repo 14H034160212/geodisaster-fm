@@ -16,7 +16,7 @@ from geodisaster.train import DisasterSegLightningModule
 from geodisaster.metrics import expected_calibration_error
 from geodisaster.utils.logging import get_logger, setup_logging
 log = get_logger("calib")
-LOO = Path("outputs/leave_one_region_out")
+LOO = Path("outputs/leave_one_region_out")   # default; override with --ckpt-root
 REGIONS = ["Ghana", "India", "Mekong", "Nigeria", "Pakistan", "Paraguay",
            "Somalia", "Spain", "Sri-Lanka", "USA"]
 
@@ -33,12 +33,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--stats", default="data/processed/norm_stats_sen1floods11.yaml")
     ap.add_argument("--out", default="outputs/decision/calibration_analysis.json")
+    ap.add_argument("--ckpt-root", default="outputs/leave_one_region_out",
+                    help="LOO dir (override for AlphaEarth: outputs/leave_one_region_out_ae)")
+    ap.add_argument("--regions", nargs="+", default=None,
+                    help="default = REGIONS; pass e.g. Pakistan Somalia Paraguay India for AE LOO")
     args = ap.parse_args()
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     grid = np.linspace(0.05, 0.95, 19)
     per_region = {}
-    for region in REGIONS:
-        cks = sorted((LOO / f"test_{region}" / "checkpoints").glob("*.ckpt"))
+    loo_root = Path(args.ckpt_root)
+    regions = args.regions if args.regions else REGIONS
+    for region in regions:
+        cks = sorted((loo_root / f"test_{region}" / "checkpoints").glob("*.ckpt"))
         if not cks:
             continue
         st = torch.load(cks[-1], map_location="cpu", weights_only=False)

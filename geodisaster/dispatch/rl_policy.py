@@ -158,9 +158,12 @@ class ChipCalibEnv:
             done = self.steps >= self.budget
             return self._obs(), reward, done, {"decision_error": err}
         f1 = self._calibrated_test_f1()
-        reward = f1 - self.prev_f1      # incremental F1 gain
-        self.prev_f1 = f1
         done = self.steps >= self.budget
+        if self.reward_mode == "terminal_pixel":
+            reward = (f1 - self.base_f1) if done else 0.0   # episode-level signal only
+        else:
+            reward = f1 - self.prev_f1                       # incremental F1 gain
+        self.prev_f1 = f1
         return self._obs(), reward, done, {"f1": f1}
 
     def valid_actions(self) -> list[int]:
@@ -197,16 +200,31 @@ def masked_categorical(logits: torch.Tensor, valid_mask: torch.Tensor):
 
 
 def train_ppo(make_env, feat_dim: int, n_updates=300, episodes_per_update=8,
-              gamma=0.99, clip=0.2, lr=3e-3, seed=0, log_every=25):
-    """Train the chip-selection policy with PPO. ``make_env`` returns a fresh
-    ChipCalibEnv each call (samples a region/episode)."""
+              gamma=0.99, gae_lambda=0.95, clip=0.2, lr=3e-3, seed=0, log_every=25,
+              ent_start=0.10, ent_end=0.01):
+    """Train the chip-selection policy with PPO + GAE-λ + entropy annealing.
+
+    Improvements over the original (motivated by the LOEO negative result):
+      * GAE-λ for credit assignment — drastically lower-variance advantage
+        estimates than raw discounted returns (which were drowning in noise
+        given an episode-level F1 gain of ~0.005 with step-level σ ~0.05).
+      * Linear entropy schedule (ent_start → ent_end) to keep exploration
+        alive in the early phase where the policy is otherwise prone to
+        collapsing onto a near-random uniform strategy.
+      * Works seamlessly with the new ``reward_mode='terminal_pixel'`` mode
+        of ``ChipCalibEnv`` (recommended): rewards are 0 every step except
+        the terminal step, where the reward equals the full F1 gain. This
+        matches the actual optimisation objective and removes the noisy
+        intermediate signal.
+    """
     torch.manual_seed(seed); np.random.seed(seed)
     policy = ChipPolicy(feat_dim)
     opt = torch.optim.Adam(policy.parameters(), lr=lr)
     history = []
 
     for upd in range(n_updates):
-        batch_obs, batch_act, batch_logp, batch_ret, batch_val, batch_valid = [], [], [], [], [], []
+        ent_coef = ent_start + (ent_end - ent_start) * (upd / max(1, n_updates - 1))
+        batch_obs, batch_act, batch_logp, batch_adv, batch_ret, batch_val, batch_valid = [], [], [], [], [], [], []
         ep_returns = []
         for _ in range(episodes_per_update):
             env = make_env()
@@ -226,22 +244,30 @@ def train_ppo(make_env, feat_dim: int, n_updates=300, episodes_per_update=8,
                 obs2, r, done, _ = env.step(int(a.item()))
                 traj.append((ot, valid, a, logp, r, val))
                 obs = obs2
-            # returns (discounted)
-            R = 0.0
-            rets = []
-            for (_, _, _, _, r, _) in reversed(traj):
-                R = r + gamma * R
-                rets.insert(0, R)
             ep_returns.append(sum(t[4] for t in traj))
-            for (ot, valid, a, logp, r, val), Rt in zip(traj, rets):
+            # GAE-λ advantage and return-to-go (bootstrap V(s_T)=0 at terminal)
+            T = len(traj)
+            gae = 0.0
+            advs = [0.0] * T
+            rets = [0.0] * T
+            next_val = 0.0
+            for tstep in range(T - 1, -1, -1):
+                _, _, _, _, r, val = traj[tstep]
+                v = float(val.item())
+                delta = r + gamma * next_val - v
+                gae = delta + gamma * gae_lambda * gae
+                advs[tstep] = gae
+                rets[tstep] = gae + v
+                next_val = v
+            for (ot, valid, a, logp, r, val), A, Rt in zip(traj, advs, rets):
                 batch_obs.append(ot); batch_valid.append(valid)
                 batch_act.append(a); batch_logp.append(logp)
-                batch_ret.append(Rt); batch_val.append(val)
+                batch_adv.append(A); batch_ret.append(Rt); batch_val.append(val)
 
+        adv_t = torch.tensor(batch_adv, dtype=torch.float32)
         rets_t = torch.tensor(batch_ret, dtype=torch.float32)
-        vals_t = torch.stack(batch_val).detach()
-        adv = rets_t - vals_t
-        adv = (adv - adv.mean()) / (adv.std() + 1e-8)
+        # global advantage standardisation
+        adv_t = (adv_t - adv_t.mean()) / (adv_t.std() + 1e-8)
         old_logp = torch.stack(batch_logp).detach()
 
         # PPO epochs
@@ -257,17 +283,19 @@ def train_ppo(make_env, feat_dim: int, n_updates=300, episodes_per_update=8,
             new_val = torch.stack(new_vals)
             ent = torch.stack(ents).mean()
             ratio = torch.exp(new_logp - old_logp)
-            s1 = ratio * adv
-            s2 = torch.clamp(ratio, 1 - clip, 1 + clip) * adv
+            s1 = ratio * adv_t
+            s2 = torch.clamp(ratio, 1 - clip, 1 + clip) * adv_t
             pg_loss = -torch.min(s1, s2).mean()
             v_loss = F.mse_loss(new_val, rets_t)
-            loss = pg_loss + 0.5 * v_loss - 0.01 * ent
-            opt.zero_grad(); loss.backward(); opt.step()
+            loss = pg_loss + 0.5 * v_loss - ent_coef * ent
+            opt.zero_grad(); loss.backward()
+            torch.nn.utils.clip_grad_norm_(policy.parameters(), 0.5)
+            opt.step()
 
         mean_ret = float(np.mean(ep_returns))
         history.append(mean_ret)
         if upd % log_every == 0 or upd == n_updates - 1:
-            print(f"  upd {upd:3d}  mean episode F1-gain return = {mean_ret:+.4f}")
+            print(f"  upd {upd:3d}  mean episode F1-gain return = {mean_ret:+.4f}  ent_coef={ent_coef:.3f}")
 
     return policy, history
 

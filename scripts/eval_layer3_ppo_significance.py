@@ -83,6 +83,8 @@ def cache_all_chips(region: str, ckpt: Path, patch_root: str, stats: str):
             lab = b["mask"].numpy().ravel()
             valid = lab != 255
             pr, lab = pr[valid], lab[valid].astype(np.uint8)
+            if pr.size == 0:           # skip fully-masked chips (no valid pixels)
+                continue
             ent = -(np.clip(pr, 1e-6, 1 - 1e-6) * np.log(np.clip(pr, 1e-6, 1 - 1e-6))
                     + (1 - pr) * np.log(np.clip(1 - pr, 1e-6, 1 - 1e-6)))
             probs.append(pr.astype(np.float32)); labels.append(lab)
@@ -98,9 +100,13 @@ def _subsample(arr_list, idx, cap, rng):
     return pr
 
 
-def split_eval(cache, seed, budget, n_rand=5, test_cap=2_000_000):
+def split_eval(cache, seed, budget, n_rand=5, test_cap=2_000_000, reward_mode="pixel"):
     """One seed: split pool/test, train nothing here — just build env pieces +
-    evaluate the non-PPO baselines. Returns (env_builder, baseline_dict)."""
+    evaluate the non-PPO baselines. Returns (env_builder, baseline_dict).
+
+    ``reward_mode`` is forwarded to ``ChipCalibEnv``: use 'pixel' for the
+    original incremental F1 gain, or 'terminal_pixel' for the lower-variance
+    episode-level signal recommended with GAE-λ."""
     rng = np.random.RandomState(seed)
     n = cache["n"]
     order = rng.permutation(n)
@@ -120,7 +126,8 @@ def split_eval(cache, seed, budget, n_rand=5, test_cap=2_000_000):
     feats = (feats_raw - feats_raw.mean(0)) / (feats_raw.std(0) + 1e-6)
 
     def make_env():
-        return ChipCalibEnv(pool_pr, pool_lb, test_pr, test_lb, feats, budget=budget)
+        return ChipCalibEnv(pool_pr, pool_lb, test_pr, test_lb, feats,
+                            budget=budget, reward_mode=reward_mode)
 
     base = f1_at_threshold(test_pr, test_lb, 0.5)
 

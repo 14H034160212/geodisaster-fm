@@ -88,8 +88,10 @@ class DisasterSegLightningModule(pl.LightningModule if pl else object):
             scores = torch.sigmoid(logits.squeeze(1))
             preds = (scores > 0.5).long()
             self._val_cm.update(preds, target)
-            self._val_scores.append(scores.detach())
-            self._val_targets.append(target.detach())
+            # keep on CPU: concatenating a large val set on-GPU for AUPRC/ECE
+            # can OOM (e.g. xBD with >1000 val patches on a shared GPU).
+            self._val_scores.append(scores.detach().cpu())
+            self._val_targets.append(target.detach().cpu())
         if stage == "test":
             preds = (torch.sigmoid(logits.squeeze(1)) > 0.5).long()
             self._test_cm.update(preds, target)

@@ -165,3 +165,11 @@ outputs/few_shot_ae_stack_seed*/**/*.ckpt
 !outputs/layer3_ppo/ppo_sig_b8.json
 !outputs/layer3_ppo/decision_ab_unet_20s.json
 !outputs/layer3_ppo/decision_ab_ae_20s.json
+
+# LOEO + leakage-free PPO artifacts (added 2026-06-03)
+!outputs/layer3_ppo/ppo_loeo_*.json
+!outputs/layer3_ppo/ppo_loeo_v2_*.json
+!outputs/layer3_ppo/ppo_meta_*.json
+!outputs/layer3_ppo/ppo_sig_ae_b*.json
+!outputs/layer3_ppo/ppo_v2_pakistan_quick.json
+!outputs/decision/calibration_analysis_ae.json
