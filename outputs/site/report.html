@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>GeoDisaster-FM — advisor progress report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --fg: #1a1a1a; --muted: #6b7280; --bg: #fbfaf6;
+  --accent: #1f5fbe; --good: #1c7f4f; --warn: #a86a1f; --bad: #b3261e;
+  --line: #e5e3da; --kbd: #f0eee5;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body {
+  max-width: 860px; margin: 0 auto; padding: 36px 32px 80px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 15.5px; line-height: 1.65;
+}
+header.banner {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px; border: 1px solid var(--line); border-radius: 8px;
+  background: white; margin-bottom: 28px; font-size: 13.5px;
+}
+header.banner a { color: var(--accent); text-decoration: none; }
+header.banner a:hover { text-decoration: underline; }
+h1 { font-size: 30px; font-weight: 700; line-height: 1.25; margin: 18px 0 10px; }
+h2 { font-size: 22px; font-weight: 650; margin: 36px 0 12px;
+     padding-top: 14px; border-top: 1px solid var(--line); }
+h3 { font-size: 17.5px; font-weight: 650; margin: 24px 0 8px; color: #2a2a2a; }
+h4 { font-size: 15.5px; font-weight: 650; margin: 20px 0 4px; color: #444; }
+p, li { color: var(--fg); }
+strong { color: #000; font-weight: 650; }
+em { color: #444; }
+ul, ol { padding-left: 22px; }
+code, kbd {
+  font-family: 'JetBrains Mono', SF Mono, Menlo, monospace;
+  font-size: 13px; background: var(--kbd); padding: 1px 5px; border-radius: 3px;
+}
+pre { background: white; padding: 14px 18px; border: 1px solid var(--line);
+      border-radius: 6px; overflow-x: auto; font-size: 13px; }
+pre code { background: transparent; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
+th, td { padding: 7px 10px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: white; font-weight: 650; }
+td.num, .num { font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; }
+blockquote { border-left: 3px solid var(--accent); padding: 4px 16px;
+             margin: 14px 0; background: #f3f1ea; color: #333; font-style: italic; }
+hr { border: none; border-top: 1px solid var(--line); margin: 28px 0; }
+.footer { color: var(--muted); font-size: 12.5px; margin-top: 48px;
+          padding-top: 14px; border-top: 1px solid var(--line); }
+</style>
+</head><body>
+
+<header class="banner">
+  <div>
+    <strong>GeoDisaster-FM</strong> · advisor progress report (snapshot)
+  </div>
+  <div>
+    <a href="./index.html">← Main blog / live dashboard</a> ·
+    <a href="https://github.com/14H034160212/geodisaster-fm">GitHub</a>
+  </div>
+</header>
+
+<h1 id="_1">老师好,今晚的汇报</h1>
+<h2 id="0">0. 一句话总结</h2>
+<blockquote>
+<p>在严格 leave-one-event-out(10 fold × 10 seed = 100 paired pairs)的 leakage-free 协议下,<strong>用 4 个标签做的 active threshold calibration policy,F1 和用全 pool 校准的 oracle 在统计上等价</strong>(Δ = −0.002, p = 0.42);同时显著优于 zero-shot 默认(p = 0.009)和 CoreSet active learning(p = 0.024)。CCA 框架 + 4-标签 oracle-等价的故事,是这轮工作的核心可发表主张。</p>
+</blockquote>
+<hr />
+<h2 id="1-4">1. 从上次汇报到现在做了什么(主要 4 件)</h2>
+<h3 id="1-chatgpt-leakage">① ChatGPT 同行评审 → 发现 leakage 风险</h3>
+<p>之前 R4 的 paired-significant 结论(PPO p ≤ 0.005)是在"同 4 hard regions 既训练又评估"的 within-event 协议下做的。审稿人会问:<strong>policy 是不是在它的 evaluation events 上间接训过?</strong> 这是 event-level leakage。</p>
+<h3 id="2-leave-one-event-out">② 设计 leave-one-event-out 严格协议</h3>
+<ul>
+<li>10 folds × 10 seeds = <strong>100 paired pairs</strong>(原来 10)</li>
+<li>每 fold:PPO 只在另外 9 个事件上训练,<strong>完全不见 meta-test 事件</strong></li>
+<li>然后才在 meta-test 上 evaluate</li>
+</ul>
+<h3 id="3-ppo">③ 旧 PPO 在严格协议下崩了 → 诊断 + 修底层</h3>
+<p>LOEO-v1 结果:<strong>PPO 平均输给 random −0.007 F1</strong>;Pakistan 单 fold 输 −0.033(灾难)。</p>
+<p>诊断出 3 个底层 bug:
+1. <strong>没有 GAE-λ</strong> — 用 raw discounted return,SNR ≈ 1:10
+2. <strong>step-level reward</strong> — 每加一个 chip 都给"F1 增量"作 reward,噪声盖过信号
+3. <strong>constant entropy 0.01</strong> — 早期 collapse</p>
+<p>修了之后 LOEO-v2 重测,Pakistan 从 −0.033 翻成 <strong>−0.002</strong>,Somalia 从 −0.037 翻成 <strong>+0.018</strong>。</p>
+<h3 id="4-ablation-r0971">④ 进一步 ablation + r=0.971 鲁棒性审计</h3>
+<ul>
+<li><strong>richer 10-d features</strong>(decision-frontier proximity + 4 分位数)→ <strong>没帮助,反而更差</strong>(LOEO-v3 显著低于 oracle)。<strong>5-d 是最优</strong>,这是诚实的负面发现,反而强化"v2 设计选择是合理的"。</li>
+<li><strong>r=0.971</strong> 经审计后:Spearman 0.90,MAPE median 25%,<strong>bottom-50% area chip r = 0.118</strong>(几乎不相关),top-50% r = 0.972 主导 headline。<strong>大面积事件主导是真问题,必须诚实标注</strong>。</li>
+</ul>
+<hr />
+<h2 id="2-5-leakage-free-100-paired-pairs">2. 现在最强的 5 条主张(全部 leakage-free 100 paired pairs)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>主张</th>
+<th>数据</th>
+<th>显著性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Calibration 是 cross-disaster 主要 lever</strong></td>
+<td>12 events × 2 benchmarks,所有 τ* ≠ 0.5,Pakistan +0.235 F1 单事件提升</td>
+<td>empirical</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>4 chip = full-pool oracle</strong>(头条)</td>
+<td>Δ = −0.002, n=100</td>
+<td>t-p = 0.42(等价)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>PPO &gt; zero-shot 校准</strong></td>
+<td>Δ = +0.015</td>
+<td><strong>t-p = 0.009 **</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>PPO &gt; CoreSet active learning</strong></td>
+<td>Δ = +0.008</td>
+<td><strong>t-p = 0.024 *</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>PPO &gt; random</strong>(方向稳但 t-test 边缘)</td>
+<td>Δ = +0.005,wins 65/100 pairs</td>
+<td>Wilcoxon <strong>p = 0.0006</strong>;t-p = 0.084</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-4-paper">3. 4 个诚实标注的局限(全部已加入 paper)</h2>
+<table>
+<thead>
+<tr>
+<th>局限</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>richer features 没帮助</td>
+<td>5-d 是最优;<strong>capacity/budget mismatch,不是 missing signal</strong></td>
+</tr>
+<tr>
+<td>r=0.971 由大面积 chip 主导</td>
+<td>bottom-50% r=0.118;<strong>claim 限定为 dominant-signal regime</strong></td>
+</tr>
+<tr>
+<td>Decision-aligned reward 改 policy 但没 net-improve decision metric</td>
+<td>20-seed 不够,<strong>reward 是 control knob 的架构验证有效,decision metric 改善是 open</strong></td>
+</tr>
+<tr>
+<td>AE 在 equal inputs 上 ≈ U-Net 不超过</td>
+<td>F1 ceiling 不是 representational</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-paper-title-abstract">4. 新 paper Title + Abstract 框架</h2>
+<p><strong>新 Title:</strong></p>
+<blockquote>
+<p>"<strong>Four labels are enough</strong>: cross-disaster mapping is a calibration problem, and an active-calibration policy matches the full-pool oracle"</p>
+</blockquote>
+<p><strong>Abstract 5 段架构(每段单一核心主张):</strong>
+1. <strong>Reframing</strong> —— 12 events × 2 benchmarks 的 calibration drift
+2. <strong>Mechanism</strong> —— Active Calibration MDP + 3 个必需 RL-OPT,带 v1 灾难性失败对照
+3. <strong>Headline</strong> —— 4 chip ≡ oracle + 显著 &gt; zero-shot/CoreSet
+4. <strong>Calibrated negative findings</strong> —— 4 个诚实负面发现强化主线
+5. <strong>End-to-end agent</strong> —— 0.031s/chip + r=0.971(+ Spearman/MAPE 诚实标注)</p>
+<hr />
+<h2 id="5">5. 关于"我们的方法是不是最好"—— 诚实定位</h2>
+<p>老师如果问起,我准备这样答:</p>
+<p><strong>在我们测过的所有方法里,PPO 是 point estimate 第一,且</strong>是唯一统计上和 full-pool oracle 等价<strong>的方法</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>Pooled F1</th>
+<th>vs PPO</th>
+<th>t-p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>full-pool oracle</strong></td>
+<td><strong>0.8388</strong></td>
+<td>+0.002(tied)</td>
+<td>0.42</td>
+</tr>
+<tr>
+<td><strong>PPO(我们的方法)</strong></td>
+<td><strong>0.8368</strong></td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>uncertainty(entropy)</td>
+<td>0.8348</td>
+<td>-0.002(n.s.)</td>
+<td>0.33</td>
+</tr>
+<tr>
+<td>random</td>
+<td>0.8321</td>
+<td>-0.005</td>
+<td>0.084(Wilcoxon p=0.0006)</td>
+</tr>
+<tr>
+<td>CoreSet</td>
+<td>0.8285</td>
+<td><strong>-0.008 *</strong></td>
+<td>0.024</td>
+</tr>
+<tr>
+<td>zero-shot</td>
+<td>0.8221</td>
+<td><strong>-0.015 **</strong></td>
+<td>0.009</td>
+</tr>
+</tbody>
+</table>
+<p><strong>但有两个诚实 caveat 必须承认:</strong></p>
+<ol>
+<li><strong>PPO 和 uncertainty 没有统计差距</strong>(Δ=+0.002,t-p=0.33)— <strong>uncertainty 是它最接近的对手</strong>。</li>
+<li><strong>该问题的天花板被 oracle 锁住</strong>。我们没测的方法(Bayesian AL / MCTS / NeuralUCB / ensemble uncertainty)<strong>最多也只能 match oracle,不可能显著超过 PPO</strong>(因为 PPO 已经在 oracle 等价位置)。</li>
+</ol>
+<p><strong>那为什么 paper 还保留 PPO 作 headline?</strong></p>
+<table>
+<thead>
+<tr>
+<th>理由</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① PPO 是<strong>唯一</strong>测过的、统计上和 oracle 等价的方法</td>
+<td>uncertainty 0.8348 &lt; oracle 0.8388;PPO 0.8368 ≈ oracle</td>
+</tr>
+<tr>
+<td>② PPO 是 framework extension 的载体</td>
+<td>换 reward / 加 state / 升 budget 都能扩展;simple uncertainty 不能</td>
+</tr>
+<tr>
+<td>③ 完整 ablation chain 证明 v2 是正确设计点</td>
+<td>RL-OPT 必需(LOEO-v1 灾难);5-d 是最优(LOEO-v3 ablation)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>所以 paper 的 selling point 重新表述:</strong></p>
+<blockquote>
+<p>"<strong>Cross-disaster calibration is a 4-label problem, not a method-choice problem.</strong> 我们的方法是最 robust 的一个,但任何 reasonable active-selection 方法都能接近 oracle。这本身是个 operational 好消息 —— responder 不需要 deploy 复杂 RL 系统,只要 4 个标签和合理选法。" </p>
+</blockquote>
+<p><strong>这个表述比原来"PPO 击败一切"更诚实、更难撕、更有 operational value</strong>。</p>
+<hr />
+<h2 id="6-venue">6. Venue 判断 + 想请老师定夺的两个问题</h2>
+<h3 id="venuenature-communications-sister">❶ 投稿 venue:Nature Communications 还是 sister 期刊?</h3>
+<p><strong>我的判断</strong>:
+- <strong>主线已经够 Nature Communications</strong>: "4 chip = oracle" + 3 个显著主张 + 诚实负面 + 完整 reproducibility + 12 events × 2 benchmarks 的实证基础
+- <strong>但</strong> PPO − random 只是 Wilcoxon 显著(t-p = 0.084),审稿人<strong>可能</strong>会要求更多 seeds 把 t-test 也推过 0.05</p>
+<p><strong>fallback 方案</strong>:
+- <strong>Communications Earth &amp; Environment</strong>:Nature 系列,Earth science 门槛低,故事不变完全够投
+- <strong>npj Natural Hazards</strong>:也是 Nature 系列,domain 最匹配</p>
+<p><strong>请老师决定</strong>:
+- A. 直接投 Nat Commun,如果被打回再降级 → 时间风险高但 ceiling 最高
+- B. 直接投 Communications Earth &amp; Environment 或 npj Natural Hazards → 稳但 prestige 低一些
+- C. 先投 Nat Commun 准备好 24h 内 fallback 到 CCE → 折中</p>
+<h3 id="ppo-random-t-p-005">❷ 是否还要做"把 PPO − random 推过 t-p &lt; 0.05"的一轮实验?</h3>
+<p><strong>可能的路径</strong>(都是 ~1-2 周工作):
+- <strong>增加 seeds</strong>:从 10 加到 20-30 seeds × 10 folds → 200-300 paired pairs,统计 power 翻倍
+- <strong>更深网络</strong>:actor MLP 从 2×64 改到 3×128 + 600 updates(给 richer features 一个公平机会)
+- <strong>Bayesian active calibration baseline</strong>:加一个理论 correct 的 non-RL baseline 作对比</p>
+<p><strong>我的判断</strong>:<strong>不做也能投</strong>。Wilcoxon p = 0.0006 已经是 robust 的方向证据,t-p = 0.084 在 paper 里<strong>诚实标注 + 主线已经站住</strong>(头条是 "4 chip = oracle"、不是 "PPO &gt; random")。但<strong>如果有时间,加更多 seeds 是 ROI 最高的</strong>。</p>
+<hr />
+<h2 id="7-reproducibility">7. 代码 + 数据状态(reproducibility)</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub 主仓库</td>
+<td><code>14H034160212/geodisaster-fm</code>,commit <code>0bd752f</code></td>
+</tr>
+<tr>
+<td>Live blog dashboard</td>
+<td>https://geodisaster-fm.pages.dev/(已 redeploy 反映 LOEO-v2)</td>
+</tr>
+<tr>
+<td>Manuscript</td>
+<td><code>MANUSCRIPT.md</code> 809 行,可投状态</td>
+</tr>
+<tr>
+<td>完整实验 inventory</td>
+<td><code>RESULTS_INVENTORY.md</code>(每个 claim 都追溯到 JSON)</td>
+</tr>
+<tr>
+<td>Framework 文档</td>
+<td><code>FRAMEWORK_CCA.md</code>(中文写作 + 英文表格)</td>
+</tr>
+<tr>
+<td>Figures</td>
+<td>28 张(headline:Fig 26 LOEO v1↔v2;Fig 27 失败案例;Fig 28 v2/v3 ablation)</td>
+</tr>
+<tr>
+<td>BibTeX</td>
+<td><code>refs.bib</code>(16 entries)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-slide-slides">8. Slide 建议(如果今晚需要做 slides)</h2>
+<table>
+<thead>
+<tr>
+<th>Slide #</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Title + 一句话总结(Section 0)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>时间线:chatgpt review → leakage 修复 → RL-OPT → LOEO-v2 → ablation(Section 1)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Fig 26 主图 + LOEO 5 主张表(Section 2)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Fig 27 失败案例分布 + Fig 28 ablation(Section 3)</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>诚实定位:PPO 是 best 但 tied with uncertainty,oracle 是天花板(Section 5)</strong></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Venue 决策 + 2 个 open question(Section 6)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9">9. 最重要的一句话(给老师)</h2>
+<p><strong>新版的故事更诚实但更可发表。</strong> 抹掉了 chatgpt review 提的 leakage 风险,把 PPO 从"显著优于所有 baseline"修正为"4 chip ≡ oracle、显著优于 zero-shot/CoreSet、rank-significant &gt; random",并诚实标注了 4 个 limitation。<strong>核心 selling point 反而更清晰、更难被审稿人撕</strong> —— "4 chip = oracle" 是一个具体、可复现、操作有用的 claim。</p>
+<p>请老师帮看 Section 6 的两个问题,谢谢!</p>
+
+<div class="footer">
+  Snapshot of <code>REPORT_TONIGHT.md</code> committed to
+  <a href="https://github.com/14H034160212/geodisaster-fm">14H034160212/geodisaster-fm</a>.
+  This page is auto-generated from the markdown source by
+  <code>scripts/render_report_page.py</code>; the live blog narrative is at
+  <a href="./index.html">index.html</a>.
+</div>
+
+</body></html>

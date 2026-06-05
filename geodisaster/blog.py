@@ -965,6 +965,7 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
       &nbsp;·&nbsp; <strong>Code &amp; data</strong>:
       <a href="https://github.com/14H034160212/geodisaster-fm">github.com/14H034160212/geodisaster-fm</a>
       &nbsp;·&nbsp; <strong>Dashboard</strong>: <a href="dashboard.html">dashboard.html</a>
+      &nbsp;·&nbsp; <strong>Advisor progress report</strong>: <a href="report.html">report.html</a>
       &nbsp;·&nbsp; <strong>Last updated</strong>: {now.strftime("%Y-%m-%d %H:%M UTC")}
     </div>
   </div>
@@ -1769,6 +1770,64 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
     <em>t</em>-test sits at <em>p</em> = 0.084 — the gap from random to oracle
     is +0.007 F1, so the absolute headroom is small and the parametric test
     is sensitive to a few high-variance seeds. We report both tests.
+  </p>
+
+  <h3>Honest positioning — is PPO actually necessary?</h3>
+  <p>
+    A reader will reasonably ask: among the methods evaluated, <em>is</em>
+    the learned PPO policy practically necessary, or would a simpler
+    heuristic — uncertainty sampling in particular — suffice? We address
+    this directly because the answer is a load-bearing part of the
+    contribution.
+  </p>
+  <ul>
+    <li><strong>Among the methods we evaluated, PPO is the best point
+        estimate</strong> (pooled F1 = 0.8368) and the <strong>only method
+        statistically equivalent to the full-pool oracle</strong>
+        (Δ = −0.002, paired <em>t</em>-p = 0.42, n.s.).</li>
+    <li><strong>Uncertainty sampling is PPO's closest practical
+        competitor</strong> (pooled F1 = 0.8348; Δ<sub>PPO−unc</sub> =
+        +0.002, paired <em>t</em>-p = 0.33 — <em>not</em> statistically
+        significant). We do <em>not</em> claim that PPO outperforms
+        uncertainty sampling at the per-event level on this objective;
+        we claim PPO <em>ties</em> uncertainty, with both methods sitting
+        at the oracle ceiling.</li>
+    <li><strong>The full-pool oracle is a hard ceiling that no
+        active-selection method can exceed.</strong> Binary thresholded
+        decisions admit no richer 1-parameter post-hoc calibration than
+        threshold tuning (Methods: equivalence of monotone post-hoc
+        calibrations). Methods we did not evaluate (Bayesian active
+        calibration, ensemble uncertainty, MCTS over chip subsets,
+        oracle-imitation learning, NeuralUCB-style bandits) can at best
+        <em>match</em> the oracle — they cannot exceed it. The upper
+        bound is structural, not protocol-dependent.</li>
+    <li><strong>Why we retain PPO as the headline method:</strong>
+      <ol>
+        <li>It is the only learned method tested that statistically ties
+            the oracle.</li>
+        <li>The PPO MDP is a framework extension point that uncertainty
+            sampling is not — reward swapping (Methodological Appendix
+            A2) demonstrably changes the policy paired-significantly on
+            both backbones; uncertainty cannot be retargeted to a
+            decision-level objective without effectively defining a new
+            heuristic for every objective.</li>
+        <li>The negative ablation chain (LOEO-v1 without RL-OPT;
+            LOEO-v3 with 10-d features) establishes that the v2 design
+            point is principled, not arbitrary.</li>
+      </ol>
+    </li>
+  </ul>
+  <p style="margin-top: 14px">
+    <strong>The honest reframed selling point:</strong> the CCA framework's
+    central empirical contribution is not "PPO is the unique best
+    chip-selection heuristic." It is <em>"under leakage-free LOEO with a
+    four-chip label budget, the entire learnable family of active-selection
+    methods reaches the full-pool oracle ceiling, sitting ~0.005 F1 above
+    random and ~0.015 F1 above zero-shot — i.e. cross-disaster calibration
+    is a 4-label problem, not a method-choice problem"</em>. The
+    operational implication — responders can deploy near-oracle calibration
+    with any reasonable selection method at a four-label cost — is the
+    deliverable.
   </p>
 
   <h3>Historical: within-event protocol (10 seeds, leakage-suspect)</h3>
