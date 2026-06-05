@@ -36,7 +36,7 @@ def paired(diffs):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--variant", default="", choices=["", "v2"],
+    ap.add_argument("--variant", default="", choices=["", "v2", "v3"],
                     help="'' = original (ppo_loeo_<EVENT>.json); 'v2' = improved PPO "
                          "(GAE + terminal + entropy schedule).")
     ap.add_argument("--out", default=None)
@@ -59,7 +59,12 @@ def main():
         print(f"No fold JSONs found for variant '{args.variant}' yet."); return
     n_pairs = len(pooled["ppo"])
 
-    label = f"PPO-v2 (GAE-λ + terminal + entropy)" if args.variant == "v2" else "PPO (original)"
+    if args.variant == "v3":
+        label = "PPO-v3 (v2 + richer 10-d chip features)"
+    elif args.variant == "v2":
+        label = "PPO-v2 (GAE-λ + terminal + entropy)"
+    else:
+        label = "PPO (original)"
     print(f"\n=== {label}: LOEO aggregate over {len(folds_loaded)} folds = {n_pairs} paired pairs ===\n")
     print(f"{'event':<10}  " + "  ".join(f"{k:>8}" for k in METHODS))
     for ev in folds_loaded:

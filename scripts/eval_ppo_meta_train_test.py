@@ -81,7 +81,10 @@ def main():
     caches = pickle.loads(cache_path.read_bytes())
     for r in args.meta_train + args.meta_test:
         assert r in caches, f"region {r} not in cache (have {list(caches)})"
-    feat_dim = 5 + 2
+    # infer per-chip feature dim from cache, so richer-feature caches work
+    chip_feat_dim = caches[args.meta_train[0]]["feats_raw"].shape[1]
+    feat_dim = chip_feat_dim + 2     # + selected_mask + budget_remaining
+    print(f"  using chip_feat_dim={chip_feat_dim} (obs feat_dim={feat_dim})")
 
     seeds = list(range(args.seeds))
     METHODS = ["base", "random", "uncertainty", "coreset", "ppo", "full_pool"]

@@ -617,6 +617,40 @@ policy to reach oracle-equivalent performance:
 Gradient clipping (max-norm 0.5) on the policy parameters is retained as a
 numerical safety measure but is not load-bearing.
 
+**Feature-set ablation (negative result, retained 5-d set).** We tested
+whether enriching the per-chip feature vector helps. Concretely, we
+extended the 5-d feature set (`pr.mean`, `pr.std`, `(pr>0.5).mean`,
+`ent.mean`, `ent.std`) with five additional dimensions hypothesised *a
+priori* to be informative for active threshold selection: the
+**decision-frontier proximity** `((0.3 < pr) & (pr < 0.7)).mean` (chips
+with many near-0.5 pixels are the ones whose contribution will most
+change as τ moves), and **four probability quantiles** at p₁₀, p₂₅, p₇₅,
+p₉₀ (replacing the symmetric mean-±-std summary with a shape-aware
+distributional summary). We then re-ran the full LOEO protocol (10
+folds × 10 seeds = 100 paired pairs) with the 10-d feature set on the
+same policy architecture and training budget. The result is a clean
+negative:
+
+| Comparison           | 5-d (v2)        | 10-d (v3)       |
+|----------------------|-----------------|-----------------|
+| PPO − random         | +0.0047, W-p=0.0006 *** | −0.0001, W-p=0.047 |
+| PPO − CoreSet        | +0.0082, **t-p=0.024 *** | +0.0056, t-p=0.190 (n.s.) |
+| PPO − zero-shot      | +0.0147, **t-p=0.009 *** | +0.0100, t-p=0.113 (n.s.) |
+| PPO − full-pool oracle | −0.0020, n.s. (**tied**) | −0.0067, **t-p=0.015 *** (now significantly worse) |
+| Pooled PPO F1        | 0.8368          | 0.8320 (−0.005) |
+
+The 10-d set causes PPO to lose paired significance against CoreSet and
+zero-shot, drop the Wilcoxon-rank advantage against random by an order of
+magnitude, and — most diagnostically — become **significantly worse than
+the full-pool oracle** rather than tied with it. We attribute this to a
+capacity/training-budget mismatch: doubling the per-chip input dimension
+while keeping the actor MLP at 2 × 64-Tanh and the update budget at 300
+under-fits the new input distribution. We accordingly **retain the 5-d
+feature set as the headline configuration** in R4; the 10-d
+configuration is reported here as an ablation rather than as the headline
+method. Result and figure: `outputs/layer3_ppo/ppo_loeo_v3_aggregate.json`
+and Fig. 28.
+
 **Statistical protocol — leave-one-event-out (LOEO).** Our headline numbers
 in R4 are produced under a strict event-level leave-one-out protocol: for
 each of the ten Sen1Floods11 events we hold the event out, train the PPO
