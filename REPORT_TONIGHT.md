@@ -92,7 +92,7 @@
 ## 5. 仍需做的工作
 
 ### 短期(投稿前 1-2 周)
-1. **Venue 确认 + submission package**:目标按既定计划是 **Nature / Nature Communications**(Nature 系列正刊与综合子刊);只在最终 referee 反馈极不利的情况下,才退到 Nature 系列地球科学子刊(*Communications Earth & Environment*)。**不**投化学方向期刊
+1. **Venue 确认 + submission package**:**target = Nature 系列正刊(Nature)或 Nature Communications**。这是项目设定的唯一"Nature 系列"投稿目标 — **Communications 系列子刊(如 Comm. Earth Environ.)按老师标准不算 Nature 子刊,不在 fallback 计划里**。如果 Nat Commun 也被拒,再单独和老师讨论下一步路线(非 Nature 系列的 top-tier 期刊另行评估)
 2. **LaTeX 模板**(Nature 提供的官方 LaTeX 模板)+ submission package
 3. **Methods 写作扩展**到 2000-2500 字(目前 1400)
 
@@ -109,10 +109,11 @@
 
 ## 6. 请老师定夺
 
-1. **Venue 路线**:
+1. **Venue 路线(Nature 系列内)**:
    - (a) **直投 *Nature* 正刊**(顶级 ceiling,desk-reject 风险较高)
    - (b) **直投 *Nature Communications***(综合子刊,我们的故事 + 严格 LOEO + reproducibility 完整,**是现实最佳选择**)
-   - (c) (a) 被 desk reject → 立即转 (b);(b) 被 reject → 再考虑 *Communications Earth & Environment*(地球科学子刊,Nature 系列,**不是化学**)
+   - (c) (a) 被 desk reject → 立即转 (b)
+   - *(老师明确:Communications 系列子刊不算 Nature 子刊,不在备选)*
 2. **是否补 Bayesian / ensemble baseline 实验**,把"我们的方法是不是必要的"这条质疑提前堵掉?
 
 ---
