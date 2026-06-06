@@ -1,14 +1,18 @@
 # Deploy the static experiment dashboard (outputs/site/index.html) to GitHub Pages.
-# Re-runs whenever outputs/site/ or the README changes on main, or when triggered
-# manually from the Actions tab. Single-file HTML, no build step needed.
+#
+# Manual-only since 2026-06-05: the project's primary public deployment is
+# Cloudflare Pages (https://geodisaster-fm.pages.dev/) which builds itself
+# from the main branch without GitHub Actions. The GitHub Pages site has
+# not been enabled in repository Settings → Pages, so auto-pushing on every
+# main commit was producing recurring "Get Pages site failed" failure
+# emails. This workflow is preserved (single-file HTML, no build step) so
+# that it can be re-enabled later by:
+#   1. Settings → Pages → Source: "GitHub Actions"
+#   2. Then either restore the `push` trigger here, or just click
+#      "Run workflow" from the Actions tab as needed.
 name: Deploy dashboard to GitHub Pages
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'outputs/site/**'
-      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
