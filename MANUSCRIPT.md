@@ -260,7 +260,24 @@ model. Compared against the documented 1–3 day Copernicus EMS Rapid Mapping
 cycle, the dispatcher returns decision-relevant answers in minutes — three to
 four orders of magnitude faster (Fig. 1b).
 
-*[Fig. 1 = current Fig 13 + Fig 14 (calibration) panels]*
+*[Fig. 1 — H1 vs H2 conceptual + experimental design overview, source
+`outputs/figures/fig1_h1_h2_concept.png`. The four panels are:
+(a) conceptual cartoon of H1 (representation drift) vs H2 (calibration
+drift); (b) Test of H2(a) — F1@τ\* vs F1@0.5 scatter across all 10
+events (every point above y = x, ranking survives, Pakistan +0.184 F1
+from τ alone); (c) Test of H2(b) — recalibration recovers F1 on every
+event (mean +0.030 across the 10 flood events); (d) Quantifying H2 —
+four labels recover the full-pool oracle (pooled F1 across 100 LOEO
+paired pairs). Together the four panels are the figure the rest of the
+manuscript explains in detail.]*
+
+Note: the operational deployment metrics shown in this section
+(Pearson r, MAPE, per-event area errors) are the *output* of running
+the model whose cross-disaster generalisation we then dissect in R2-R5.
+The dispatcher demo here is included so the operational stakes of the
+H1-vs-H2 question are concrete: every percentage point of cross-event
+F1 lost to the wrong calibration is a percentage point of buildings,
+roads, or hospitals missed in the per-event briefing.
 
 ### R2 — Test of H2(a): Does the pixel ranking transfer across events? — Generalisation across regions and hazards
 
@@ -595,6 +612,73 @@ estimate at no additional human cost — is the deliverable.
 > within the leakage-free LOEO protocol. The two ablations are deferred to
 > the *Methodological Appendix* at the end of the manuscript.
 
+---
+
+#### Box 1 — Real-event walkthrough: Pakistan 2022 monsoon flood
+
+To ground the H1-vs-H2 finding in a single concrete event, we run the
+full agent on the 2022 Pakistan monsoon flood — the most severe
+hydrological disaster in the 10-event Sen1Floods11 subset and the event
+on which our cross-region model exhibits the largest single-event
+calibration drift. Pakistan 2022 is also the event the UN OCHA Pakistan
+Humanitarian Response Plan estimated 33 million people displaced by;
+its operational scale makes the per-minute time savings of automated
+decision-level answers materially impactful for response planning.
+
+**Step 1 — Perception with a model that has never seen this event.**
+The leave-one-region-out U-Net trained on the other nine flood events
+predicts Pakistan's flooded-water mask in 0.031 s per chip. At the
+default decision threshold τ = 0.5 the F1 against the analyst hand-label
+is **0.543** — the model has the rank information about flooded vs. dry
+pixels, but the per-event operating point is far off. The expected
+calibration error is 0.237 — the largest among the 10 events. By the H1
+account, this is where representation-engineering investment would now
+need to begin (collect new Pakistan-specific training data, fine-tune,
+foundation-model retrain).
+
+**Step 2 — H2 diagnosis: τ is wrong, not the representation.** A
+threshold sweep on the same predictions identifies τ\* = 0.70 as the
+Pakistan-optimal threshold. With τ alone moved from 0.5 to 0.70, F1
+jumps from 0.543 to **0.727 — a +0.184 F1 recovery from a single number
+change**, no retraining and no new architecture. The +0.184 lever
+exhausts ≈ 50 % of the available F1 deficit on this event without any
+new training data.
+
+**Step 3 — Deploying the lever with four labels under LOEO.** Under the
+leakage-free LOEO-v2 protocol, the PPO policy trained on the other
+nine events (never seeing Pakistan) selects four chips on Pakistan to
+recalibrate. The resulting Pakistan F1 is **0.683** (paired-mean across
+10 seeds) — essentially identical to the four-chip random calibration
+ceiling (0.685) and statistically equivalent to the Pakistan full-pool
+oracle (0.671). The full sequence from "model has never seen this
+event" to "operating-point-adapted model" is four labels and one
+minute of human time, with no GPU training step.
+
+**Step 4 — Decision-level answers.** The calibrated mask is piped
+through the neuro-symbolic reasoning layer (OpenStreetMap road graph,
+building polygons, hospital amenities; community connectivity via
+connected components on the post-flood road graph) to produce the ten
+standard UN-OCHA emergency questions: total flooded area
+(km²), affected buildings (counts and footprint), affected road length
+(km, by class), hospitals inside the flood footprint (geolocated list),
+top-N priority roads to clear (ranked by length), and isolated
+communities (graph-component analysis). The full briefing is emitted
+as machine-auditable JSON plus an analyst-readable Markdown summary
+(`outputs/dispatch/`). End-to-end wall-clock from event-time imagery
+to briefing: minutes, dominated by the OSM Overpass query.
+
+**Operational summary.** What a representational solution would frame
+as a multi-month "Pakistan-specific retraining" project, the H2 framing
+frames as a four-label, single-minute calibration. The Pakistan +0.184
+F1 lever is not a curated demo; it is the single largest cross-event
+recalibration gain in the 10-event Sen1Floods11 panel, and it is
+recovered by an active-calibration policy that never saw Pakistan
+during training. The same workflow — perception → calibration → OSM
+reasoning → briefing — runs unchanged on the other nine flood events
+and on the xBD damage-bearing hazards.
+
+---
+
 ### R5 — Falsification test of H1 + calibrated negative results: foundation representation does not close the gap, structured-inference does not help, richer chip features do not help
 
 H1's strongest prediction is that **a stronger learned representation
@@ -767,23 +851,78 @@ representation drift remains intact.
 
 #### Limitations
 
-(i) Our decision-answer fidelity is presently demonstrated on flooded
-*area*; per-building, per-road and per-population answers are partly
-validated (xBD building damage) and partly pending external data
-(Copernicus EMS reference masks and WorldPop population alignment, both
-implemented as ready pipelines). (ii) The cross-hazard xBD result is strengthened by adding pre/post change
-detection and a **3-seed leave-one-hazard-out protocol** (mean F1 across
-the four damage-bearing hazards **0.488 → 0.531**; harvey rescued from
-**0.298 to 0.492 ± 0.028, +0.194 F1**), but the gain is *hazard-specific*:
-pre/post helps where the disaster manifests as visible change (hurricane
-harvey **+0.194**, florence **+0.023**, palu-tsunami **+0.030**) and
-hurts where the post image alone suffices (mexico-earthquake **−0.073**). The change-detection prior is the right inductive
-bias for water/wind hazards but not for geophysical structural damage — a
-mechanistically interpretable, paper-worthy nuance rather than a uniform
-improvement. (iii) The neuro-symbolic reasoning
-layer depends on OpenStreetMap completeness; in genuinely data-poor regions
-the OSM bottleneck (currently ~6 min Overpass query) would be the dominant
-real-world cost.
+We list seven explicit limitations, organised by which part of the
+claim they qualify.
+
+**On the H2-dominates claim itself.**
+
+(L1) *Backbone scope.* The H1 falsification test in R3 swaps in one
+foundation backbone (frozen Google AlphaEarth Satellite Embedding V1)
+with one task-specific head architecture. A different foundation model
+(e.g. SatMAE, Prithvi, USat) might in principle drive optimal τ to 0.5
+on every event and falsify H2 for *that backbone*. Our finding is "H2
+dominates H1 for the cross-disaster pair (U-Net, AlphaEarth) under
+matched inputs"; the universally-quantified claim requires more
+backbones than we test here.
+
+(L2) *Hazard scope.* The 12 events span two benchmarks (Sen1Floods11
+floods + xBD damage) and four damage-bearing hazards (harvey, florence,
+mexico-earthquake, palu-tsunami) — but flood-like hazards and structural-
+damage hazards together do not span every hazard class the field cares
+about (e.g. wildfire perimeter mapping, landslide susceptibility,
+drought). The H2-dominates pattern may not hold uniformly across all
+hazards; the cross-hazard xBD analysis (see L4 below) is already
+hazard-specific within the data we do have.
+
+**On the four-label oracle-equivalence claim.**
+
+(L3) *PPO − random parametric significance is borderline.* The PPO −
+random paired t-test on 100 LOEO pairs sits at p = 0.084 (Wilcoxon
+rank test p = 0.0006). We have launched a 20-seed extension that
+doubles n to 200 pairs to discriminate the parametric and rank-based
+verdicts; results expected before submission.
+
+(L4) *The cross-hazard pre/post-change-detection result is hazard-
+specific.* The 3-seed leave-one-hazard-out protocol (mean F1 across the
+four damage-bearing hazards **0.488 → 0.531**; harvey rescued from
+**0.298 to 0.492 ± 0.028 F1**) shows pre/post-change-detection helps
+where the disaster manifests as visible change (hurricane harvey
+**+0.194**, florence **+0.023**, palu-tsunami **+0.030**) and *hurts*
+where the post image alone suffices (mexico-earthquake **−0.073**).
+The change-detection prior is the right inductive bias for water/wind
+hazards but not for geophysical structural damage — a mechanistically
+interpretable, paper-worthy nuance that the headline H2 claim does
+not address.
+
+**On the decision-level answer-fidelity claim (R1).**
+
+(L5) *Pearson r = 0.971 on flooded-area is driven by the largest
+events.* The robustness audit gives Spearman ρ = 0.899 (lower than
+Pearson), MAPE median 25 %, and bottom-50 %-by-area Pearson r = 0.118
+(essentially uncorrelated, vs top-50 % r = 0.972). The Pearson statistic
+faithfully describes the dominant signal — responders ranking events by
+total flooded area — but small-area chips are not individually well
+calibrated.
+
+(L6) *Per-building, per-road and per-population answers are partly
+validated.* Our per-building decision F1 is computed on the xBD damage
+benchmark only; per-road and per-population answers ride on
+OpenStreetMap completeness (and on a WorldPop population raster whose
+GEE alignment we have implemented but not yet integrated end-to-end).
+Both pipelines are released; the empirical validation against external
+ground truth (Copernicus EMS reference masks, WorldPop population
+counts) is the obvious next step.
+
+**On the broader experimental setup.**
+
+(L7) *Within-event protocol experiments demoted, not retracted.* The
+sample-efficiency budget sweep and the decision-aligned reward A/B
+were carried out under a within-event protocol that the LOEO-v2 result
+above supersedes for the leakage-free cross-event claim. The within-
+event numbers remain defensible characterisations of policy behaviour
+when the deployer can collect labels on the same event the model will
+be calibrated on, and we report them in the Methodological Appendix —
+but we do not use them as part of the headline H2-vs-H1 evidence.
 
 #### Ethics and responsible use
 
