@@ -194,6 +194,25 @@ https://geodisaster-fm.pages.dev/ .
 
 ## Results
 
+### Reading guide — how the Results sections map onto H1 vs H2
+
+The six Results sections below are organised as a sequence of
+falsification tests of H1 (representation drift) plus quantification
+tests of H2 (calibration drift). The mapping is:
+
+| Section | H1/H2 role | One-line summary |
+|---------|------------|-----------------|
+| R1      | Deployment view | The end-to-end agent answers responder questions in seconds — operational context for the hypothesis tests below |
+| R2      | **Test of H2(a) — Does pixel ranking transfer?** | Sen1Floods11 + xBD cross-event generalisation; ranking transfer is qualitatively intact |
+| R3      | **Test of H2(b) — Does τ-recalibration recover F1?** | Every region-optimal τ ≠ 0.5 on 12 events × 2 benchmarks; up to +0.235 F1 recovered |
+| R4      | **Quantifying H2 — How many labels are needed?** | Under leakage-free LOEO, four labels recover the full-pool oracle |
+| R5      | **Falsification test of H1 + calibrated negatives** | Foundation embeddings comparable not superior; structured-inference layer fails; richer-feature PPO fails |
+| R6      | Deployment metrics | 0.031 s per chip, full reproducibility |
+
+Read straight through: R2 + R3 + R4 build the case for H2; R5 contains
+the lines of evidence against H1 (foundation backbone) and the
+calibrated negative results that rule out alternative explanations.
+
 ### R1 — The dispatcher: real-event answers, in seconds
 
 We deploy each region's leave-one-region-out perception model on its own flood
@@ -243,7 +262,13 @@ four orders of magnitude faster (Fig. 1b).
 
 *[Fig. 1 = current Fig 13 + Fig 14 (calibration) panels]*
 
-### R2 — Generalisation across regions and hazards
+### R2 — Test of H2(a): Does the pixel ranking transfer across events? — Generalisation across regions and hazards
+
+The first prediction of H2 is that, when a model encounters a new event,
+its per-pixel *ranking* of flooded vs. dry remains usefully informative —
+i.e. the AUROC / rank-based F1 ceiling does not collapse, even when the
+F1 at the default threshold does. We test this on Sen1Floods11
+(cross-region) and xBD (cross-hazard).
 
 #### Cross-region (Sen1Floods11)
 
@@ -287,7 +312,14 @@ mechanistically interpretable result, not a uniform improvement.
 *[Fig. 2 = Fig 6 (multi-seed cross-region); Fig. 3 = Figs 7 + 15 (xBD cross-
 hazard + pre/post)]*
 
-### R3 — Calibration, not architecture, is the dominant lever (two independent benchmarks)
+### R3 — Test of H2(b): Does τ-recalibration recover the lost F1? — Calibration, not architecture, is the dominant lever (two independent benchmarks)
+
+The second prediction of H2 is that **threshold tuning alone** — without
+re-training the model, without a stronger backbone — should recover most
+of the F1 lost to cross-event drift. We test this on the same 12 events
+across two independent benchmarks (Sen1Floods11 floods, xBD building
+damage) by sweeping τ on each held-out event and measuring the F1 gain
+of the region-optimal τ over the default 0.5.
 
 We measure the F1 obtainable at the default 0.5 decision threshold against
 the F1 obtainable at the event-optimal threshold, across **two independent
@@ -313,8 +345,9 @@ flood pixels) — the same lever is even larger: hurricane-harvey +0.084 F1,
 real events, every single optimal threshold ≠ 0.5; the *direction* of the
 calibration drift is benchmark-specific (floods drift up, damage drifts
 down) but the *fact* of calibration drift is universal. This is the
-empirical core of the CCA framework: cross-disaster distribution shift is
-*calibrational*, not representational, and the magnitude of the lever
+empirical answer to the H1-vs-H2 question of the Introduction:
+cross-disaster distribution shift is *calibrational*, not
+representational, and the magnitude of the lever
 (up to +0.235 F1 on a single event) is large enough that any other choice
 — better architecture, larger backbone, more training data — is a smaller
 intervention than getting the threshold right.
@@ -326,7 +359,17 @@ Calibration MDP") and solving it with the PPO policy of R4.
 *[Fig. 4 = Fig 18 (Sen1Floods11 calibration headroom) + Fig 22
 (cross-benchmark calibration drift)]*
 
-### R4 — A reinforcement-learning calibration policy that matches the full-pool oracle and significantly beats zero-shot and CoreSet under leakage-free leave-one-event-out evaluation
+### R4 — Quantifying H2: How many labels are needed to capture the calibration lever? — A reinforcement-learning calibration policy that matches the full-pool oracle under leakage-free leave-one-event-out evaluation
+
+R2 and R3 establish that H2 dominates *qualitatively*. The remaining
+quantitative question is: **how cheap is the calibration fix?** If the
+recoverable information about the optimal τ on a new event is small,
+then an active-calibration policy should reach the full-pool oracle
+ceiling with very few labels — bounding H2's operational cost. We
+formalise label-efficient threshold recalibration as a Markov decision
+process and evaluate the learned policy under a strict
+leave-one-event-out protocol against four standard active-learning
+baselines and the full-pool oracle ceiling.
 
 We formulate active threshold calibration as a Markov decision process: at
 each step the agent selects an unlabelled chip to add to the calibration set;
@@ -520,19 +563,25 @@ cannot exceed it. The upper bound is structural, not protocol-dependent.
    terminal-only reward + entropy schedule is the right point in the
    design space**, not an arbitrary one.
 
-**The honest TL;DR for this section.** PPO ties the oracle, ties the
-simplest uncertainty heuristic, and *significantly* beats every more
-elaborate active-learning baseline we tested (random, CoreSet, 3-seed
-ensemble uncertainty). The CCA framework's central empirical
-contribution is *"under leakage-free LOEO with a four-chip label budget,
-PPO reaches the full-pool oracle ceiling, sitting ~0.005 F1 above random
-selection, ~0.010 F1 above 3-seed ensemble uncertainty, and ~0.015 F1
-above zero-shot — i.e. cross-disaster calibration is a 4-label problem,
-and PPO is the right way to spend those four labels when the deployer
-cares about robustness across the active-learning baseline family"*. The
-operational implication — responders can deploy near-oracle calibration
-with any reasonable selection method, learned or not, at a four-label
-cost — is the deliverable.
+**The honest TL;DR for this section — tying back to H1 vs H2.** PPO
+ties the oracle, ties the simplest uncertainty heuristic, and
+significantly beats every more elaborate active-learning baseline we
+tested (random, CoreSet, 3-seed ensemble uncertainty). Read as evidence
+on H1 vs H2, the table above tells a precise story: the F1 spread
+across *all* practical 4-chip active-selection methods is
+0.8221–0.8388 — a 0.017-F1 envelope spanning from zero-shot to oracle
+— and *every* method we tested sits inside that envelope. Method choice
+within the active-selection family therefore accounts for at most ~0.017
+F1, whereas the cross-event calibration drift (R3) accounts for up to
++0.235 F1 on a single event. **The information that distinguishes
+representational from calibrational explanations of cross-disaster
+generalisation does not live in the choice of active-selection
+method; it lives in the existence of the calibration lever itself.**
+This is why the contribution of the paper is the H2 finding, not the
+PPO design. The operational implication — responders can deploy
+near-oracle calibration on any new event with four labels and any
+reasonable selection rule, with PPO providing the most robust point
+estimate at no additional human cost — is the deliverable.
 
 > **Methodological appendix.** The original sample-efficiency budget sweep
 > and the decision-aligned-reward A/B (Fig. 23, Fig. 24) were carried out
@@ -546,7 +595,15 @@ cost — is the deliverable.
 > within the leakage-free LOEO protocol. The two ablations are deferred to
 > the *Methodological Appendix* at the end of the manuscript.
 
-### R5 — What does NOT help: calibrated negative results
+### R5 — Falsification test of H1 + calibrated negative results: foundation representation does not close the gap, structured-inference does not help, richer chip features do not help
+
+H1's strongest prediction is that **a stronger learned representation
+should close the cross-disaster F1 gap**. We test this by swapping in a
+frozen Google AlphaEarth foundation embedding on matched inputs
+(Sentinel-1 + Sentinel-2), and by exploring two further architectural
+levers (structured-inference layer; richer chip features). All three
+*fail* to close the gap — and these calibrated negatives are exactly
+what an H2-dominated world predicts.
 
 We characterise where commonly invoked tools fail, with the same multi-event
 rigour applied to the positive results.
