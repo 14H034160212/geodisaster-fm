@@ -501,6 +501,145 @@ hr { border: none; border-top: 1px solid var(--line); margin: 28px 0; }
 <p><strong>完整数据 + 代码 + 28 张图 + live dashboard:</strong> https://geodisaster-fm.pages.dev/
 <strong>汇报报告本页:</strong> https://geodisaster-fm.pages.dev/report.html
 <strong>GitHub:</strong> https://github.com/14H034160212/geodisaster-fm</p>
+<hr />
+<h2 id="9-reframing-2026-06-07">9. 老师反馈 + 论文 reframing 计划(2026-06-07)</h2>
+<h3 id="_6">老师反馈</h3>
+<p>老师<strong>认可了核心科学问题</strong>:</p>
+<blockquote>
+<p>跨灾害泛化的真正瓶颈,究竟是 representation drift(模型本身需要重训),还是 calibration drift(只是决策阈值需要调整)?如果是后者,那 cross-disaster adaptation 应该可以用极少的标签解决。</p>
+</blockquote>
+<p>但<strong>致命缺陷</strong>:</p>
+<blockquote>
+<p>"目前的还很技术,他没看到科学问题,这是比较致命的"</p>
+</blockquote>
+<p>老师的意思:paper 写得<strong>像 ML methods paper</strong>(CCA framework + PPO + GAE-λ + ablation),读者要扒方法才看到背后的科学问题。<strong>Nature Communications 要的是"a question worth answering",不是"a method worth showing"</strong>。</p>
+<h3 id="reframing-paper-method-driven-hypothesis-test-driven">Reframing 框架(把 paper 从 method-driven 改成 hypothesis-test-driven)</h3>
+<p><strong>Scientific question(老师认可的版本):</strong></p>
+<blockquote>
+<p>What is the dominant mechanism of cross-disaster generalization failure in deep-learning disaster mapping?</p>
+</blockquote>
+<p><strong>Two competing hypotheses(明确陈述,让 reviewer 一秒 get):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Hypothesis</th>
+<th>主张</th>
+<th>含义 if true</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>H1: Representation drift</strong></td>
+<td>模型学到的表征不能 transfer,需要重训 / foundation model / 跨域学习</td>
+<td>领域该继续投资更大 backbone</td>
+</tr>
+<tr>
+<td><strong>H2: Calibration drift</strong></td>
+<td>表征本身够用,只是决策阈值 τ 需要调整</td>
+<td>cross-disaster adaptation 是<strong>便宜问题</strong>,4 个标签就够</td>
+</tr>
+</tbody>
+</table>
+<p><strong>我们的科学贡献(reformulated):</strong>
+1. <strong>设计严格实验区分</strong> H1 和 H2(12 events × 2 benchmarks × 2 backbones)
+2. <strong>H2 dominates</strong> —— 每个事件 τ* ≠ 0.5;foundation model F1 ceiling 没改善
+3. <strong>量化</strong> —— H2 lever 的 minimum required information:<strong>4 labels = full-pool oracle</strong>
+4. <strong>领域 implications</strong> —— disaster response 不需要昂贵的 representation engineering</p>
+<h3 id="roi">具体改写动作(按 ROI 排序)</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>修改</th>
+<th>时间</th>
+<th>重要性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>R1</strong></td>
+<td><strong>新 Title:</strong> 从 method statement 改成 hypothesis finding。建议:<em>"Cross-disaster mapping is a calibration problem, not a representation problem: four labels recover the full-pool oracle"</em></td>
+<td>10 min</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>R2</strong></td>
+<td><strong>重写 Introduction</strong>:明确陈述 H1 vs H2 框架 + 我们如何区分两者 + finding 的科学含义</td>
+<td>~1h</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>R3</strong></td>
+<td><strong>重写 Abstract</strong>:从"应急响应瓶颈"改成"deep-learning cross-disaster generalization 机制不明,我们 discriminate H1 vs H2,find H2 dominates"</td>
+<td>~30 min</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>R4</strong></td>
+<td><strong>R-sections 重组</strong>:从 method-organized 改成 hypothesis-test-organized<br>- R1 = Test of H2(a): Does ranking transfer?<br>- R2 = Test of H2(b): Does recalibration recover F1?<br>- R3 = Test of H1: Does foundation representation help?<br>- R4 = Quantifying H2: how many labels are needed?<br>- R5 = Robustness across backbones / hazards<br>- R6 = Deployment demo</td>
+<td>~3h</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>R5</strong></td>
+<td><strong>重写 Discussion</strong>:从方法学含义改成领域科学含义(对 disaster response / foundation model / cross-domain learning 各意味着什么)</td>
+<td>~1h</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td><strong>R6</strong></td>
+<td><strong>CCA / PPO / GAE-λ 等技术细节降级到 Methods</strong></td>
+<td>~30 min</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td><strong>R7</strong></td>
+<td><strong>新增 "What would falsify H2"</strong> —— 明确我们的发现什么情况下不成立(科学严谨性,epistemological 自省)</td>
+<td>~30 min</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td><strong>R8</strong></td>
+<td><strong>Figure 1 改造为"H1 vs H2 conceptual diagram"</strong>(左:representation drift 示意,右:calibration drift 示意,底部:实验如何 discriminate)</td>
+<td>~半天</td>
+<td>⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">关键认知:<strong>改架构,不改数据</strong></h3>
+<p>所有实验、数据、figure 都不重做。<strong>只需把 paper 从"method paper that happens to ask a question"改成"hypothesis-testing science paper that happens to use a method"</strong>。</p>
+<h3 id="_8">今天执行的顺序(开始)</h3>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>内容</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Step 1</strong>(now)</td>
+<td>把 reframing 计划放到 report(本 section)→ commit + push</td>
+<td>进行中</td>
+</tr>
+<tr>
+<td><strong>Step 2</strong></td>
+<td>重写 Title + Abstract + Introduction(R1 + R2 + R3) → 给老师看新 framing</td>
+<td>接着做</td>
+</tr>
+<tr>
+<td><strong>Step 3</strong></td>
+<td>重写 Discussion(R5)+ 加 "What falsifies H2"(R7)</td>
+<td>接着做</td>
+</tr>
+<tr>
+<td><strong>Step 4</strong></td>
+<td>等老师认可 framing → 再做 R-sections 重组(R4)+ Figure 1(R8)</td>
+<td>等老师反馈</td>
+</tr>
+</tbody>
+</table>
 
 <div class="footer">
   Snapshot of <code>REPORT_TONIGHT.md</code> committed to

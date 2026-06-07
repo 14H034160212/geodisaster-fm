@@ -233,3 +233,61 @@ Nat Commun reviewer 看的是**"is this a broadly-significant advance?"** 和**"
 **完整数据 + 代码 + 28 张图 + live dashboard:** https://geodisaster-fm.pages.dev/
 **汇报报告本页:** https://geodisaster-fm.pages.dev/report.html
 **GitHub:** https://github.com/14H034160212/geodisaster-fm
+
+---
+
+## 9. 老师反馈 + 论文 reframing 计划(2026-06-07)
+
+### 老师反馈
+
+老师**认可了核心科学问题**:
+> 跨灾害泛化的真正瓶颈,究竟是 representation drift(模型本身需要重训),还是 calibration drift(只是决策阈值需要调整)?如果是后者,那 cross-disaster adaptation 应该可以用极少的标签解决。
+
+但**致命缺陷**:
+> "目前的还很技术,他没看到科学问题,这是比较致命的"
+
+老师的意思:paper 写得**像 ML methods paper**(CCA framework + PPO + GAE-λ + ablation),读者要扒方法才看到背后的科学问题。**Nature Communications 要的是"a question worth answering",不是"a method worth showing"**。
+
+### Reframing 框架(把 paper 从 method-driven 改成 hypothesis-test-driven)
+
+**Scientific question(老师认可的版本):**
+> What is the dominant mechanism of cross-disaster generalization failure in deep-learning disaster mapping?
+
+**Two competing hypotheses(明确陈述,让 reviewer 一秒 get):**
+
+| Hypothesis | 主张 | 含义 if true |
+|---|---|---|
+| **H1: Representation drift** | 模型学到的表征不能 transfer,需要重训 / foundation model / 跨域学习 | 领域该继续投资更大 backbone |
+| **H2: Calibration drift** | 表征本身够用,只是决策阈值 τ 需要调整 | cross-disaster adaptation 是**便宜问题**,4 个标签就够 |
+
+**我们的科学贡献(reformulated):**
+1. **设计严格实验区分** H1 和 H2(12 events × 2 benchmarks × 2 backbones)
+2. **H2 dominates** —— 每个事件 τ\* ≠ 0.5;foundation model F1 ceiling 没改善
+3. **量化** —— H2 lever 的 minimum required information:**4 labels = full-pool oracle**
+4. **领域 implications** —— disaster response 不需要昂贵的 representation engineering
+
+### 具体改写动作(按 ROI 排序)
+
+| # | 修改 | 时间 | 重要性 |
+|---|---|---|---|
+| **R1** | **新 Title:** 从 method statement 改成 hypothesis finding。建议:*"Cross-disaster mapping is a calibration problem, not a representation problem: four labels recover the full-pool oracle"* | 10 min | ⭐⭐⭐ |
+| **R2** | **重写 Introduction**:明确陈述 H1 vs H2 框架 + 我们如何区分两者 + finding 的科学含义 | ~1h | ⭐⭐⭐ |
+| **R3** | **重写 Abstract**:从"应急响应瓶颈"改成"deep-learning cross-disaster generalization 机制不明,我们 discriminate H1 vs H2,find H2 dominates" | ~30 min | ⭐⭐⭐ |
+| **R4** | **R-sections 重组**:从 method-organized 改成 hypothesis-test-organized<br>- R1 = Test of H2(a): Does ranking transfer?<br>- R2 = Test of H2(b): Does recalibration recover F1?<br>- R3 = Test of H1: Does foundation representation help?<br>- R4 = Quantifying H2: how many labels are needed?<br>- R5 = Robustness across backbones / hazards<br>- R6 = Deployment demo | ~3h | ⭐⭐⭐ |
+| **R5** | **重写 Discussion**:从方法学含义改成领域科学含义(对 disaster response / foundation model / cross-domain learning 各意味着什么) | ~1h | ⭐⭐ |
+| **R6** | **CCA / PPO / GAE-λ 等技术细节降级到 Methods** | ~30 min | ⭐⭐ |
+| **R7** | **新增 "What would falsify H2"** —— 明确我们的发现什么情况下不成立(科学严谨性,epistemological 自省)| ~30 min | ⭐⭐ |
+| **R8** | **Figure 1 改造为"H1 vs H2 conceptual diagram"**(左:representation drift 示意,右:calibration drift 示意,底部:实验如何 discriminate)| ~半天 | ⭐⭐ |
+
+### 关键认知:**改架构,不改数据**
+
+所有实验、数据、figure 都不重做。**只需把 paper 从"method paper that happens to ask a question"改成"hypothesis-testing science paper that happens to use a method"**。
+
+### 今天执行的顺序(开始)
+
+| 步骤 | 内容 | 状态 |
+|---|---|---|
+| **Step 1**(now) | 把 reframing 计划放到 report(本 section)→ commit + push | 进行中 |
+| **Step 2** | 重写 Title + Abstract + Introduction(R1 + R2 + R3) → 给老师看新 framing | 接着做 |
+| **Step 3** | 重写 Discussion(R5)+ 加 "What falsifies H2"(R7) | 接着做 |
+| **Step 4** | 等老师认可 framing → 再做 R-sections 重组(R4)+ Figure 1(R8) | 等老师反馈 |
