@@ -175,3 +175,4 @@ outputs/few_shot_ae_stack_seed*/**/*.ckpt
 !outputs/decision/calibration_analysis_ae.json
 !outputs/layer3_ppo/ppo_loeo_v3_*.json
 !outputs/decision/r971_robustness.json
+!outputs/layer3_ppo/ensemble_baseline_loeo.json

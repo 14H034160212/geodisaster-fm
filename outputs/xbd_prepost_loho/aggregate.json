@@ -5,47 +5,61 @@
     "mexico-earthquake",
     "palu-tsunami"
   ],
+  "seed_ids": [
+    0,
+    1,
+    2
+  ],
+  "n_seeds": 3,
   "post_only_single_seed": {
     "hurricane-harvey": 0.298,
     "hurricane-florence": 0.4323,
     "mexico-earthquake": 0.6349,
     "palu-tsunami": 0.586
   },
-  "pre_post_2seed": {
+  "pre_post_3seed": {
     "hurricane-harvey": {
       "seeds": [
         0.4552238775002178,
-        0.4982693985093715
+        0.4982693985093715,
+        0.5234312113511798
       ],
-      "mean": 0.4767,
-      "std": 0.0215
+      "mean": 0.4923,
+      "std": 0.0282,
+      "n": 3
     },
     "hurricane-florence": {
       "seeds": [
         0.4361915805932231,
-        0.45866987122693637
+        0.45866987122693637,
+        0.4702193015350764
       ],
-      "mean": 0.4474,
-      "std": 0.0112
+      "mean": 0.455,
+      "std": 0.0141,
+      "n": 3
     },
     "mexico-earthquake": {
       "seeds": [
         0.578970223760918,
-        0.5453541322017864
+        0.5453541322017864,
+        0.5612954318703658
       ],
-      "mean": 0.5622,
-      "std": 0.0168
+      "mean": 0.5619,
+      "std": 0.0137,
+      "n": 3
     },
     "palu-tsunami": {
       "seeds": [
         0.6327867373392434,
-        0.5608535817911338
+        0.5608535817911338,
+        0.6551188720895156
       ],
-      "mean": 0.5968,
-      "std": 0.036
+      "mean": 0.6163,
+      "std": 0.0402,
+      "n": 3
     }
   },
   "post_only_mean": 0.4878,
-  "pre_post_mean": 0.5208,
-  "gain": 0.033
+  "pre_post_mean": 0.5314,
+  "gain": 0.0436
 }
