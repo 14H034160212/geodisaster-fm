@@ -1,0 +1,9 @@
+{
+  "held_out_year": 2021,
+  "n_train_chips": 714,
+  "n_test_chips": 90,
+  "best_f1": 0.8312728728351984,
+  "final_f1_at_0.5": 0.8261578223783008,
+  "final_f1_at_best": 0.8298366050987576,
+  "final_best_threshold": 0.39999999999999997
+}

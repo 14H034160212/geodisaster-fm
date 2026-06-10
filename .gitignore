@@ -179,3 +179,10 @@ outputs/few_shot_ae_stack_seed*/**/*.ckpt
 
 # 20-seed LOEO (200 paired pairs)
 !outputs/layer3_ppo/ppo_loeo_v2_20s_*.json
+
+# HLS Burn-Scars LOEO (Phase 2)
+!outputs/leave_one_event_out_burnscars/
+!outputs/leave_one_event_out_burnscars/**
+outputs/leave_one_event_out_burnscars/**/checkpoints/
+outputs/leave_one_event_out_burnscars/**/*.ckpt
+!outputs/decision/calibration_analysis_burnscars.json

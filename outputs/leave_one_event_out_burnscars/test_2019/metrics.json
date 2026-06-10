@@ -1,0 +1,9 @@
+{
+  "held_out_year": 2019,
+  "n_train_chips": 621,
+  "n_test_chips": 183,
+  "best_f1": 0.8391709369429475,
+  "final_f1_at_0.5": 0.8326585762675071,
+  "final_f1_at_best": 0.8326585762675071,
+  "final_best_threshold": 0.49999999999999994
+}

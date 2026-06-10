@@ -1,0 +1,50 @@
+{
+  "n_events": 4,
+  "events": [
+    "2018",
+    "2019",
+    "2020",
+    "2021"
+  ],
+  "mean_calib_gain": 0.0011,
+  "max_calib_gain": 0.0025,
+  "best_threshold_range": [
+    0.39999999999999997,
+    0.5499999999999999
+  ],
+  "frac_events_optimal_not_0.5": 0.75,
+  "per_event": {
+    "2018": {
+      "n_chips": 269,
+      "f1_at_0.5": 0.8764,
+      "f1_at_best": 0.8789,
+      "best_threshold": 0.39999999999999997,
+      "calib_gain": 0.0025,
+      "ece": 0.0158
+    },
+    "2019": {
+      "n_chips": 183,
+      "f1_at_0.5": 0.8392,
+      "f1_at_best": 0.8392,
+      "best_threshold": 0.49999999999999994,
+      "calib_gain": 0.0,
+      "ece": 0.0229
+    },
+    "2020": {
+      "n_chips": 262,
+      "f1_at_0.5": 0.8927,
+      "f1_at_best": 0.8941,
+      "best_threshold": 0.5499999999999999,
+      "calib_gain": 0.0014,
+      "ece": 0.0255
+    },
+    "2021": {
+      "n_chips": 90,
+      "f1_at_0.5": 0.8307,
+      "f1_at_best": 0.8313,
+      "best_threshold": 0.44999999999999996,
+      "calib_gain": 0.0006,
+      "ece": 0.0107
+    }
+  }
+}
