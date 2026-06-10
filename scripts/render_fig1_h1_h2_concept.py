@@ -29,7 +29,7 @@ import matplotlib.patches as patches
 import numpy as np
 
 CAL = json.loads(Path("outputs/decision/calibration_analysis.json").read_text())
-V2  = json.loads(Path("outputs/layer3_ppo/ppo_loeo_v2_aggregate.json").read_text())
+V2  = json.loads(Path("outputs/layer3_ppo/ppo_loeo_v2_20s_aggregate.json").read_text())
 ENS = json.loads(Path("outputs/layer3_ppo/ensemble_baseline_loeo.json").read_text())
 
 fig = plt.figure(figsize=(15, 8.6))
@@ -196,10 +196,10 @@ for xi, v in zip(xs, vals):
     ax_d.text(xi, v + 0.0015, f"{v:.4f}", ha="center", fontsize=8)
 
 ax_d.set_xticks(xs); ax_d.set_xticklabels(labels, fontsize=8.5)
-ax_d.set_ylabel("Pooled test F1 (100 paired pairs, LOEO)", fontsize=10)
+ax_d.set_ylabel("Pooled test F1 (200 paired pairs, 20-seed LOEO)", fontsize=10)
 ax_d.set_ylim(0.815, 0.85)
-ax_d.set_title("(d) Quantifying H2: four labels recover the full-pool oracle\n"
-               "(PPO ties oracle Δ = −0.002, n.s.; significantly beats every other 4-chip method)",
+ax_d.set_title("(d) Quantifying H2: four labels recover ≈99 % of the oracle\n"
+               "(PPO 0.834 vs oracle 0.840; entire active-selection family within 0.017 F1)",
                fontsize=10, fontweight="bold", loc="left")
 ax_d.grid(True, alpha=0.3, axis="y")
 
@@ -209,7 +209,7 @@ ax_d.plot([ppo_idx, ppo_idx, oracle_idx, oracle_idx],
           [vals[ppo_idx]+0.002, ymax_bar, ymax_bar, vals[oracle_idx]+0.002],
           color="#444", lw=1)
 ax_d.text((ppo_idx + oracle_idx)/2, ymax_bar + 0.001,
-          "statistically equivalent\n(t-p = 0.42)", ha="center", fontsize=8, color="#444")
+          "PPO recovers ≈99 % of oracle\n(Δ = −0.007, t-p = 0.016)", ha="center", fontsize=8, color="#444")
 
 fig.suptitle(
     "The cross-disaster generalisation problem is calibrational, not representational, "

@@ -36,7 +36,7 @@ def paired(diffs):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--variant", default="", choices=["", "v2", "v3"],
+    ap.add_argument("--variant", default="", choices=["", "v2", "v3", "v2_20s"],
                     help="'' = original (ppo_loeo_<EVENT>.json); 'v2' = improved PPO "
                          "(GAE + terminal + entropy schedule).")
     ap.add_argument("--out", default=None)
@@ -61,6 +61,8 @@ def main():
 
     if args.variant == "v3":
         label = "PPO-v3 (v2 + richer 10-d chip features)"
+    elif args.variant == "v2_20s":
+        label = "PPO-v2 (20-seed LOEO, n=200)"
     elif args.variant == "v2":
         label = "PPO-v2 (GAE-λ + terminal + entropy)"
     else:
