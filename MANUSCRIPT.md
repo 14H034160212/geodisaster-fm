@@ -16,13 +16,18 @@ hypothesis — that cross-disaster generalisation failure is dominated by
 pixel ranking transferring largely intact — and find that calibration
 drift explains the bulk of the deficit. Across three independent public
 benchmarks(Sen1Floods11 floods, xBD building damage, and HLS Burn-Scars
-wildfires)spanning three hazard families and ≥ 18 real events, with two
-backbones(a trained U-Net and a frozen Google AlphaEarth foundation
-model), **15 of 18 region-optimal thresholds lie off the default
-0.5**(range 0.30–0.70), recalibrating τ alone recovers up to **+0.235 F1**
-on a single event, and foundation embeddings on matched inputs do not
-exceed the U-Net on F1 — three independent lines of evidence against
-representation drift and in favour of calibration drift. The
+wildfires)spanning three hazard families and ≥ 18 real events, with
+three backbones(a trained U-Net and two frozen foundation models —
+Google AlphaEarth on floods and NASA-IBM Prithvi-100M on wildfires,
+the latter pre-trained on the benchmark's own HLS imagery modality),
+**15 of 18 region-optimal thresholds lie off the default 0.5**(range
+0.30–0.70), recalibrating τ alone recovers up to **+0.235 F1** on a
+single event, and neither foundation model exceeds the from-scratch
+U-Net on cross-event F1 — Prithvi is in fact slightly *worse* on all
+four held-out fire seasons(mean Δ = −0.010)while exhibiting *more*
+calibration drift(4/4 events τ\* ≠ 0.5)— three independent lines of
+evidence against representation drift and in favour of calibration
+drift. The
 magnitude of the calibration lever is **hazard-specific**:large
 on floods(mean +0.030 F1)and structural damage(palu-tsunami +0.235)
 but small on wildfires(mean +0.001 F1, ECE 0.011–0.025), because
@@ -141,10 +146,14 @@ each engineered to falsify a different prediction of H1:
    the information needed to produce a near-optimal binary map.
 
 2. **The representation test.** If H1 holds, swapping in a stronger
-   *representation* (a frozen Google AlphaEarth foundation embedding on
-   matched inputs, with a ~53 K-parameter task-specific head) should
-   close part of the cross-disaster gap on F1. We run this comparison
-   under a matched leave-one-region-out protocol with multiple seeds.
+   *representation* should close part of the cross-disaster gap on F1.
+   We run this test with two independent foundation models under
+   matched leave-one-event-out protocols: a frozen Google AlphaEarth
+   embedding on Sen1Floods11 floods (matched S1 + S2 inputs,
+   ~53 K-parameter head, multiple seeds), and a frozen NASA-IBM
+   Prithvi-EO-1.0-100M on HLS Burn-Scars wildfires — the strongest
+   possible conditions for H1, since Prithvi is pre-trained on the
+   benchmark's own HLS imagery modality and geography.
 
 3. **The information-budget test.** If H2 holds and the recoverable
    information about the optimal τ is small, a learned active-calibration
@@ -166,11 +175,15 @@ The three tests give consistent evidence in favour of H2:
   0.5 (range 0.30–0.70), and recalibrating τ alone recovers up to +0.235
   F1 on a single event (Pakistan 2022; mean +0.030 across the ten flood
   events).
-- **Representation does not close the gap.** The frozen AlphaEarth
-  foundation backbone on matched inputs is comparable but not superior
-  to the U-Net on F1; the same calibration headroom appears (+0.042 mean
-  across four hard regions). The lever is in the threshold, not the
-  features.
+- **Representation does not close the gap — twice.** The frozen
+  AlphaEarth foundation backbone on matched inputs is comparable but
+  not superior to the U-Net on F1 (floods); the same calibration
+  headroom appears (+0.042 mean across four hard regions). The frozen
+  Prithvi-100M backbone — pre-trained on the wildfire benchmark's own
+  HLS modality — is slightly *worse* than the from-scratch U-Net on
+  all four held-out fire seasons (mean Δ = −0.010) while exhibiting
+  *more* calibration drift (4/4 events τ\* ≠ 0.5). The lever is in the
+  threshold, not the features.
 - **Four labels recover ≈ 99 % of the full-pool oracle's F1.** Under
   leakage-free leave-one-event-out (20-seed protocol, 200 paired pairs)
   the learned PPO policy with a four-chip label budget reaches F1 within
@@ -797,19 +810,49 @@ what an H2-dominated world predicts.
 We characterise where commonly invoked tools fail, with the same multi-event
 rigour applied to the positive results.
 
-**Foundation embeddings on equal inputs are comparable, not superior.** Our
-initial AlphaEarth comparison withheld Sentinel-2 from the foundation backbone
-on the assumption that AlphaEarth "already fuses optical". On *equal* inputs
-(AlphaEarth + Sentinel-1 + Sentinel-2, 64-d annual prior + event-day optical
-+ event-day SAR) the foundation model's F1 rises from 0.610 to 0.807 — within
-0.028 of the trained U-Net (0.835) and leading the model panel on AUPRC
-(0.909) and recall (0.903). However, in a label-efficiency sweep at 5 %, 10 %,
-25 %, 50 %, and 100 % of training labels the foundation model loses to the
-U-Net at *every* budget (gap −0.16, −0.11, −0.14, −0.10, −0.05) — the
-"scarce-label" promise of foundation embeddings does *not* materialise for
-dense flood mapping. Stacking the AlphaEarth prior onto the U-Net as
-additional channels degrades F1 from 0.835 to 0.769 — the annual prior adds
-noise when bolted onto event-day optical (Methods).
+**Foundation backbone 1 — AlphaEarth on floods: comparable, not
+superior.** Our initial AlphaEarth comparison withheld Sentinel-2 from
+the foundation backbone on the assumption that AlphaEarth "already fuses
+optical". On *equal* inputs (AlphaEarth + Sentinel-1 + Sentinel-2, 64-d
+annual prior + event-day optical + event-day SAR) the foundation model's
+F1 rises from 0.610 to 0.807 — within 0.028 of the trained U-Net (0.835)
+and leading the model panel on AUPRC (0.909) and recall (0.903).
+However, in a label-efficiency sweep at 5 %, 10 %, 25 %, 50 %, and 100 %
+of training labels the foundation model loses to the U-Net at *every*
+budget (gap −0.16, −0.11, −0.14, −0.10, −0.05) — the "scarce-label"
+promise of foundation embeddings does *not* materialise for dense flood
+mapping. Stacking the AlphaEarth prior onto the U-Net as additional
+channels degrades F1 from 0.835 to 0.769 — the annual prior adds noise
+when bolted onto event-day optical (Methods).
+
+**Foundation backbone 2 — Prithvi on wildfires: slightly *worse* than
+the from-scratch U-Net, on the foundation model's own pre-training
+modality.** The strongest possible test of H1 within our panel is
+NASA-IBM's Prithvi-EO-1.0-100M: a 100 M-parameter temporal ViT
+pre-trained by masked-autoencoder reconstruction on the *exact* HLS V2
+imagery modality that the burn-scars benchmark uses, over the same
+geography (CONUS). If representation drift were the bottleneck, this is
+the foundation model best positioned to fix it. Under the identical
+leave-one-fire-season-out protocol — same 4 LOEO folds, same chips,
+same centre-crop, same loss — the frozen-Prithvi-plus-segmentation-head
+model is *slightly worse* than the from-scratch U-Net on every fold
+(F1@τ\*: 2018 0.865 vs 0.879; 2019 0.831 vs 0.833; 2020 0.873 vs 0.893;
+2021 0.827 vs 0.830; mean 0.849 vs 0.859, Δ = −0.010). Two further
+observations sharpen the H2 reading. First, the pre-trained
+representation does not remove calibration drift — Prithvi's
+event-optimal thresholds deviate from 0.5 on **4 of 4** fire seasons
+(range 0.30–0.60, mean recoverable gain +0.004), *more* drift than the
+U-Net exhibits on the same events (3 of 4, +0.001). Second, the result
+is robust to the head architecture: the Prithvi head has comparable
+capacity (4-stage progressive transpose-conv decoder) and the same
+training budget as the U-Net decoder. **Two independent foundation
+models — one global multi-modal (AlphaEarth on floods), one
+modality-matched (Prithvi on wildfires) — both fail to outperform a
+from-scratch U-Net on cross-event F1, and both exhibit the same
+calibration drift the U-Net does.** The H1 corrective ("a better
+representation will close the gap") fails twice, on two hazard
+families, including once under the most favourable conditions a
+foundation model could ask for.
 
 **A structured Markov-random-field decision layer does not beat a calibrated
 threshold.** Motivated by the causal-graph success of Xu et al. [2022], we
@@ -979,13 +1022,19 @@ water/wind hazards (harvey +0.194, florence +0.023, palu-tsunami
 −0.073) — a mechanistically interpretable nuance within the data we
 have.
 
-(L2) *Backbone scope for the H1 falsification.* R3 swaps in one
-foundation backbone (frozen Google AlphaEarth Satellite Embedding V1)
-with one task-specific head architecture. A different foundation model
-(SatMAE, Prithvi, DOFA, USat, CrossEarth) might in principle drive
-optimal τ to 0.5 on every event and falsify H2 for *that backbone*. Our
-falsification of H1 is currently single-backbone; a multi-backbone
-H1-falsification panel is the second most concrete follow-up.
+(L2) *Backbone scope for the H1 falsification — two foundation models
+tested; remaining gaps.* Our H1 falsification panel now contains two
+independent foundation models: frozen Google AlphaEarth (global
+multi-modal annual embedding, tested on Sen1Floods11 floods) and frozen
+NASA-IBM Prithvi-EO-1.0-100M (HLS-modality-matched temporal ViT, tested
+on HLS Burn-Scars wildfires — the most favourable possible conditions
+for a foundation model, since its pre-training imagery is the
+benchmark's own modality and geography). Both fail to outperform a
+from-scratch U-Net on cross-event F1, and both exhibit the same
+calibration drift. A third architecture family (e.g. DOFA, SatMAE,
+USat) could in principle behave differently; the panel is extensible
+and we treat further backbones as incremental robustness work rather
+than a gap in the falsification logic.
 
 (L3) *Decision-level answer fidelity is event-aggregate, not per-chip.*
 The headline flooded-area correlation (Pearson r = 0.971, Spearman ρ =

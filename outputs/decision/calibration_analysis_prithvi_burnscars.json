@@ -1,0 +1,45 @@
+{
+  "n_events": 4,
+  "events": [
+    "2018",
+    "2019",
+    "2020",
+    "2021"
+  ],
+  "per_event": {
+    "2018": {
+      "n_chips": 269,
+      "f1_at_0.5": 0.8638,
+      "f1_at_best": 0.8648,
+      "best_threshold": 0.6,
+      "calib_gain": 0.0011
+    },
+    "2019": {
+      "n_chips": 183,
+      "f1_at_0.5": 0.8292,
+      "f1_at_best": 0.8307,
+      "best_threshold": 0.5499999999999999,
+      "calib_gain": 0.0015
+    },
+    "2020": {
+      "n_chips": 262,
+      "f1_at_0.5": 0.8704,
+      "f1_at_best": 0.8734,
+      "best_threshold": 0.39999999999999997,
+      "calib_gain": 0.003
+    },
+    "2021": {
+      "n_chips": 90,
+      "f1_at_0.5": 0.817,
+      "f1_at_best": 0.8268,
+      "best_threshold": 0.3,
+      "calib_gain": 0.0098
+    }
+  },
+  "mean_calib_gain": 0.0038,
+  "best_threshold_range": [
+    0.3,
+    0.6
+  ],
+  "frac_events_optimal_not_0.5": 1.0
+}

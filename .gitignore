@@ -186,3 +186,9 @@ outputs/few_shot_ae_stack_seed*/**/*.ckpt
 outputs/leave_one_event_out_burnscars/**/checkpoints/
 outputs/leave_one_event_out_burnscars/**/*.ckpt
 !outputs/decision/calibration_analysis_burnscars.json
+
+# Prithvi LOEO (Phase 3)
+!outputs/leave_one_event_out_prithvi_burnscars/
+!outputs/leave_one_event_out_prithvi_burnscars/summary.json
+!outputs/leave_one_event_out_prithvi_burnscars/test_*/metrics.json
+!outputs/decision/calibration_analysis_prithvi_burnscars.json
