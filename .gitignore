@@ -192,3 +192,8 @@ outputs/leave_one_event_out_burnscars/**/*.ckpt
 !outputs/leave_one_event_out_prithvi_burnscars/summary.json
 !outputs/leave_one_event_out_prithvi_burnscars/test_*/metrics.json
 !outputs/decision/calibration_analysis_prithvi_burnscars.json
+
+# DOFA LOEO (Phase 3.3)
+!outputs/leave_one_event_out_dofa_burnscars/
+!outputs/leave_one_event_out_dofa_burnscars/summary.json
+!outputs/decision/calibration_analysis_dofa_burnscars.json

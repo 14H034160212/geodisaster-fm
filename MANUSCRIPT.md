@@ -17,16 +17,20 @@ pixel ranking transferring largely intact — and find that calibration
 drift explains the bulk of the deficit. Across three independent public
 benchmarks(Sen1Floods11 floods, xBD building damage, and HLS Burn-Scars
 wildfires)spanning three hazard families and ≥ 18 real events, with
-three backbones(a trained U-Net and two frozen foundation models —
-Google AlphaEarth on floods and NASA-IBM Prithvi-100M on wildfires,
-the latter pre-trained on the benchmark's own HLS imagery modality),
+four backbones(a trained U-Net and three frozen foundation models —
+Google AlphaEarth on floods; NASA-IBM Prithvi-100M and the
+wavelength-conditioned generalist DOFA on wildfires),
 **15 of 18 region-optimal thresholds lie off the default 0.5**(range
 0.30–0.70), recalibrating τ alone recovers up to **+0.235 F1** on a
-single event, and neither foundation model exceeds the from-scratch
-U-Net on cross-event F1 — Prithvi is in fact slightly *worse* on all
-four held-out fire seasons(mean Δ = −0.010)while exhibiting *more*
-calibration drift(4/4 events τ\* ≠ 0.5)— three independent lines of
-evidence against representation drift and in favour of calibration
+single event, and no foundation model exceeds the from-scratch U-Net
+on cross-event F1 — Prithvi(pre-trained on the benchmark's own HLS
+modality)is slightly worse on all four held-out fire seasons(mean
+Δ = −0.010)and DOFA substantially worse(Δ = −0.115)— while the
+calibration drift these backbones exhibit **rises monotonically as the
+representation's task-match weakens**(mean recoverable gain: U-Net
++0.001 → Prithvi +0.004 → DOFA +0.013): better representations shrink
+the calibration problem but never remove it. Three independent lines
+of evidence against representation drift and in favour of calibration
 drift. The
 magnitude of the calibration lever is **hazard-specific**:large
 on floods(mean +0.030 F1)and structural damage(palu-tsunami +0.235)
@@ -147,13 +151,15 @@ each engineered to falsify a different prediction of H1:
 
 2. **The representation test.** If H1 holds, swapping in a stronger
    *representation* should close part of the cross-disaster gap on F1.
-   We run this test with two independent foundation models under
+   We run this test with three independent foundation models under
    matched leave-one-event-out protocols: a frozen Google AlphaEarth
    embedding on Sen1Floods11 floods (matched S1 + S2 inputs,
-   ~53 K-parameter head, multiple seeds), and a frozen NASA-IBM
+   ~53 K-parameter head, multiple seeds); a frozen NASA-IBM
    Prithvi-EO-1.0-100M on HLS Burn-Scars wildfires — the strongest
    possible conditions for H1, since Prithvi is pre-trained on the
-   benchmark's own HLS imagery modality and geography.
+   benchmark's own HLS imagery modality and geography; and a frozen
+   DOFA ViT-Base (wavelength-conditioned five-modality generalist) on
+   the same wildfire benchmark.
 
 3. **The information-budget test.** If H2 holds and the recoverable
    information about the optimal τ is small, a learned active-calibration
@@ -175,15 +181,19 @@ The three tests give consistent evidence in favour of H2:
   0.5 (range 0.30–0.70), and recalibrating τ alone recovers up to +0.235
   F1 on a single event (Pakistan 2022; mean +0.030 across the ten flood
   events).
-- **Representation does not close the gap — twice.** The frozen
+- **Representation does not close the gap — three times.** The frozen
   AlphaEarth foundation backbone on matched inputs is comparable but
   not superior to the U-Net on F1 (floods); the same calibration
   headroom appears (+0.042 mean across four hard regions). The frozen
   Prithvi-100M backbone — pre-trained on the wildfire benchmark's own
   HLS modality — is slightly *worse* than the from-scratch U-Net on
-  all four held-out fire seasons (mean Δ = −0.010) while exhibiting
-  *more* calibration drift (4/4 events τ\* ≠ 0.5). The lever is in the
-  threshold, not the features.
+  all four held-out fire seasons (mean Δ = −0.010); the frozen DOFA
+  generalist is substantially worse (Δ = −0.115). And the calibration
+  drift the three backbones exhibit rises monotonically as
+  representation-task match weakens (+0.001 → +0.004 → +0.013 mean
+  recoverable gain). Better representations shrink the calibration
+  problem; none removes it. The lever is in the threshold, not the
+  features.
 - **Four labels recover ≈ 99 % of the full-pool oracle's F1.** Under
   leakage-free leave-one-event-out (20-seed protocol, 200 paired pairs)
   the learned PPO policy with a four-chip label budget reaches F1 within
@@ -854,6 +864,43 @@ representation will close the gap") fails twice, on two hazard
 families, including once under the most favourable conditions a
 foundation model could ask for.
 
+**Foundation backbone 3 — DOFA on wildfires: substantially worse, with
+the largest calibration drift in the panel.** To extend the H1
+falsification beyond modality-matched models, we add DOFA (Dynamic
+One-For-All, ViT-Base, 111 M parameters) — a wavelength-conditioned
+generalist foundation model pre-trained across five EO modalities
+(Sentinel-1/2, Landsat, NAIP, EnMAP) whose dynamic patch embedding
+accepts our six HLS bands by their physical centre wavelengths. Under
+the identical frozen-encoder + segmentation-head LOEO protocol (same
+folds, same head architecture, same training budget as the Prithvi
+run), DOFA lands at F1@τ\* = 0.744 mean — 0.115 *below* the
+from-scratch U-Net on every fold — and exhibits the **largest
+calibration drift of the three backbones** (mean recoverable gain
++0.013, an order of magnitude above the U-Net's +0.001; optimal
+thresholds 0.30–0.50). Part of DOFA's absolute deficit is plausibly
+attributable to pre-training-input mismatch (the generalist model has
+seen HLS-like reflectance only indirectly), which is precisely the
+point: a generalist representation transferred zero-shot to a specific
+hazard mapping task neither closes the cross-event gap nor escapes
+calibration drift.
+
+**The three-backbone gradient: weaker task-match ⇒ more calibration
+drift.** Ordering the three backbones by how closely their training
+distribution matches the task — U-Net (trained on the task itself) →
+Prithvi (pre-trained on the task's modality) → DOFA (generalist) — the
+mean recoverable calibration gain rises monotonically: +0.001 → +0.004
+→ +0.013. Cross-event F1 falls in the same order: 0.859 → 0.849 →
+0.744. **Better representations do not remove calibration drift; they
+merely shrink it — and even the best representation in the panel (the
+task-trained U-Net) retains τ\* ≠ 0.5 on 3 of 4 events.** This
+gradient is, to our knowledge, the first systematic characterisation of
+how calibration drift scales with representation-task mismatch in
+cross-event disaster mapping, and it converts the H1-vs-H2 dichotomy
+into a quantitative trade-off: representation quality buys you a
+*smaller* calibration problem, never *no* calibration problem — and at
+four labels, the calibration fix costs almost nothing regardless of
+where you start.
+
 **A structured Markov-random-field decision layer does not beat a calibrated
 threshold.** Motivated by the causal-graph success of Xu et al. [2022], we
 implemented a Structured Decision Inference (SDI) Markov random field over
@@ -1022,19 +1069,21 @@ water/wind hazards (harvey +0.194, florence +0.023, palu-tsunami
 −0.073) — a mechanistically interpretable nuance within the data we
 have.
 
-(L2) *Backbone scope for the H1 falsification — two foundation models
-tested; remaining gaps.* Our H1 falsification panel now contains two
-independent foundation models: frozen Google AlphaEarth (global
-multi-modal annual embedding, tested on Sen1Floods11 floods) and frozen
-NASA-IBM Prithvi-EO-1.0-100M (HLS-modality-matched temporal ViT, tested
-on HLS Burn-Scars wildfires — the most favourable possible conditions
-for a foundation model, since its pre-training imagery is the
-benchmark's own modality and geography). Both fail to outperform a
-from-scratch U-Net on cross-event F1, and both exhibit the same
-calibration drift. A third architecture family (e.g. DOFA, SatMAE,
-USat) could in principle behave differently; the panel is extensible
-and we treat further backbones as incremental robustness work rather
-than a gap in the falsification logic.
+(L2) *Backbone scope for the H1 falsification — three foundation models
+tested.* Our H1 falsification panel contains three independent
+foundation models: frozen Google AlphaEarth (global multi-modal annual
+embedding, on Sen1Floods11 floods), frozen NASA-IBM
+Prithvi-EO-1.0-100M (HLS-modality-matched temporal ViT, on HLS
+Burn-Scars — the most favourable possible conditions for a foundation
+model), and frozen DOFA ViT-Base (wavelength-conditioned five-modality
+generalist, on HLS Burn-Scars). None outperforms a from-scratch U-Net
+on cross-event F1, all exhibit calibration drift, and the drift
+magnitude rises monotonically as the representation's task-match
+weakens (U-Net +0.001 → Prithvi +0.004 → DOFA +0.013 mean recoverable
+gain). Remaining untested architecture families (SatMAE, USat,
+vision-language segmenters) could in principle behave differently; we
+treat further backbones as incremental robustness work rather than a
+gap in the falsification logic.
 
 (L3) *Decision-level answer fidelity is event-aggregate, not per-chip.*
 The headline flooded-area correlation (Pearson r = 0.971, Spearman ρ =
