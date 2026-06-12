@@ -197,3 +197,8 @@ outputs/leave_one_event_out_burnscars/**/*.ckpt
 !outputs/leave_one_event_out_dofa_burnscars/
 !outputs/leave_one_event_out_dofa_burnscars/summary.json
 !outputs/decision/calibration_analysis_dofa_burnscars.json
+
+# Referee-response round 2 (zero-label + gradient multiseed + ensemble 20s)
+!outputs/layer3_ppo/zero_label_prior_correction.json
+!outputs/layer3_ppo/ensemble_baseline_loeo_20s.json
+!outputs/decision/gradient_multiseed.json

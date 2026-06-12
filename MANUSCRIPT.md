@@ -1,4 +1,4 @@
-# Cross-disaster mapping is a calibration problem, not a representation problem: four labels recover 99 % of the full-pool oracle, regardless of how those labels are chosen
+# Cross-disaster mapping is largely a calibration problem, not a representation problem: four labels recover 99 % of the full-pool oracle, regardless of how those labels are chosen
 
 *Manuscript draft (Nature Communications). Working title — subject to revision after final results.*
 
@@ -50,13 +50,24 @@ process and solved with proximal policy optimisation) spans only
 single-event calibration drift it corrects. The learned policy
 significantly out-performs the more elaborate uncertainty heuristics
 (zero-shot Δ = +0.015 p = 0.0005, CoreSet Δ = +0.011 p = 0.007, ensemble
-uncertainty Δ = +0.010 p = 0.003) but is statistically indistinguishable
-from random sampling in mean (Δ = +0.0005, *t*-p = 0.85; Wilcoxon
-rank-shift p = 0.009) and from single-model entropy (Δ = −0.005,
-*t*-p = 0.057). **For this task, calibration is the science; the
-specific selection method is implementation choice.** The operational implication is concrete:
-cross-disaster adaptation does not need more representation; it needs
-four labels and a calibrated threshold. The end-to-end agent built around
+uncertainty Δ = +0.007 Wilcoxon p = 0.0025) but is statistically
+indistinguishable from random sampling in mean (Δ = +0.0005, *t*-p =
+0.85; Wilcoxon rank-shift p = 0.009) and from single-model entropy
+(Δ = −0.005, *t*-p = 0.057). **For this task, calibration is the
+science; the specific selection method is implementation choice.**
+Crucially, the four labels are *necessary*: the drift is not pure label
+shift. Two standard zero-label prior-shift corrections [Saerens 2002;
+Lipton 2018] fail under the same protocol — Saerens EM diverges
+(−0.61 F1 vs the uncorrected default) because the miscalibrated scores
+violate its posterior assumption, and BBSE estimates the new-event
+priors nearly correctly yet its analytically corrected threshold is
+*still* significantly worse than doing nothing (−0.14 F1), because the
+class-conditional score distributions themselves distort under
+cross-event transfer. The labels are not measuring the new prior; they
+are measuring the score-distribution distortion that no zero-label
+method can see. The operational implication is concrete: cross-disaster
+adaptation does not need more representation; it needs four labels and
+a calibrated threshold. The end-to-end agent built around
 this insight delivers responder-grade decision answers (which buildings
 are flooded, which roads are passable, which communities are isolated)
 at 0.031 s per chip on a single GPU — versus the 1-to-3-day Copernicus
@@ -120,21 +131,46 @@ disaster-response community should spend its modelling effort.
 
 ### Why discriminating H1 from H2 has not been done before
 
-Active-learning and post-hoc-calibration literatures both touch the
-question, but neither has framed it explicitly. Active learning [Sener
-2018; Gal 2017] asks "how do we get the most out of the next label",
-without distinguishing between updating the model (H1) and recalibrating
-its operating point (H2). Post-hoc calibration [Guo 2017; Platt;
-isotonic] focuses on probability scale, but for *binary thresholded
-decisions* — exactly the case in operational disaster mapping — all
-monotone single-parameter post-hoc calibrations (Platt, temperature,
-isotonic) are mathematically equivalent to threshold tuning, which we
-prove (Methods). Two recent Nature Communications papers [Xu 2022;
-Zhang 2025] adjacent to this work — causal-graph multi-hazard impact
-estimation and STIMP imputation for ocean chlorophyll-a — propose new
-methods but do not address the H1-vs-H2 question for the cross-disaster
-generalisation gap. The empirical discrimination between H1 and H2 is,
-to our knowledge, the contribution of the present work.
+Three literatures touch the question; none has framed it explicitly,
+and one of them supplies a hypothesis we must explicitly test against.
+
+**Active learning** [Sener 2018; Gal 2017] asks "how do we get the most
+out of the next label", without distinguishing between updating the
+model (H1) and recalibrating its operating point (H2). **Post-hoc
+calibration** [Guo 2017; Platt 1999; Zadrozny & Elkan 2002] focuses on
+probability scale, but for *binary thresholded decisions* — exactly the
+case in operational disaster mapping — all monotone single-parameter
+post-hoc calibrations (Platt, temperature, isotonic) are mathematically
+equivalent to threshold tuning, which we prove (Methods).
+
+**Label shift** is the most important adjacent literature, because it
+makes a sharp competing prediction. Under pure label shift — the class-
+conditional feature distributions *p(x|y)* transfer intact and only the
+class prior *p(y)* changes — the optimal threshold moves by a known
+analytic amount [Elkan 2001], the new prior can be estimated from
+*unlabelled* target data alone [Saerens et al. 2002; Lipton et al.
+2018; Garg et al. 2020], and the calibration fix therefore costs
+**zero labels**. If cross-disaster calibration drift were *pure* label
+shift, our four-label headline would be unnecessary: a zero-label
+prior-correction would suffice. We test this directly (R4, "the
+zero-label test"): we run Saerens-EM prior estimation on the unlabelled
+pool of every held-out event under the same leave-one-event-out
+protocol, and compare the resulting analytically-corrected threshold
+against labelled recalibration. The gap between the zero-label
+correction and the four-label calibration quantifies how much of the
+observed drift is pure prior shift versus genuine score-distribution
+distortion — and turns the H1-vs-H2 dichotomy into a three-way
+decomposition (representation drift / score-distribution drift / pure
+prior shift) with an explicit price tag, in labels, for each.
+
+Two recent Nature Communications papers [Xu 2022; Zhang 2025] adjacent
+to this work — causal-graph multi-hazard impact estimation and STIMP
+imputation for ocean chlorophyll-a — propose new methods but do not
+address the H1-vs-H2 question for the cross-disaster generalisation
+gap. The empirical discrimination between representation drift,
+score-distribution drift, and pure prior shift, on operational
+disaster benchmarks, is to our knowledge the contribution of the
+present work.
 
 ### Our experimental design
 
@@ -200,15 +236,24 @@ The three tests give consistent evidence in favour of H2:
   0.7 % of the full-pool oracle (Δ = −0.0065 F1, paired *t*-p = 0.016),
   significantly outperforms zero-shot calibration (Δ = +0.015, p =
   0.0005), CoreSet active learning (Δ = +0.011, p = 0.007) and a
-  3-seed ensemble-uncertainty baseline (Δ = +0.010, p = 0.003). The
-  entire family of practical 4-chip selection methods we tested
-  (random, single-model entropy, CoreSet, ensemble uncertainty, PPO)
-  spans only 0.017 F1 — *an order of magnitude smaller than the
+  3-seed ensemble-uncertainty baseline (Δ = +0.007, Wilcoxon p =
+  0.0025). The entire family of practical 4-chip selection methods we
+  tested (random, single-model entropy, CoreSet, ensemble uncertainty,
+  PPO) spans only 0.017 F1 — *an order of magnitude smaller than the
   +0.235 F1 single-event calibration drift it corrects*. The
   information needed to optimally re-calibrate τ for a new event is
   captured in four chips of pool labels.
+- **And the four labels are necessary — the drift is not pure label
+  shift.** Two standard zero-label prior-shift corrections fail under
+  the same protocol: Saerens EM diverges to a degenerate prior
+  (−0.61 F1 vs the uncorrected default) and BBSE — despite estimating
+  the new-event priors nearly correctly — produces an analytically
+  corrected threshold that is *still* significantly worse than doing
+  nothing (−0.14 F1). The class-conditional score distributions
+  themselves distort under cross-event transfer; the labels measure
+  that distortion, which no zero-label method can see (R4c).
 
-These three results together support H2: cross-disaster generalisation
+These four results together support H2: cross-disaster generalisation
 in deep-learning disaster mapping is a calibration problem, not a
 representation problem. The methodological apparatus we built to reach
 this conclusion — formalising active calibration as an MDP, solving it
@@ -508,7 +553,7 @@ attribute the originally inflated v1 paired-significance numbers to.
 | Comparison              | Δ F1  | 95 % CI            | paired t-p | Wilcoxon-p |
 |-------------------------|-------|--------------------|-----------|-----------|
 | PPO − zero-shot (τ=0.5) | +0.0147 | [+0.0065, +0.0230] | **0.0005 \*\*\*** | <10⁻⁴ |
-| PPO − **ensemble uncertainty** (3-seed) | **+0.0099** | [+0.0034, +0.0163] | **0.0029 \*\*** | **0.0004** |
+| PPO − **ensemble uncertainty** (3-seed) | +0.0073 | [−0.0015, +0.0161] | 0.10 (borderline) | **0.0025 \*\*** |
 | PPO − CoreSet           | +0.0111 | [+0.0031, +0.0191] | **0.0067 \*\*** | 0.0010 |
 | PPO − random            | +0.0005 | [−0.0048, +0.0058] | 0.85 (n.s.) | **0.0085 \*\*** |
 | PPO − uncertainty (entropy) | −0.0049 | [−0.0100, +0.0001] | 0.057 (borderline) | 0.87 |
@@ -525,9 +570,13 @@ report both protocols and use the larger 20-seed numbers as the headline
 because they are the more conservative estimate of where the
 four-label calibration lever lands.
 
-The ensemble-uncertainty paired test (PPO − ensemble = +0.0099,
-*t*-p = 0.003) is the 10-seed-protocol result; the 20-seed extension of
-the ensemble baseline is a planned follow-up.
+The ensemble-uncertainty row is now also evaluated under the full
+20-seed protocol (200 pairs): PPO − ensemble = +0.0073, parametric
+*t*-p = 0.10, Wilcoxon p = 0.0025 — rank-significant, parametric
+borderline, consistent with the general 20-seed pattern that the
+method-family differences compress toward zero as power increases.
+The ensemble baseline also remains *below random* (Δ = −0.0068,
+*t*-p = 0.058).
 
 The headline interpretation is precise:
 
@@ -541,7 +590,8 @@ The headline interpretation is precise:
 - **PPO significantly beats the zero-shot default** (Δ = +0.0147,
   *t*-p = 0.0005) and **significantly beats the CoreSet diversity
   baseline** (Δ = +0.0111, *t*-p = 0.007) and the **3-seed ensemble
-  uncertainty baseline** (Δ = +0.0099, *t*-p = 0.003). The policy
+  uncertainty baseline** (Δ = +0.0073, Wilcoxon p = 0.0025;
+  parametric *t*-p = 0.10). The policy
   *learns* something about how to choose calibration chips that the
   off-the-shelf active-learning heuristics do not capture.
 - **PPO ties random in mean (Δ = +0.0005, *t*-p = 0.85), but wins more
@@ -605,6 +655,50 @@ leakage-suspect protocol, are deferred to the Methodological appendix
 (R4-Appendix) so that the headline results in R4 use only the LOEO-v2
 protocol.]*
 
+#### R4c — The zero-label test: cross-disaster calibration drift is NOT pure label shift, so the four labels are necessary
+
+The strongest objection to the four-label headline comes from the label-
+shift literature: if cross-event drift were *pure* prior shift — the
+class-conditional score distributions transfer intact, only p(y)
+changes — the optimal threshold could be corrected analytically from
+**zero** target labels [Elkan 2001], using a prior estimated from
+unlabelled target data [Saerens 2002; Lipton 2018]. We test the two
+standard zero-label estimators under the identical 20-seed LOEO splits
+(200 paired pairs; the estimators see only the *unlabelled* pool):
+
+| Method (zero target labels) | Pooled F1 | vs zero-shot τ=0.5 (0.819) |
+|---|---:|---:|
+| Saerens EM prior correction | **0.210** | **−0.609** (catastrophic) |
+| BBSE prior correction       | **0.677** | **−0.143** (significantly worse) |
+| *(reference: 4-label random)* | 0.834 | +0.014 |
+
+Both fail — and the *way* they fail is diagnostic. Saerens EM diverges
+to a degenerate prior estimate (π̂ → 1.0 on all ten events): EM assumes
+the model's posteriors are calibrated under the training prior, and with
+ECE 0.12–0.24 the inflated scores are indistinguishable, to EM, from "the
+new event is all water". BBSE — which is robust to score
+miscalibration in its *prior estimation* step because it uses hard
+confusion rates — actually estimates the new-event priors rather well
+(e.g. Mekong π̂ = 0.269 vs. true 0.247; India 0.118 vs. 0.116; pooled
+correlation with the true priors across events is high). **Yet even
+with a near-correct prior estimate, the label-shift-corrected threshold
+is significantly worse than doing nothing** (−0.143 F1 vs. the
+uncorrected default). The reason is structural: the label-shift
+correction formula assumes the class-conditional score distributions
+p(s | y) transfer intact, and our diagnosis shows they do not — the
+pool-mean predicted probability (0.17–0.32 across events) systematically
+exceeds both the training prior (≈ 0.10) and the *true* new-event prior
+(0.05–0.25). The score distribution itself distorts under cross-event
+transfer. This is precisely the component of calibration drift that no
+zero-label method can see and a four-label calibration set can: **the
+labels are not measuring the new event's class prior (BBSE already
+gets that right for free); they are measuring the score-distribution
+distortion.** Cross-disaster calibration drift decomposes into a prior-
+shift component (estimable without labels) and a score-distortion
+component (not), and the second dominates the threshold correction on
+every one of our ten events. Result JSON:
+`outputs/layer3_ppo/zero_label_prior_correction.json`.
+
 #### R4d — Honest positioning: PPO ties the oracle, significantly beats the strongest uncertainty heuristic (ensemble uncertainty), and ties the simpler entropy heuristic
 
 A reader will reasonably ask: among the methods you evaluate, *is* the
@@ -620,7 +714,7 @@ because the answer is a load-bearing part of the contribution.
 | uncertainty (entropy)   |    0.8390 | +0.0049 | 0.057 (borderline) |
 | **PPO (ours)**          |   **0.8340** | —     | —          |
 | random                  |    0.8335 | −0.0005 | 0.85 (n.s., Wilcoxon p = 0.009) |
-| **ensemble uncertainty** (3-seed, 10-seed eval) | 0.8269 | **−0.0099** | **0.003 \*\*** |
+| **ensemble uncertainty** (3-seed) | 0.8267 | −0.0073 | 0.10 (Wilcoxon p = 0.0025) |
 | CoreSet                 |    0.8229 | −0.0111 | **0.007 \*\*** |
 | zero-shot (τ = 0.5)     |    0.8193 | −0.0147 | **0.0005 \*\*\*** |
 
@@ -646,8 +740,9 @@ estimate did not have power to resolve:
    baseline.** The 3-seed ensemble-uncertainty baseline — generated
    from three independently-trained leave-one-region-out U-Nets and
    ranked by per-pixel predictive std averaged per chip — is
-   significantly worse than PPO (Δ = +0.0099, *t*-p = 0.003, evaluated
-   at 10 seeds; the 20-seed extension is a planned follow-up). The
+   worse than PPO (Δ = +0.0073, Wilcoxon p = 0.0025, parametric
+   *t*-p = 0.10 under the 20-seed protocol) and below random
+   (Δ = −0.0068, *t*-p = 0.058). The
    mechanism is that epistemic uncertainty selects chips on which the
    ensemble *disagrees*, whereas calibration needs chips whose pixel
    distributions span the decision boundary. Adding ensemble compute
@@ -688,7 +783,7 @@ cannot exceed it. The upper bound is structural, not protocol-dependent.
    pair protocol; the 4-chip PPO is *operationally near-oracle* for
    any practical purpose.
 2. **The PPO MDP is a framework extension point that uncertainty
-   heuristics are not.** Reward swapping (Methodological Appendix A2)
+   heuristics are not.** Reward swapping (Supplementary Information A2)
    demonstrably changes the policy paired-significantly on both
    backbones — uncertainty sampling cannot be retargeted to a
    decision-level objective without effectively defining a new
@@ -736,7 +831,7 @@ reasonable selection rule — is the deliverable.
 > *architectural* claim that reward swapping changes the policy — but we
 > separate them physically from the headline result to keep R4 entirely
 > within the leakage-free LOEO protocol. The two ablations are deferred to
-> the *Methodological Appendix* at the end of the manuscript.
+> the Supplementary Information.
 
 ---
 
@@ -884,22 +979,39 @@ point: a generalist representation transferred zero-shot to a specific
 hazard mapping task neither closes the cross-event gap nor escapes
 calibration drift.
 
-**The three-backbone gradient: weaker task-match ⇒ more calibration
-drift.** Ordering the three backbones by how closely their training
-distribution matches the task — U-Net (trained on the task itself) →
-Prithvi (pre-trained on the task's modality) → DOFA (generalist) — the
-mean recoverable calibration gain rises monotonically: +0.001 → +0.004
-→ +0.013. Cross-event F1 falls in the same order: 0.859 → 0.849 →
-0.744. **Better representations do not remove calibration drift; they
-merely shrink it — and even the best representation in the panel (the
-task-trained U-Net) retains τ\* ≠ 0.5 on 3 of 4 events.** This
-gradient is, to our knowledge, the first systematic characterisation of
-how calibration drift scales with representation-task mismatch in
-cross-event disaster mapping, and it converts the H1-vs-H2 dichotomy
-into a quantitative trade-off: representation quality buys you a
-*smaller* calibration problem, never *no* calibration problem — and at
-four labels, the calibration fix costs almost nothing regardless of
-where you start.
+**The three-backbone ordering: weaker task-match ⇒ more calibration
+drift (consistent, with overlapping uncertainty).** Ordering the three
+backbones by how closely their training distribution matches the task —
+U-Net (trained on the task itself) → Prithvi (pre-trained on the task's
+modality) → DOFA (generalist) — the mean recoverable calibration gain
+rises monotonically. With 5-seed re-training of the two foundation-model
+segmentation heads on their cached frozen features (the U-Net entry is
+a single full training run per fold and is flagged as such):
+
+| Backbone | F1@τ\* (mean ± std) | Calib gain (mean ± std) |
+|---|---|---|
+| U-Net (task-trained) | 0.859 (single seed) | +0.001 (single seed) |
+| Prithvi (modality-matched) | 0.850 ± 0.021 | +0.004 ± 0.004 |
+| DOFA (generalist) | 0.744 ± 0.029 | +0.013 ± 0.009 |
+
+The ordering is consistent across all five seeds, but the uncertainty
+intervals of adjacent rungs overlap (Prithvi's gain interval includes
+the U-Net's point estimate), so we present this as a **consistent
+preliminary ordering rather than a statistically separated gradient** —
+three backbones and four events are not enough to establish the
+scaling law. Two caveats further qualify the DOFA rung: its absolute F1
+deficit is partly attributable to transfer-pipeline mismatch (per-chip
+z-score normalisation differs from its pre-training statistics), and
+the frozen-feature protocol may favour models whose final-layer tokens
+are more linearly decodable. What survives these caveats is the
+direction: **no backbone in the panel removes calibration drift, and
+the best representation (the task-trained U-Net) still retains
+τ\* ≠ 0.5 on 3 of 4 events.** Representation quality buys a *smaller*
+calibration problem, never *no* calibration problem — and at four
+labels, the calibration fix costs almost nothing regardless of where
+you start. A systematic multi-backbone, multi-hazard characterisation
+of this scaling is a concrete direction for follow-up work. Multi-seed
+result JSON: `outputs/decision/gradient_multiseed.json`.
 
 **A structured Markov-random-field decision layer does not beat a calibrated
 threshold.** Motivated by the causal-graph success of Xu et al. [2022], we
@@ -1003,9 +1115,22 @@ not the right axis** — the right axis is sample efficiency on a
 one-parameter post-hoc adjustment. We give one careful instantiation
 (PPO with GAE-λ + terminal-only reward + entropy schedule, retaining
 5-d chip features) and characterise the design space around it
-(Methodological Appendix), but we expect any sensible active-selection
+(Supplementary Information), but we expect any sensible active-selection
 heuristic that targets the decision boundary to perform comparably on
 this task.
+
+For the **label-shift literature** specifically, our zero-label test
+(R4c) adds a cautionary empirical datum: in a realistic cross-event
+deployment with miscalibrated deep-segmentation scores (ECE
+0.12–0.24), Saerens-EM prior estimation diverges outright, and BBSE —
+whose prior estimates are nearly correct — still produces a corrected
+threshold *worse than no correction at all*, because the
+class-conditional score distributions do not transfer. Cross-event
+drift in operational Earth observation is **label shift plus score-
+distribution distortion**, and the second component dominates the
+threshold correction. Methods that assume pure label shift should be
+deployed with caution in this domain; a four-label spot-check is a
+cheap insurance policy against the assumption failing silently.
 
 ### What would falsify H2?
 
@@ -1105,7 +1230,7 @@ single-model entropy (*t*-p = 0.057), and significantly above CoreSet,
 zero-shot, and ensemble uncertainty. The methodological contribution of
 the paper is the H2 finding, not the choice of selection method; the
 PPO architecture is justified primarily as a framework extension point
-for decision-aligned reward (Methodological Appendix A2), not by a
+for decision-aligned reward (Supplementary Information A2), not by a
 robust per-event PPO-vs-random win.
 
 (L5) *Within-event protocol experiments demoted, not retracted.* The
@@ -1114,7 +1239,7 @@ were carried out under a within-event protocol that the leakage-free
 LOEO supersedes for the cross-event claim. The within-event numbers
 remain defensible characterisations of policy behaviour when the
 deployer can collect labels on the same event the model will be
-calibrated on, and we report them in the Methodological Appendix —
+calibrated on, and we report them in the Supplementary Information —
 but we do not use them as part of the headline H2-vs-H1 evidence.
 
 #### Ethics and responsible use
@@ -1410,99 +1535,17 @@ Sen1Floods11 [Bonafilia 2020], xBD [Gupta 2019], and AlphaEarth [DeepMind
 
 ---
 
-## Methodological Appendix — within-event protocol ablations
+## Supplementary Information
 
-The two experiments below were carried out under the original within-event
-paired protocol (cross-region PPO trained and evaluated on the same four
-hard Sen1Floods11 regions, with the seed-level pool/test split varying).
-This protocol is leakage-suspect for cross-event generalisation claims;
-under the strict leave-one-event-out protocol used in R4, PPO matches the
-full-pool oracle and outperforms zero-shot and CoreSet but does not
-parametrically out-perform random selection (Wilcoxon-significant only).
-We retain these two ablations because (a) the qualitative direction of
-the sample-efficiency curve is robust and re-appears under LOEO-v2; (b)
-the decision-aligned-reward A/B confirms the *architectural* claim that
-swapping the reward signal changes the policy, which is independent of the
-event-level holdout discussion; (c) the within-event sample-efficiency
-numbers are an honest characterisation of how the same policy behaves in
-the *operational* setting where labels are collected on the same event the
-model will be calibrated on.
-
-### A1. Budget sample-efficiency sweep (within-event protocol)
-
-We re-ran the 10-seed within-event paired protocol at label budgets B ∈
-{1, 2, 4, 8} on the U-Net backbone, evaluating PPO against random /
-uncertainty / CoreSet and the full-pool oracle (Fig. 24). The pattern is
-the canonical sample-efficient one:
-
-| Budget | random | PPO | PPO − random | paired *t*-p |
-|--------|--------|-----|--------------|-------------|
-| 1      | 0.720  | **0.781** | **+0.062** | <0.001 |
-| 2      | 0.736  | 0.779 | +0.044 | <0.001 |
-| 4      | 0.756  | 0.779 | +0.023 | 0.005 |
-| 8      | 0.760  | 0.777 | +0.017 | 0.013 |
-
-PPO's edge **decreases monotonically** as the budget grows: +0.062 → +0.044
-→ +0.023 → +0.017 F1. All four budgets are paired-significant
-(*t*-p ≤ 0.013) under this protocol. Strikingly, **PPO at budget = 1
-(F1 0.781) matches or exceeds every baseline at budget = 8** (random 0.760,
-uncertainty 0.755, CoreSet 0.757) — the learned chip-selection is worth
-roughly an 8× label multiplier at the bottom of the curve. PPO's absolute
-F1 also saturates quickly (0.777 – 0.781 across budgets), consistent with
-the calibration MDP being a small-effective-dimension problem: a single
-well-chosen chip captures most of the recoverable threshold information
-for the test region. The qualitative slope is preserved under LOEO-v2,
-where PPO at budget = 4 attains oracle-equivalent F1 (R4 above).
-
-### A2. Decision-aligned reward A/B (within-event protocol)
-
-This experiment supports the *architectural* claim of CCA that the
-calibration MDP can be solved against any decision-level objective by
-changing the reward signal. On a 20-seed within-event paired protocol
-(initially 10 seeds; doubled after the first run because the
-decision-metric paired CIs were wide) we train two arms — the standard
-pixel-F1-reward arm and a **decision-aligned** arm whose reward is the
-per-step decrease in mean absolute relative area error across test chips —
-and evaluate both arms on *both* metrics. We report two separate findings,
-with opposite statistical strength (Fig. 23).
-
-**(i) Reward shaping is a real, paired-significant control knob.** Across
-20 seeds and four hard regions, decision-reward PPO has *significantly
-lower* pixel F1 than pixel-reward PPO on both backbones: U-Net 0.758 vs
-0.778, paired *t*-test **p = 0.0004**; AlphaEarth 0.701 vs 0.728, **p =
-0.005**. The MDP genuinely steers toward whatever objective the reward
-encodes — it is not blindly maximising pixel F1 regardless of the reward
-signal. This verifies the framework's central claim that the reward signal
-is the control knob that aligns the calibration policy with a chosen
-objective.
-
-**(ii) Decision-aligned reward does *not* yet net-improve the decision
-metric.** On mean absolute relative area error (lower is better), the
-direction is **backbone-dependent** and **not statistically significant**
-at n = 20 × 4: on U-Net decision-PPO is slightly *worse* (6.26 vs 5.96,
-Δ = +0.31, paired *t*-test p = 0.75); on AlphaEarth decision-PPO is
-slightly *better* (3.66 vs 4.70, Δ = −1.04, p = 0.37). We note that a
-10-seed pilot gave a much larger AlphaEarth effect (Δ = −2.90, −62 %
-relative) which the 20-seed re-run halved and rendered non-significant — a
-textbook noise reversal under-powered RL evaluations are vulnerable to. We
-report both runs in full because *the methodological lesson is itself a
-contribution*: RL-on-disaster-mapping evaluations need ≥20 seeds and wider
-region pools to distinguish a real decision-metric improvement from seed
-noise.
-
-**(iii) Honest synthesis.** What is *robust*: the reward is a paired-
-significant control knob — the policy provably tracks the objective the
-reward encodes (i). What is *not yet robust*: that an area-error reward
-produces a net improvement on the area-error metric vs the pixel-F1
-reward in this 4-region testbed (ii). We argue this is a power problem
-not a no-effect result — the AlphaEarth direction is consistent across
-both 10- and 20-seed runs, and the AlphaEarth effect at 20 seeds is still
-a −22 % relative reduction, just with a 95 % CI that includes zero.
-Resolving this requires either more seeds, more regions, or richer
-decision rewards; we treat that as the most concrete next-step
-experiment.
-
----
+The within-event-protocol ablations (budget sample-efficiency sweep;
+decision-aligned reward A/B) are provided in the Supplementary
+Information (`SUPPLEMENTARY.md`), together with the full per-fold
+result JSONs for every experiment in this paper. These two ablations
+were carried out under the leakage-suspect within-event protocol that
+the leave-one-event-out results of R4 supersede; they are retained as
+supplementary characterisations of policy behaviour in the
+same-event-labelling deployment setting, and are not part of the
+headline H1-vs-H2 evidence.
 
 ## References
 

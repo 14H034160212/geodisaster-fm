@@ -25,10 +25,11 @@ from geodisaster.utils.logging import get_logger, setup_logging
 log = get_logger("eval-ensemble")
 CACHE = "outputs/layer3_ppo/chip_cache_all10.pkl"
 BUDGET = 4
-SEEDS = list(range(10))
+SEEDS = list(range(20))                  # match the 20-seed LOEO protocol
 ALL_REGIONS = ["Ghana", "India", "Mekong", "Nigeria", "Pakistan",
                "Paraguay", "Somalia", "Spain", "Sri-Lanka", "USA"]
-OUT = Path("outputs/layer3_ppo/ensemble_baseline_loeo.json")
+OUT = Path("outputs/layer3_ppo/ensemble_baseline_loeo_20s.json")
+V2_FOLD_PREFIX = "outputs/layer3_ppo/ppo_loeo_v2_20s_"
 
 
 def split_pool_test(cache: dict, seed: int):
@@ -80,13 +81,13 @@ def main():
                  min=round(min(per_seed_f1), 4), max=round(max(per_seed_f1), 4))
 
     # Aggregate: paired-diff vs PPO from LOEO-v2
-    v2 = json.loads(Path("outputs/layer3_ppo/ppo_loeo_v2_aggregate.json").read_text())
+    v2 = json.loads(Path("outputs/layer3_ppo/ppo_loeo_v2_20s_aggregate.json").read_text())
     ppo_pooled = []
     ens_pooled = []
     for r in ALL_REGIONS:
         ppo_v2 = []
         # find this region's per-seed PPO values from per-fold JSON
-        fold_path = Path(f"outputs/layer3_ppo/ppo_loeo_v2_{r}.json")
+        fold_path = Path(f"outputs/layer3_ppo/ppo_loeo_v2_20s_{r}.json")
         if fold_path.exists():
             fold = json.loads(fold_path.read_text())
             ppo_v2 = fold["raw"]["meta_test"][r]["ppo"]
@@ -98,7 +99,7 @@ def main():
     diffs = np.asarray(ens_pooled) - np.asarray(ppo_pooled)
     diffs_vs_random = []
     for r in ALL_REGIONS:
-        fold = json.loads(Path(f"outputs/layer3_ppo/ppo_loeo_v2_{r}.json").read_text())
+        fold = json.loads(Path(f"outputs/layer3_ppo/ppo_loeo_v2_20s_{r}.json").read_text())
         rnd = np.asarray(fold["raw"]["meta_test"][r]["random"])
         diffs_vs_random.extend(np.asarray(per_region[r]) - rnd)
     diffs_vs_random = np.asarray(diffs_vs_random)

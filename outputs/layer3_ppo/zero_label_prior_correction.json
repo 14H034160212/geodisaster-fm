@@ -1,0 +1,248 @@
+{
+  "protocol": "Zero-label prior correction (Saerens EM + BBSE), 20-seed LOEO splits",
+  "per_region": {
+    "Ghana": {
+      "mean_f1_em": 0.1227,
+      "mean_tau_em": 0.0,
+      "mean_pi_hat_em": 1.0,
+      "mean_f1_bbse": 0.4654,
+      "mean_tau_bbse": 0.775,
+      "mean_pi_hat_bbse": 0.0361,
+      "train_prior": 0.1088,
+      "src_tpr": 0.9,
+      "src_fpr": 0.0271,
+      "diag_mean_pool_prob": 0.1656,
+      "diag_true_pool_prior": 0.0624
+    },
+    "India": {
+      "mean_f1_em": 0.2448,
+      "mean_tau_em": 0.0,
+      "mean_pi_hat_em": 1.0,
+      "mean_f1_bbse": 0.805,
+      "mean_tau_bbse": 0.46,
+      "mean_pi_hat_bbse": 0.1176,
+      "train_prior": 0.101,
+      "src_tpr": 0.9023,
+      "src_fpr": 0.024,
+      "diag_mean_pool_prob": 0.2505,
+      "diag_true_pool_prior": 0.1159
+    },
+    "Mekong": {
+      "mean_f1_em": 0.3694,
+      "mean_tau_em": 0.0,
+      "mean_pi_hat_em": 1.0,
+      "mean_f1_bbse": 0.8282,
+      "mean_tau_bbse": 0.222,
+      "mean_pi_hat_bbse": 0.269,
+      "train_prior": 0.0938,
+      "src_tpr": 0.8791,
+      "src_fpr": 0.0257,
+      "diag_mean_pool_prob": 0.3218,
+      "diag_true_pool_prior": 0.2467
+    },
+    "Nigeria": {
+      "mean_f1_em": 0.382,
+      "mean_tau_em": 0.0,
+      "mean_pi_hat_em": 1.0,
+      "mean_f1_bbse": 0.7371,
+      "mean_tau_bbse": 0.275,
+      "mean_pi_hat_bbse": 0.2532,
+      "train_prior": 0.0989,
+      "src_tpr": 0.8872,
+      "src_fpr": 0.0251,
+      "diag_mean_pool_prob": 0.3174,
+      "diag_true_pool_prior": 0.2263
+    },
+    "Pakistan": {
+      "mean_f1_em": 0.1674,
+      "mean_tau_em": 0.0,
+      "mean_pi_hat_em": 1.0,
+      "mean_f1_bbse": 0.4166,
+      "mean_tau_bbse": 0.356,
+      "mean_pi_hat_bbse": 0.1819,
+      "train_prior": 0.1062,
+      "src_tpr": 0.8931,
+      "src_fpr": 0.0195,
+      "diag_mean_pool_prob": 0.3038,
+      "diag_true_pool_prior": 0.0655
+    },
+    "Paraguay": {
+      "mean_f1_em": 0.1632,
+      "mean_tau_em": 0.0,
+      "mean_pi_hat_em": 1.0,
+      "mean_f1_bbse": 0.6571,
+      "mean_tau_bbse": 0.703,
+      "mean_pi_hat_bbse": 0.0492,
+      "train_prior": 0.1087,
+      "src_tpr": 0.9179,
+      "src_fpr": 0.028,
+      "diag_mean_pool_prob": 0.2015,
+      "diag_true_pool_prior": 0.0812
+    },
+    "Somalia": {
+      "mean_f1_em": 0.1211,
+      "mean_tau_em": 0.0,
+      "mean_pi_hat_em": 1.0,
+      "mean_f1_bbse": 0.7565,
+      "mean_tau_bbse": 0.618,
+      "mean_pi_hat_bbse": 0.0708,
+      "train_prior": 0.1068,
+      "src_tpr": 0.8946,
+      "src_fpr": 0.025,
+      "diag_mean_pool_prob": 0.2385,
+      "diag_true_pool_prior": 0.0647
+    },
+    "Spain": {
+      "mean_f1_em": 0.2363,
+      "mean_tau_em": 0.0,
+      "mean_pi_hat_em": 1.0,
+      "mean_f1_bbse": 0.769,
+      "mean_tau_bbse": 0.381,
+      "mean_pi_hat_bbse": 0.1588,
+      "train_prior": 0.1022,
+      "src_tpr": 0.8862,
+      "src_fpr": 0.0241,
+      "diag_mean_pool_prob": 0.3028,
+      "diag_true_pool_prior": 0.1298
+    },
+    "Sri-Lanka": {
+      "mean_f1_em": 0.2098,
+      "mean_tau_em": 0.0,
+      "mean_pi_hat_em": 1.0,
+      "mean_f1_bbse": 0.8472,
+      "mean_tau_bbse": 0.48,
+      "mean_pi_hat_bbse": 0.1128,
+      "train_prior": 0.103,
+      "src_tpr": 0.8912,
+      "src_fpr": 0.0261,
+      "diag_mean_pool_prob": 0.235,
+      "diag_true_pool_prior": 0.1176
+    },
+    "USA": {
+      "mean_f1_em": 0.0861,
+      "mean_tau_em": 0.0,
+      "mean_pi_hat_em": 1.0,
+      "mean_f1_bbse": 0.4827,
+      "mean_tau_bbse": 0.869,
+      "mean_pi_hat_bbse": 0.0199,
+      "train_prior": 0.1174,
+      "src_tpr": 0.8965,
+      "src_fpr": 0.0297,
+      "diag_mean_pool_prob": 0.1722,
+      "diag_true_pool_prior": 0.0459
+    }
+  },
+  "pooled_mean": {
+    "em": 0.2103,
+    "bbse": 0.6765,
+    "base": 0.8193,
+    "random": 0.8335,
+    "uncertainty": 0.839,
+    "ppo": 0.834,
+    "full_pool": 0.8405
+  },
+  "paired_em_minus": {
+    "base": {
+      "n": 200,
+      "mean": -0.609,
+      "ci95": [
+        -0.6259,
+        -0.592
+      ],
+      "t_p": 0.0,
+      "wilcoxon_p": 0.0
+    },
+    "random": {
+      "n": 200,
+      "mean": -0.6232,
+      "ci95": [
+        -0.6372,
+        -0.6093
+      ],
+      "t_p": 0.0,
+      "wilcoxon_p": 0.0
+    },
+    "uncertainty": {
+      "n": 200,
+      "mean": -0.6287,
+      "ci95": [
+        -0.6426,
+        -0.6148
+      ],
+      "t_p": 0.0,
+      "wilcoxon_p": 0.0
+    },
+    "ppo": {
+      "n": 200,
+      "mean": -0.6237,
+      "ci95": [
+        -0.6386,
+        -0.6088
+      ],
+      "t_p": 0.0,
+      "wilcoxon_p": 0.0
+    },
+    "full_pool": {
+      "n": 200,
+      "mean": -0.6302,
+      "ci95": [
+        -0.6446,
+        -0.6158
+      ],
+      "t_p": 0.0,
+      "wilcoxon_p": 0.0
+    }
+  },
+  "paired_bbse_minus": {
+    "base": {
+      "n": 200,
+      "mean": -0.1428,
+      "ci95": [
+        -0.1671,
+        -0.1185
+      ],
+      "t_p": 0.0,
+      "wilcoxon_p": 0.0
+    },
+    "random": {
+      "n": 200,
+      "mean": -0.1571,
+      "ci95": [
+        -0.1819,
+        -0.1322
+      ],
+      "t_p": 0.0,
+      "wilcoxon_p": 0.0
+    },
+    "uncertainty": {
+      "n": 200,
+      "mean": -0.1625,
+      "ci95": [
+        -0.1876,
+        -0.1374
+      ],
+      "t_p": 0.0,
+      "wilcoxon_p": 0.0
+    },
+    "ppo": {
+      "n": 200,
+      "mean": -0.1576,
+      "ci95": [
+        -0.182,
+        -0.1331
+      ],
+      "t_p": 0.0,
+      "wilcoxon_p": 0.0
+    },
+    "full_pool": {
+      "n": 200,
+      "mean": -0.164,
+      "ci95": [
+        -0.1892,
+        -0.1388
+      ],
+      "t_p": 0.0,
+      "wilcoxon_p": 0.0
+    }
+  }
+}
