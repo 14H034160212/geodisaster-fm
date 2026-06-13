@@ -6,89 +6,24 @@
 
 ## Abstract
 
-A deep learning model that maps disasters from satellite imagery degrades
-sharply when applied to a new event it was not trained on. The
-methodological literature has interpreted this degradation as a
-**representation-drift** problem and responded with larger backbones,
-foundation embeddings, and multi-modal fusion. We test an alternative
-hypothesis — that cross-disaster generalisation failure is dominated by
-**calibration drift** of the decision threshold τ, with the underlying
-pixel ranking transferring largely intact — and find that calibration
-drift explains the bulk of the deficit. Across three independent public
-benchmarks(Sen1Floods11 floods, xBD building damage, and HLS Burn-Scars
-wildfires)spanning three hazard families and ≥ 18 real events, with
-four backbones(a trained U-Net and three frozen foundation models —
-Google AlphaEarth on floods; NASA-IBM Prithvi-100M and the
-wavelength-conditioned generalist DOFA on wildfires),
-**15 of 18 region-optimal thresholds lie off the default 0.5**(range
-0.30–0.70), recalibrating τ alone recovers up to **+0.235 F1** on a
-single event, and no foundation model exceeds the from-scratch U-Net
-on cross-event F1 — Prithvi(pre-trained on the benchmark's own HLS
-modality)is slightly worse on all four held-out fire seasons(mean
-Δ = −0.010)and DOFA substantially worse(Δ = −0.115)— while the
-calibration drift these backbones exhibit **rises monotonically as the
-representation's task-match weakens**(mean recoverable gain: U-Net
-+0.001 → Prithvi +0.004 → DOFA +0.013): better representations shrink
-the calibration problem but never remove it. Three independent lines
-of evidence against representation drift and in favour of calibration
-drift. The
-magnitude of the calibration lever is **hazard-specific**:large
-on floods(mean +0.030 F1)and structural damage(palu-tsunami +0.235)
-but small on wildfires(mean +0.001 F1, ECE 0.011–0.025), because
-post-burn imagery is visually well-separated and the default threshold
-is already near-optimal. We then quantify how cheap the calibration fix is. Under a strict
-leave-one-event-out protocol (10 folds × 20 seeds, **200 paired pairs**,
-no event-level training overlap), a **four-chip calibration set recovers
-≈ 99 % of the full-pool oracle's F1**(gap of only 0.7 % F1)— and
-critically, **the choice of which four chips matters far less than the
-existence of the lever itself**. The entire family of practical 4-chip
-selection methods we evaluated (random sampling, single-model entropy
-uncertainty, CoreSet diversity, a 3-seed ensemble uncertainty baseline,
-and a learned active-calibration policy formalised as a Markov decision
-process and solved with proximal policy optimisation) spans only
-**0.017 F1** — an order of magnitude smaller than the +0.235 F1
-single-event calibration drift it corrects. The learned policy
-significantly out-performs the more elaborate uncertainty heuristics
-(zero-shot Δ = +0.015 p = 0.0005, CoreSet Δ = +0.011 p = 0.007, ensemble
-uncertainty Δ = +0.007 Wilcoxon p = 0.0025) but is statistically
-indistinguishable from random sampling in mean (Δ = +0.0005, *t*-p =
-0.85; Wilcoxon rank-shift p = 0.009) and from single-model entropy
-(Δ = −0.005, *t*-p = 0.057). **For this task, calibration is the
-science; the specific selection method is implementation choice.**
-Crucially, the four labels are *necessary*: the drift is not pure label
-shift. Two standard zero-label prior-shift corrections [Saerens 2002;
-Lipton 2018] fail under the same protocol — Saerens EM diverges
-(−0.61 F1 vs the uncorrected default) because the miscalibrated scores
-violate its posterior assumption, and BBSE estimates the new-event
-priors nearly correctly yet its analytically corrected threshold is
-*still* significantly worse than doing nothing (−0.14 F1), because the
-class-conditional score distributions themselves distort under
-cross-event transfer. The labels are not measuring the new prior; they
-are measuring the score-distribution distortion that no zero-label
-method can see. The operational implication is concrete: cross-disaster
-adaptation does not need more representation; it needs four labels and
-a calibrated threshold. The end-to-end agent built around
-this insight delivers responder-grade decision answers (which buildings
-are flooded, which roads are passable, which communities are isolated)
-at 0.031 s per chip on a single GPU — versus the 1-to-3-day Copernicus
-EMS Rapid Mapping product cycle. The comparison is not like-for-like
-(EMS delivers human-verified vector packages; our system delivers
-calibrated raster predictions plus an LLM-summarised briefing) but the
-end-to-end machine time is fundamentally bounded by the model and the
-OpenStreetMap query (~minutes), not by the analyst loop — with flooded-area
-fidelity Pearson r = 0.971 across 431 chips × ten real flood events
-(Spearman ρ = 0.899; MAPE median 25 %; bottom-50 %-by-area chip
-Pearson r = 0.118 — the headline correlation is faithful to the
-dominant signal that responders rank events by, not to small-area
-chips, a caveat we make explicit in R1). The full pipeline, all
-result JSONs, 28 paper-grade figures, and the live agent dashboard are
-publicly reproducible. The broader implication for the field — that
-investing in calibration is cheaper and faster than investing in
-representation for the cross-disaster generalisation problem — is the
-contribution we offer to operational disaster response.
+Deep-learning disaster mappers degrade sharply on events they were not
+trained on, and the field has treated this as a representation problem —
+larger backbones, foundation models, multi-modal fusion. Across three
+public benchmarks spanning floods, building damage and wildfires
+(≥ 18 real events), we show the dominant mechanism is instead
+**calibration drift**: the pixel ranking transfers, but the decision
+threshold does not. Re-fitting one threshold recovers up to +0.235 F1
+per event; three frozen foundation models (AlphaEarth, Prithvi, DOFA)
+none exceed a from-scratch U-Net and all drift at least as much.
+The fix is cheap but not free: four labelled tiles recover 99 % of the
+full-pool oracle regardless of how they are chosen, whereas zero-label
+label-shift corrections (EM, BBSE) fail — the class-conditional score
+distributions themselves distort, which only labels can reveal. An
+end-to-end agent operationalises this finding, delivering
+responder-grade flood briefings in minutes rather than days.
 
+*(149 words)*
 
----
 
 ## Introduction
 
@@ -174,8 +109,9 @@ present work.
 
 ### Our experimental design
 
-We discriminate H1 from H2 with **three independent lines of evidence**,
-each engineered to falsify a different prediction of H1:
+We discriminate H1 from H2 with **four independent lines of evidence** —
+three engineered to falsify predictions of H1, and a fourth engineered
+to falsify the pure-label-shift alternative:
 
 1. **The ranking test.** If H2 holds, the per-pixel ranking should
    transfer across events even when the F1 doesn't. We test this on
@@ -210,7 +146,7 @@ each engineered to falsify a different prediction of H1:
 
 ### The finding
 
-The three tests give consistent evidence in favour of H2:
+The four tests give consistent evidence in favour of H2:
 
 - **Ranking transfers; threshold does not.** Across all 12 events and
   both backbones every region-optimal threshold differs from the default
@@ -495,7 +431,7 @@ Calibration MDP") and solving it with the PPO policy of R4.
 *[Fig. 4 = Fig 18 (Sen1Floods11 calibration headroom) + Fig 22
 (cross-benchmark calibration drift)]*
 
-### R4 — Quantifying H2: How many labels are needed to capture the calibration lever? — A reinforcement-learning calibration policy that matches the full-pool oracle under leakage-free leave-one-event-out evaluation
+### R4 — Quantifying H2: How many labels are needed to capture the calibration lever? — Four labels recover 99 % of the full-pool oracle under leakage-free leave-one-event-out evaluation
 
 R2 and R3 establish that H2 dominates *qualitatively*. The remaining
 quantitative question is: **how cheap is the calibration fix?** If the
@@ -548,7 +484,7 @@ test leakage that an earlier protocol (cross-region PPO trained on the same
 4 hard events it was later scored on) was suspect of, and which we now
 attribute the originally inflated v1 paired-significance numbers to.
 
-**LOEO-v2 result (Table 1, Fig. 5d).**
+**LOEO-v2 result (Table 1, Fig. 2).**
 
 | Comparison              | Δ F1  | 95 % CI            | paired t-p | Wilcoxon-p |
 |-------------------------|-------|--------------------|-----------|-----------|
@@ -608,7 +544,7 @@ The headline interpretation is precise:
   point estimate happens to favour the simpler heuristic. **The lever
   is the science here, not the method.**
 
-**The per-event picture under 20-seed LOEO (Fig. 5d, Table S-LOEO).**
+**The per-event picture under 20-seed LOEO (Fig. 2, Supplementary Table 1).**
 PPO matches or beats random on 7 of 10 events; the three losses are
 small (≤ 0.012 F1 each) and concentrated on events where one of the
 other heuristics happens to win the seed lottery (Ghana, Pakistan, India):
@@ -640,7 +576,7 @@ event paired protocol (PPO trained on the same four hard regions it was
 later scored on, with only the seed-level pool/test split varying)
 originally yielded
 +0.023 to +0.044 F1 paired-significant gains over random / uncertainty /
-CoreSet (Table S-v1). Under the leakage-free LOEO protocol the same
+CoreSet (Supplementary Information). Under the leakage-free LOEO protocol the same
 v1 PPO loses to random by −0.007 on average, and only the structural
 improvements above (GAE-λ + terminal reward + entropy schedule) restore the
 policy to oracle-equivalent performance. We report both protocols in full
@@ -648,12 +584,12 @@ because the methodological lesson is itself a contribution: cross-disaster
 active-calibration claims demand event-level holdout, not seed-level
 pool/test reshuffling.
 
-*[Fig. 5d = Fig 26 (LOEO-v1↔v2 + paired-difference summary + pooled-F1 ladder).
-The earlier within-event PPO sample-efficiency curve and the
-decision-aligned-reward A/B experiment, originally produced under the
-leakage-suspect protocol, are deferred to the Methodological appendix
-(R4-Appendix) so that the headline results in R4 use only the LOEO-v2
-protocol.]*
+*[Fig. 2 — source `outputs/figures/fig26_loeo_v1_v2.png` (LOEO-v1↔v2 +
+paired-difference summary + pooled-F1 ladder). The earlier within-event
+PPO sample-efficiency curve and the decision-aligned-reward A/B
+experiment, originally produced under the leakage-suspect protocol, are
+in the Supplementary Information so that the headline results in R4 use
+only the leakage-free LOEO protocol.]*
 
 #### R4c — The zero-label test: cross-disaster calibration drift is NOT pure label shift, so the four labels are necessary
 
@@ -699,7 +635,7 @@ component (not), and the second dominates the threshold correction on
 every one of our ten events. Result JSON:
 `outputs/layer3_ppo/zero_label_prior_correction.json`.
 
-#### R4d — Honest positioning: PPO ties the oracle, significantly beats the strongest uncertainty heuristic (ensemble uncertainty), and ties the simpler entropy heuristic
+#### R4d — Honest positioning: the entire 4-chip selection family sits within 0.017 F1 of the oracle; PPO leads the learned methods but ties the simplest heuristics
 
 A reader will reasonably ask: among the methods you evaluate, *is* the
 learned PPO policy practically necessary, or would a simpler heuristic
@@ -1085,7 +1021,8 @@ Sentinel-2 inputs reaches roughly the same F1 as a trained U-Net + S1 +
 S2 on the same task (Results R3) but does not surpass it. The
 calibration headroom on AlphaEarth is comparable to the U-Net's
 (+0.042 mean across four hard regions). Combined with the fact that
-PPO calibration ties oracle on both backbones, the practical value of
+four-label calibration recovers ≈ 99 % of the oracle on both backbones,
+the practical value of
 swapping in a foundation model for cross-disaster flood mapping under
 *matched inputs* is small. Where foundation models do plausibly add
 value — pre-training compute amortisation, multi-task transfer, broader
@@ -1162,7 +1099,7 @@ that particular foundation model*, but it cannot rule it out
 universally. We treat this as the most concrete falsification test
 follow-up work should run.
 
-The cross-hazard xBD result (R4-Appendix-style 3-seed analysis) also
+The cross-hazard xBD result (3-seed leave-one-hazard-out analysis) also
 sharpens the H2 claim: pre/post change-detection helps hazards that
 manifest as visible change (hurricane harvey +0.194, florence +0.023,
 palu-tsunami +0.030) but hurts a hazard where the post-image already
@@ -1315,7 +1252,7 @@ affected-building identification F1, population-in-flood error, …) the
 reward signal aligns the policy with the downstream consumer of the maps.
 The framework's decision-alignment claim is therefore architectural; an
 explicit decision-aligned reward ablation is reported in the Methodological
-appendix (R4-Appendix) under the within-event protocol, but is not part of
+Supplementary Information under the within-event protocol, but is not part of
 the headline LOEO claim because that experiment was produced under the
 leakage-suspect protocol.
 
@@ -1344,8 +1281,9 @@ our Sen1Floods11 chips each chip carries *n_i* ≈ 5 × 10⁴–5 × 10⁵
 labelled pixels — i.e., *one* labelled chip already contributes
 ~10⁵–10⁶ pixel-level Bernoulli observations to the τ\* estimator.
 **Four chips therefore contribute ~10⁶–10⁷ pixel observations,** more
-than sufficient to drive the τ\* estimator to within the 0.001-F1
-practical-equivalence neighbourhood of the oracle (which uses the
+than sufficient to drive the τ\* estimator to within a small fraction
+of one F1 point of the oracle — empirically 0.0065 F1 at four chips,
+consistent with this bound (the oracle uses the
 entire pool, ~10⁷–10⁸ pixel observations). Beyond ~four chips the
 estimator is variance-limited not by chip count but by the per-event
 heterogeneity of *I(τ)* across chips — i.e., by the *signal* in the
