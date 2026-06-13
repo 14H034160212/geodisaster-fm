@@ -1,0 +1,87 @@
+%% Official Springer Nature / Nature Portfolio submission template (sn-jnl).
+%% Reference style: sn-nature (Nature Portfolio journals).
+%% Build:  pdflatex main_sn && bibtex main_sn && pdflatex main_sn && pdflatex main_sn
+\documentclass[sn-nature,lineno]{sn-jnl}
+
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage[title]{appendix}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{manyfoot}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{listings}
+
+\theoremstyle{thmstyleone}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{thmstyletwo}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+\theoremstyle{thmstylethree}
+\newtheorem{definition}{Definition}
+
+\raggedbottom
+
+% Graphics path so \includegraphics{figXX.png} resolves
+\graphicspath{{../outputs/figures/}}
+
+\begin{document}
+
+\title[Cross-disaster mapping is a calibration problem]{Cross-disaster mapping is largely a calibration problem, not a representation problem: four labels recover 99 \% of the full-pool oracle, regardless of how those labels are chosen}
+
+\author*[1]{\fnm{Qiming} \sur{Bao}}\email{qiming.bao@example.edu}
+\author[2]{\fnm{Yanbing} \sur{Bai}}\email{ybbai@example.edu}
+
+\affil*[1]{\orgdiv{[Department TBD]}, \orgname{[Institution TBD]},
+  \orgaddress{\city{[City]}, \country{[Country]}}}
+\affil[2]{\orgdiv{[Department TBD]}, \orgname{[Institution TBD]},
+  \orgaddress{\city{[City]}, \country{[Country]}}}
+
+\abstract{Deep-learning disaster mappers degrade sharply on events they were not trained on, and the field has treated this as a representation problem — larger backbones, foundation models, multi-modal fusion. Across three public benchmarks spanning floods, building damage and wildfires (18 real events), we show the dominant mechanism is instead \textbf{calibration drift}: the pixel ranking transfers, but the decision threshold does not (15 of 16 measured event-optimal thresholds differ from the 0.5 default). Re-fitting one threshold recovers up to +0.235 F1 per event; none of three frozen foundation models (AlphaEarth, Prithvi, DOFA) exceeds a from-scratch U-Net, and all drift at least as much. The fix is cheap but not free: four labelled tiles recover 99 \% of the full-pool oracle regardless of how they are chosen, whereas zero-label label-shift corrections (EM, BBSE) fail — the class-conditional score distributions themselves distort, which only labels can reveal. An end-to-end agent operationalises this finding, delivering responder-grade flood briefings in minutes rather than days.}
+
+\keywords{cross-disaster generalisation, calibration drift, label shift,
+foundation models, active learning, flood mapping, disaster response}
+
+\maketitle
+
+\input{body_sn}
+
+\backmatter
+
+\bmhead{Supplementary information}
+The within-event-protocol ablations (sample-efficiency sweep;
+decision-aligned reward A/B) and the full per-fold result JSONs are
+provided as Supplementary Information.
+
+\bmhead{Acknowledgements}
+[TBD]
+
+\section*{Declarations}
+\begin{itemize}
+\item \textbf{Funding}: [TBD]
+\item \textbf{Competing interests}: The authors declare no competing
+  interests.
+\item \textbf{Data availability}: All benchmark data are public
+  (Sen1Floods11, xBD, HLS Burn-Scars). All intermediate results,
+  figures, and code are available at
+  \url{https://github.com/14H034160212/geodisaster-fm}.
+\item \textbf{Code availability}: As above; a versioned release with a
+  Zenodo DOI will accompany publication.
+\item \textbf{Author contributions}: [TBD]
+\end{itemize}
+
+\clearpage
+\input{figures_sn}
+
+\bibliography{../refs}
+
+\end{document}

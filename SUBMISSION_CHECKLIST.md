@@ -10,7 +10,8 @@
       information-budget / zero-label)
 - [x] All internal cross-references consistent (round-3 audit)
 - [x] Within-event ablations moved to SUPPLEMENTARY.md
-- [x] LaTeX build compiles clean (`latex/main.tex` → xelatex → PDF)
+- [x] Official Nature Portfolio template build (`latex_sn/`, sn-jnl class, sn-nature style): compiles to 42-page PDF with all tables + figures + bibliography (16 refs, sn-nature.bst)
+- [x] Generic LaTeX build also retained (`latex/main.tex`)
 - [x] Six main figures with formal captions (`latex/figures.tex`)
 - ☐ Convert `[Author Year]` text citations to `\citep{}` (optional —
       Nature Portfolio accepts format-free initial submissions)
