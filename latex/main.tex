@@ -1,0 +1,64 @@
+% Nature Communications submission — format-free initial submission.
+% Nature Portfolio accepts format-neutral submissions; this wrapper keeps
+% a clean single-column layout with numbered figures, line numbers, and
+% author-year citations resolved from ../refs.bib.
+%
+% Build:  pdflatex main && bibtex main && pdflatex main && pdflatex main
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{DejaVu Sans Mono}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{calc}
+\usepackage{etoolbox}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{lineno}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{textcomp}
+
+% pandoc compatibility macros
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\pandocbounded}[1]{#1}
+
+\linenumbers
+
+\title{Cross-disaster mapping is largely a calibration problem, not a
+representation problem: four labels recover 99\,\% of the full-pool
+oracle, regardless of how those labels are chosen}
+
+\usepackage{authblk}
+\author[1]{Qiming Bao}
+\author[2]{Yanbing Bai\thanks{Corresponding author: [EMAIL TBD]}}
+% TODO before submission: affiliations
+\affil[1]{[Affiliation 1 TBD]}
+\affil[2]{[Affiliation 2 TBD]}
+
+\date{}
+
+\begin{document}
+\maketitle
+
+% ---------------------------------------------------------------------------
+% The body below is auto-generated from MANUSCRIPT.md via:
+%   pandoc MANUSCRIPT.md -f markdown -t latex --wrap=preserve -o body.tex
+% Regenerate after any markdown edit. Figure \includegraphics commands and
+% formal captions are appended in figures.tex.
+% ---------------------------------------------------------------------------
+\input{body}
+
+% ---------------------------------------------------------------------------
+\clearpage
+\input{figures}
+
+% \bibliographystyle{naturemag}  % enable after converting [Author Year] to \citep
+% \bibliography{../refs}
+
+\end{document}

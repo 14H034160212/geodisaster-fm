@@ -1,31 +1,53 @@
 # Cover letter — *Nature Communications* submission
 
-*Draft, 2026-06-07. Subject to revision once final figures are locked.*
+*Draft v2, 2026-06-13. Affiliations + suggested reviewers to be filled
+before submission.*
 
 ---
 
 Dear Editor,
 
-We submit our manuscript **"Cross-disaster mapping is a calibration
-problem, not a representation problem: four labels recover the full-pool
-oracle"** for consideration as an Article in *Nature Communications*.
+We submit our manuscript **"Cross-disaster mapping is largely a
+calibration problem, not a representation problem: four labels recover
+99 % of the full-pool oracle, regardless of how those labels are
+chosen"** for consideration as an Article in *Nature Communications*.
 
 ## What the paper does
 
-For a decade the deep-learning disaster-mapping literature has interpreted
-cross-event generalisation failure as a **representation** problem, and
-responded with larger backbones, foundation embeddings and multi-modal
-fusion. We test an alternative hypothesis — that the dominant cause of
-cross-event F1 loss is **calibration drift** of the decision threshold,
-with the underlying pixel ranking transferring largely intact — and find
-that calibration drift explains the bulk of the deficit. We then quantify
-how cheap the calibration fix is: under a strict leave-one-event-out
-protocol (10 folds × 10 seeds = 100 paired pairs), a learned active-
-calibration policy with a **four-chip label budget** reaches the
-full-pool oracle ceiling on F1 (Δ = −0.002, paired *t*-p = 0.42) and
-significantly outperforms zero-shot calibration (Δ = +0.015, p = 0.009),
-CoreSet active learning (Δ = +0.008, p = 0.024) and a 3-seed ensemble-
-uncertainty baseline (Δ = +0.010, p = 0.003).
+For a decade the deep-learning disaster-mapping literature has
+interpreted cross-event generalisation failure as a **representation**
+problem, and responded with larger backbones, foundation embeddings and
+multi-modal fusion. We test the alternative hypothesis — that the
+dominant cause is **calibration drift** of the decision threshold, with
+the pixel ranking transferring largely intact — with four independent
+falsification experiments across three public benchmarks (floods,
+building damage, wildfires; ≥ 18 real events) and four backbones (a
+U-Net and three frozen foundation models: AlphaEarth, Prithvi, DOFA):
+
+1. **Ranking transfers; thresholds do not.** 15 of 18 event-optimal
+   thresholds differ from the 0.5 default; re-fitting one threshold
+   recovers up to +0.235 F1 on a single event.
+2. **Representation does not close the gap — three times.** No
+   foundation model exceeds the from-scratch U-Net; Prithvi, pre-trained
+   on the wildfire benchmark's own HLS modality, is slightly *worse* on
+   every held-out fire season, and the calibration drift the three
+   backbones exhibit rises as their task-match weakens.
+3. **Four labels recover 99 % of the full-pool oracle** under a strict
+   leave-one-event-out protocol (200 paired pairs), and the entire
+   family of practical 4-chip selection methods (random, entropy,
+   CoreSet, ensemble uncertainty, learned policy) spans only 0.017 F1.
+4. **And the labels are necessary — the drift is not pure label shift.**
+   The two standard zero-label corrections from the label-shift
+   literature both fail under the same protocol: Saerens EM diverges
+   (−0.61 F1 versus doing nothing) and BBSE, despite estimating the
+   new-event priors nearly correctly, still produces a corrected
+   threshold *worse than no correction* (−0.14 F1). The
+   class-conditional score distributions themselves distort under
+   cross-event transfer; four labels measure that distortion, which no
+   zero-label method can see. This decomposes cross-disaster drift into
+   prior shift (free to fix) plus score distortion (four labels to fix)
+   — to our knowledge the first such decomposition on operational
+   disaster benchmarks.
 
 ## Why we believe it fits *Nature Communications*
 
