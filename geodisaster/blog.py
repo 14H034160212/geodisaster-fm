@@ -973,6 +973,40 @@ def build_blog(out_path: str | Path = "outputs/site/index.html") -> Path:
 
 <article class="container">
 
+  <div class="callout" style="border-left:4px solid #1f5fbe;padding:16px 20px;margin:8px 0 28px;background:#f3f7fc">
+    <div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#1f5fbe;font-weight:700;margin-bottom:8px">
+      Latest results — June 2026 · prepared for Nature Communications
+    </div>
+    <p style="margin:0 0 8px;font-size:14.5px;line-height:1.6">
+      The project has been reframed as a hypothesis test:
+      <strong>is cross-disaster generalisation failure a representation
+      problem (H1) or a calibration problem (H2)?</strong> Four independent
+      lines of evidence now favour H2:
+    </p>
+    <ul style="margin:0;font-size:14px;line-height:1.6">
+      <li><strong>Three benchmarks, three hazard families, 18 events</strong>
+          (Sen1Floods11 floods + xBD damage + HLS Burn-Scars wildfires):
+          15 of 16 measured event-optimal thresholds differ from 0.5.</li>
+      <li><strong>Three frozen foundation models</strong> (AlphaEarth,
+          NASA-IBM Prithvi-100M, DOFA) — <em>none</em> beats a from-scratch
+          U-Net on cross-event F1, and calibration drift grows as the
+          backbone's task-match weakens.</li>
+      <li><strong>Four labels recover ≈99 % of the full-pool oracle</strong>
+          under leakage-free leave-one-event-out (200 paired pairs),
+          regardless of how the four are chosen.</li>
+      <li><strong>The labels are necessary</strong>: three zero-label
+          label-shift corrections (Saerens EM, BBSE, quantile matching)
+          all fail — the score distributions distort, not just the prior.</li>
+    </ul>
+    <p style="margin:8px 0 0;font-size:13px;color:#555">
+      Full current status &amp; the Nature-template manuscript build:
+      see the <a href="report.html">advisor progress report</a> and the
+      <a href="https://github.com/14H034160212/geodisaster-fm">GitHub repo</a>.
+      The narrative below predates these additions and covers the original
+      flood-only system.
+    </p>
+  </div>
+
   <p class="section-tag">Abstract</p>
   <p class="lead lead-drop">
     Global disaster mapping is rebuilt from scratch after every event because
