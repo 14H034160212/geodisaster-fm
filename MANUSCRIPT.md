@@ -10,11 +10,13 @@ Deep-learning disaster mappers degrade sharply on events they were not
 trained on, and the field has treated this as a representation problem —
 larger backbones, foundation models, multi-modal fusion. Across three
 public benchmarks spanning floods, building damage and wildfires
-(≥ 18 real events), we show the dominant mechanism is instead
+(18 real events), we show the dominant mechanism is instead
 **calibration drift**: the pixel ranking transfers, but the decision
-threshold does not. Re-fitting one threshold recovers up to +0.235 F1
-per event; three frozen foundation models (AlphaEarth, Prithvi, DOFA)
-none exceed a from-scratch U-Net and all drift at least as much.
+threshold does not (15 of 16 measured event-optimal thresholds differ
+from the 0.5 default). Re-fitting one threshold recovers up to
++0.235 F1 per event; none of three frozen foundation models (AlphaEarth,
+Prithvi, DOFA) exceeds a from-scratch U-Net, and all drift at least
+as much.
 The fix is cheap but not free: four labelled tiles recover 99 % of the
 full-pool oracle regardless of how they are chosen, whereas zero-label
 label-shift corrections (EM, BBSE) fail — the class-conditional score
@@ -35,7 +37,7 @@ operational obstacle in deploying machine-learnt disaster mapping at
 scale, and the published mitigation strategies have almost uniformly
 treated it as a **representation problem**: train on more events, use a
 larger backbone, transfer from a foundation model, fuse more modalities
-[refs]. The implicit assumption is that the learned representation
+[Brown 2024; Jakubik 2023 (Prithvi); Xiong 2024 (DOFA)]. The implicit assumption is that the learned representation
 itself fails to transfer, and the corrective is to learn a better
 representation.
 
@@ -115,7 +117,7 @@ to falsify the pure-label-shift alternative:
 
 1. **The ranking test.** If H2 holds, the per-pixel ranking should
    transfer across events even when the F1 doesn't. We test this on
-   ≥ 18 real events across three independent benchmarks (Sen1Floods11
+   18 real events across three independent benchmarks (Sen1Floods11
    floods, xBD building damage, HLS Burn-Scars wildfires) by sweeping τ
    on each held-out event and checking whether F1 recovers under the
    optimal τ alone — i.e. whether the existing ranking already contains
@@ -232,7 +234,7 @@ tests of H2 (calibration drift). The mapping is:
 |---------|------------|-----------------|
 | R1      | Deployment view | The end-to-end agent answers responder questions in seconds — operational context for the hypothesis tests below |
 | R2      | **Test of H2(a) — Does pixel ranking transfer?** | Sen1Floods11 + xBD cross-event generalisation; ranking transfer is qualitatively intact |
-| R3      | **Test of H2(b) — Does τ-recalibration recover F1?** | 15/18 region-optimal τ ≠ 0.5 across 3 benchmarks(flood/damage/wildfire);up to +0.235 F1 recovered;magnitude is hazard-specific |
+| R3      | **Test of H2(b) — Does τ-recalibration recover F1?** | 15/16 measured event-optimal τ ≠ 0.5 across 3 benchmarks(flood/damage/wildfire);up to +0.235 F1 recovered;magnitude is hazard-specific |
 | R4      | **Quantifying H2 — How many labels are needed?** | Under leakage-free LOEO, four labels recover the full-pool oracle |
 | R5      | **Falsification test of H1 + calibrated negatives** | Foundation embeddings comparable not superior; structured-inference layer fails; richer-feature PPO fails |
 | R6      | Deployment metrics | 0.031 s per chip, full reproducibility |
@@ -376,7 +378,7 @@ gain of the event-optimal τ over the default 0.5.
 
 We measure the F1 obtainable at the default 0.5 decision threshold against
 the F1 obtainable at the event-optimal threshold, across **three independent
-benchmarks and ≥ 18 real events**.
+benchmarks and 18 real events (16 with measured event-optimal thresholds)**.
 
 **Sen1Floods11 (10 real flood events).** Mean recoverable gain +0.030 F1 —
 modest on average but enormous on the hardest region: **Pakistan recovers
@@ -394,7 +396,14 @@ flood pixels) — the same lever is even larger: hurricane-harvey +0.084 F1,
 **palu-tsunami +0.235 F1**; the optimal thresholds are 0.30–0.35, *also
 ≠ 0.5* but on the opposite side of the default (Fig. 4b).
 
-**HLS Burn-Scars (4 fire-season events, 2018–2021 CONUS).** We trained a
+**HLS Burn-Scars (4 fire-season events, 2018–2021 CONUS).** A note on
+units: HLS Burn-Scars does not delineate individual fires, so our
+"event" here is a CONUS fire *season* (calendar year) — an aggregate of
+many fires sharing acquisition conditions and fire-regime climate. This
+is a coarser unit than a single flood event, and makes the wildfire
+leave-one-event-out test *harder* to drift (seasonal aggregation
+averages out per-fire idiosyncrasies), consistent with the small
+measured drift. We trained a
 matched U-Net (ResNet-34 encoder, in-channels = 6, focal-BCE loss; same
 recipe as the Sen1Floods11 baseline) under leave-one-fire-season-out and
 swept τ on each held-out year. The result is *qualitatively* H2-consistent
@@ -409,9 +418,12 @@ so the default threshold is already near-optimal and the residual
 calibration drift is small.
 
 **The cross-benchmark generalisation.** Across three independent
-benchmarks and ≥ 18 real events, **15 of 18 region-optimal thresholds
-differ from 0.5** (10/10 Sen1Floods11 + 2/2 damage hazards + 3/4 fire
-years; the remaining 3 — 2019 fire season alone — sit at 0.50 exactly).
+benchmarks and 18 real events, **15 of the 16 events with measured
+event-optimal thresholds differ from 0.5** — 10/10 Sen1Floods11 floods,
+2/2 xBD damage hazards with per-building threshold sweeps, and 3/4 fire
+seasons (2019 alone sits at 0.50 exactly; the remaining two xBD hazards
+enter the study through the leave-one-hazard-out change-detection
+analysis rather than the threshold sweep).
 The *direction* of calibration drift is benchmark-specific (floods drift
 up, damage drifts down, wildfires drift down only slightly) and the
 *magnitude* of the lever ranges from +0.001 F1 (wildfire 2019) to
@@ -632,8 +644,17 @@ gets that right for free); they are measuring the score-distribution
 distortion.** Cross-disaster calibration drift decomposes into a prior-
 shift component (estimable without labels) and a score-distortion
 component (not), and the second dominates the threshold correction on
-every one of our ten events. Result JSON:
-`outputs/layer3_ppo/zero_label_prior_correction.json`.
+every one of our ten events. A third zero-label variant — quantile
+matching, which sets τ so the pool's predicted-positive rate equals the
+BBSE prior estimate, relying only on ranking transfer (our own H2) and
+the prior — also fails (pooled F1 0.747, −0.072 vs. the uncorrected
+default, *t*-p < 10⁻⁴): the BBSE priors, though correlated with the
+truth, carry biases of up to 2× on individual events (USA: π̂ = 0.020
+vs. true 0.046), and the quantile cut amplifies them. All three
+zero-label routes fail by different mechanisms; the four labels are
+doing irreplaceable work. Result JSONs:
+`outputs/layer3_ppo/zero_label_prior_correction.json`,
+`outputs/layer3_ppo/quantile_matching_baseline.json`.
 
 #### R4d — Honest positioning: the entire 4-chip selection family sits within 0.017 F1 of the oracle; PPO leads the learned methods but ties the simplest heuristics
 
@@ -1197,7 +1218,10 @@ intended to *augment*, not replace, trained mapping analysts.
 
 ### Data
 
-- **Sen1Floods11** [Bonafilia 2020] — 446 hand-labelled chips across 11 regions,
+- **Sen1Floods11** [Bonafilia 2020] — 446 hand-labelled chips across 11
+  regions; we use the 10 regions with leave-one-region-out checkpoints
+  (431 chips after excluding Bolivia, whose chip count is too small to
+  form a pool/test split, and 5 fully-masked chips),
   Sentinel-1 + Sentinel-2 L1C imagery, water labels from optical photo-
   interpretation. We use the hand-labelled subset only.
 - **xBD / xView2** [Gupta 2019] — train-split images and rasterised damage
@@ -1288,7 +1312,15 @@ entire pool, ~10⁷–10⁸ pixel observations). Beyond ~four chips the
 estimator is variance-limited not by chip count but by the per-event
 heterogeneity of *I(τ)* across chips — i.e., by the *signal* in the
 pixel distribution near the decision boundary, not by the *sample
-size*. This is the mechanistic explanation for our empirical finding:
+size*. One honest qualification: adjacent pixels are spatially
+autocorrelated, so the *effective* number of independent observations
+per chip is smaller than the raw pixel count — plausibly by 1–2 orders
+of magnitude. The argument survives because even 10³–10⁴ effective
+observations per chip leave a 4-chip calibration set comfortably
+over-determined for a one-parameter estimate; we state the bound in
+raw pixel counts for transparency and flag the autocorrelation
+correction as the reason we do not lean on the constant factors.
+This is the mechanistic explanation for our empirical finding:
 the threshold parameter is so low-dimensional, and individual chips so
 information-rich, that 4-chip calibration recovers ≈ 99 % of the
 oracle's F1 essentially regardless of how the four chips are chosen
