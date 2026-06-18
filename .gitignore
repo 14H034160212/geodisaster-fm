@@ -203,3 +203,4 @@ outputs/leave_one_event_out_burnscars/**/*.ckpt
 !outputs/layer3_ppo/ensemble_baseline_loeo_20s.json
 !outputs/decision/gradient_multiseed.json
 !outputs/layer3_ppo/quantile_matching_baseline.json
+!nature_submission_*.zip
