@@ -21,6 +21,29 @@ OUT_DIR = Path(".").resolve()
 PANDOC = "/tmp/pandoc-3.5/bin/pandoc"
 
 
+_UNICODE_TEX = {
+    "§": r"\S{}", "±": r"$\pm$", "²": r"$^{2}$", "³": r"$^{3}$",
+    "·": r"$\cdot$", "×": r"$\times$", "é": r"\'e", "ŷ": r"$\hat{y}$",
+    "Δ": r"$\Delta$", "Σ": r"$\Sigma$", "α": r"$\alpha$", "β": r"$\beta$",
+    "γ": r"$\gamma$", "λ": r"$\lambda$", "π": r"$\pi$", "ρ": r"$\rho$",
+    "σ": r"$\sigma$", "τ": r"$\tau$", "—": "---",
+    "⁴": r"$^{4}$", "⁵": r"$^{5}$", "⁶": r"$^{6}$", "⁷": r"$^{7}$",
+    "⁸": r"$^{8}$", "⁻": r"$^{-}$",
+    "₀": r"$_{0}$", "₁": r"$_{1}$", "₂": r"$_{2}$", "₅": r"$_{5}$",
+    "₇": r"$_{7}$", "₉": r"$_{9}$",
+    "ℝ": r"$\mathbb{R}$", "→": r"$\rightarrow$", "↔": r"$\leftrightarrow$",
+    "⇒": r"$\Rightarrow$", "⇔": r"$\Leftrightarrow$", "∈": r"$\in$",
+    "−": "$-$", "∪": r"$\cup$", "≈": r"$\approx$", "≠": r"$\neq$",
+    "≤": r"$\leq$", "≥": r"$\geq$", "⊆": r"$\subseteq$",
+    "̂": "",  # stray combining circumflex
+}
+
+def _unicode_to_tex(t):
+    for u, x in _UNICODE_TEX.items():
+        t = t.replace(u, x)
+    return t
+
+
 def _texesc(t):
     # escape LaTeX specials first (text has no backslashes of its own)
     for a, b in [("\\", r"\textbackslash{}"), ("%", r"\%"), ("&", r"\&"),
@@ -61,6 +84,13 @@ subprocess.run([PANDOC, "_body_tmp.md", "-f", "markdown", "-t", "latex",
                 "--wrap=preserve", "--shift-heading-level-by=-1",
                 "-o", "body_sn.tex"], check=True)
 (OUT_DIR / "_body_tmp.md").unlink()
+
+# 4a. Fix combining-mark sequences pdflatex can't render (p-hat, y-hat),
+#     before the standalone-symbol newunicodechar table handles the rest.
+_bt = Path("body_sn.tex").read_text()
+_bt = _bt.replace("p̂", r"\(\hat{p}\)").replace("ŷ", r"\(\hat{y}\)")
+_bt = _bt.replace("̂", "")  # drop any stray combining circumflex
+Path("body_sn.tex").write_text(_bt)
 
 # escape % and & already handled by pandoc; nothing else needed
 
@@ -108,6 +138,7 @@ btex2 = _re.sub(r"\[([^\[\]]*?\d{4}[^\[\]]*?)\]",
                 lambda m: _repl(m) if any(ay in m.group(1) for ay in AUTHOR_YEAR_TO_KEY) else m.group(0),
                 btex2)
 n = btex.count("{[}") 
+btex2 = _unicode_to_tex(btex2)
 Path("body_sn.tex").write_text(btex2)
 print(f"citation conversion: {btex2.count(chr(92)+'cite')} \\cite commands written")
 
@@ -133,10 +164,17 @@ main = r"""%% Official Springer Nature / Nature Portfolio submission template (s
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
+\usepackage{calc}
 \usepackage{algorithm}
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
 \usepackage{listings}
+
+% --- pdflatex compatibility for the pandoc-generated body ---
+% (Unicode is substituted to LaTeX directly in body_sn.tex, so this
+%  source compiles on any TeX Live / Overleaf with no extra packages.)
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\pandocbounded}[1]{#1}
 
 \theoremstyle{thmstyleone}
 \newtheorem{theorem}{Theorem}
@@ -204,6 +242,6 @@ provided as Supplementary Information.
 
 \end{document}
 """
-main = main.replace("__TITLE__", _texesc(title)).replace("__ABSTRACT__", _texesc(abstract))
+main = main.replace("__TITLE__", _unicode_to_tex(_texesc(title))).replace("__ABSTRACT__", _unicode_to_tex(_texesc(abstract)))
 (OUT_DIR / "main_sn.tex").write_text(main)
 print("main_sn.tex written")

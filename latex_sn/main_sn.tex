@@ -15,10 +15,17 @@
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
+\usepackage{calc}
 \usepackage{algorithm}
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
 \usepackage{listings}
+
+% --- pdflatex compatibility for the pandoc-generated body ---
+% (Unicode is substituted to LaTeX directly in body_sn.tex, so this
+%  source compiles on any TeX Live / Overleaf with no extra packages.)
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\pandocbounded}[1]{#1}
 
 \theoremstyle{thmstyleone}
 \newtheorem{theorem}{Theorem}
@@ -46,7 +53,7 @@
 \affil[2]{\orgdiv{[Department TBD]}, \orgname{[Institution TBD]},
   \orgaddress{\city{[City]}, \country{[Country]}}}
 
-\abstract{Deep-learning disaster mappers degrade sharply on events they were not trained on, and the field has treated this as a representation problem — larger backbones, foundation models, multi-modal fusion. Across three public benchmarks spanning floods, building damage and wildfires (18 real events), we show the dominant mechanism is instead \textbf{calibration drift}: the pixel ranking transfers, but the decision threshold does not (15 of 16 measured event-optimal thresholds differ from the 0.5 default). Re-fitting one threshold recovers up to +0.235 F1 per event; none of three frozen foundation models (AlphaEarth, Prithvi, DOFA) exceeds a from-scratch U-Net, and all drift at least as much. The fix is cheap but not free: four labelled tiles recover 99 \% of the full-pool oracle regardless of how they are chosen, whereas zero-label label-shift corrections (EM, BBSE) fail — the class-conditional score distributions themselves distort, which only labels can reveal. An end-to-end agent operationalises this finding, delivering responder-grade flood briefings in minutes rather than days.}
+\abstract{Deep-learning disaster mappers degrade sharply on events they were not trained on, and the field has treated this as a representation problem --- larger backbones, foundation models, multi-modal fusion. Across three public benchmarks spanning floods, building damage and wildfires (18 real events), we show the dominant mechanism is instead \textbf{calibration drift}: the pixel ranking transfers, but the decision threshold does not (15 of 16 measured event-optimal thresholds differ from the 0.5 default). Re-fitting one threshold recovers up to +0.235 F1 per event; none of three frozen foundation models (AlphaEarth, Prithvi, DOFA) exceeds a from-scratch U-Net, and all drift at least as much. The fix is cheap but not free: four labelled tiles recover 99 \% of the full-pool oracle regardless of how they are chosen, whereas zero-label label-shift corrections (EM, BBSE) fail --- the class-conditional score distributions themselves distort, which only labels can reveal. An end-to-end agent operationalises this finding, delivering responder-grade flood briefings in minutes rather than days.}
 
 \keywords{cross-disaster generalisation, calibration drift, label shift,
 foundation models, active learning, flood mapping, disaster response}
