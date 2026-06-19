@@ -89,7 +89,7 @@ analytic amount [Elkan 2001], the new prior can be estimated from
 2018; Garg et al. 2020], and the calibration fix therefore costs
 **zero labels**. If cross-disaster calibration drift were *pure* label
 shift, our four-label headline would be unnecessary: a zero-label
-prior-correction would suffice. We test this directly (R4, "the
+prior-correction would suffice. We test this directly (the leave-one-event-out analysis, "the
 zero-label test"): we run Saerens-EM prior estimation on the unlabelled
 pool of every held-out event under the same leave-one-event-out
 protocol, and compare the resulting analytically-corrected threshold
@@ -189,7 +189,7 @@ The four tests give consistent evidence in favour of H2:
   corrected threshold that is *still* significantly worse than doing
   nothing (−0.14 F1). The class-conditional score distributions
   themselves distort under cross-event transfer; the labels measure
-  that distortion, which no zero-label method can see (R4c).
+  that distortion, which no zero-label method can see (see ‘The four labels are necessary’).
 
 These four results together support H2: cross-disaster generalisation
 in deep-learning disaster mapping is a calibration problem, not a
@@ -224,26 +224,17 @@ https://geodisaster-fm.pages.dev/ .
 
 ## Results
 
-### Reading guide — how the Results sections map onto H1 vs H2
+The Results are organised as a sequence of tests that discriminate the
+two hypotheses. We first establish the operational context with an
+end-to-end deployment demonstration, then test the two predictions of
+calibration drift — that the pixel ranking transfers across events, and
+that threshold recalibration recovers the lost F1 — quantify how few
+labels that recalibration requires, and finally test the competing
+representation-drift hypothesis directly by substituting stronger
+foundation backbones, alongside a panel of calibrated negative results
+that rule out alternative explanations.
 
-The six Results sections below are organised as a sequence of
-falsification tests of H1 (representation drift) plus quantification
-tests of H2 (calibration drift). The mapping is:
-
-| Section | H1/H2 role | One-line summary |
-|---------|------------|-----------------|
-| R1      | Deployment view | The end-to-end agent answers responder questions in seconds — operational context for the hypothesis tests below |
-| R2      | **Test of H2(a) — Does pixel ranking transfer?** | Sen1Floods11 + xBD cross-event generalisation; ranking transfer is qualitatively intact |
-| R3      | **Test of H2(b) — Does τ-recalibration recover F1?** | 15/16 measured event-optimal τ ≠ 0.5 across 3 benchmarks(flood/damage/wildfire);up to +0.235 F1 recovered;magnitude is hazard-specific |
-| R4      | **Quantifying H2 — How many labels are needed?** | Under leakage-free LOEO, four labels recover the full-pool oracle |
-| R5      | **Falsification test of H1 + calibrated negatives** | Foundation embeddings comparable not superior; structured-inference layer fails; richer-feature PPO fails |
-| R6      | Deployment metrics | 0.031 s per chip, full reproducibility |
-
-Read straight through: R2 + R3 + R4 build the case for H2; R5 contains
-the lines of evidence against H1 (foundation backbone) and the
-calibrated negative results that rule out alternative explanations.
-
-### R1 — The dispatcher: real-event answers, in seconds
+### An end-to-end agent delivers decision answers in seconds
 
 We deploy each region's leave-one-region-out perception model on its own flood
 event (a genuine unseen-event setting), pipe the predicted mask through the
@@ -253,7 +244,7 @@ the predicted and ground-truth flooded areas correlate at Pearson r = 0.971
 (Fig. 1a). Per-event area error is small for most regions — USA 2 %,
 Sri-Lanka 6 %, Paraguay 11 %, Spain 24 % — with Pakistan as the lone
 over-predictor (143 % error). This Pakistan outlier is itself diagnostic and
-predicted by our cross-region analysis (R2).
+predicted by our cross-region analysis (ranking-transfer analysis).
 
 **Honest companion statistics for the Pearson headline.** A high Pearson r
 on a 431-chip dataset is necessary but not sufficient: a robustness audit
@@ -266,7 +257,7 @@ r971_robustness.json`):
   which large-area chips dominate.
 - **MAPE median = 25 %** — half the chips have ≥ 25 % relative
   flooded-area error, dominated by Pakistan (median 506 % over-prediction;
-  see also R3) and Somalia (median 77 %).
+  see also the recalibration analysis) and Somalia (median 77 %).
 - **Stratified by chip area** — bottom-50 % by ground-truth area:
   *r = 0.118* (essentially uncorrelated); top-50 % by area: *r = 0.972*
   (which drives the headline). The Pearson statistic is a faithful
@@ -282,7 +273,7 @@ This is the appropriate calibration of a decision-level claim:
 not the per-chip distribution as a whole**. The downstream operational
 use case — responders ranking events by total flooded area — is precisely
 the regime where r = 0.971 holds; per-chip uncertainty quantification
-(below in R6) is the right reporting layer for the small-chip regime.
+(below in the deployment-metrics section) is the right reporting layer for the small-chip regime.
 
 Perception runs at **0.031 s per chip** on a single GPU; the end-to-end
 wall-time is dominated by the public OpenStreetMap query (~minutes), not the
@@ -303,13 +294,13 @@ manuscript explains in detail.]*
 
 Note: the operational deployment metrics shown in this section
 (Pearson r, MAPE, per-event area errors) are the *output* of running
-the model whose cross-disaster generalisation we then dissect in R2-R5.
+the model whose cross-disaster generalisation we then dissect in the ranking-transfer analysis-the negative-result analyses.
 The dispatcher demo here is included so the operational stakes of the
 H1-vs-H2 question are concrete: every percentage point of cross-event
 F1 lost to the wrong calibration is a percentage point of buildings,
 roads, or hospitals missed in the per-event briefing.
 
-### R2 — Test of H2(a): Does the pixel ranking transfer across events? — Generalisation across regions and hazards
+### The pixel ranking transfers across events
 
 The first prediction of H2 is that, when a model encounters a new event,
 its per-pixel *ranking* of flooded vs. dry remains usefully informative —
@@ -359,7 +350,7 @@ mechanistically interpretable result, not a uniform improvement.
 *[Fig. 2 = Fig 6 (multi-seed cross-region); Fig. 3 = Figs 7 + 15 (xBD cross-
 hazard + pre/post)]*
 
-### R3 — Test of H2(b): Does τ-recalibration recover the lost F1? — Calibration, not architecture, is the dominant lever (three independent benchmarks across three hazard families)
+### Threshold recalibration recovers most of the lost F1
 
 The second prediction of H2 is that **threshold tuning alone** — without
 re-training the model, without a stronger backbone — should recover most
@@ -438,14 +429,14 @@ where it matters most.
 
 This empirical result both motivates and justifies framing label-efficient
 threshold recalibration as a Markov decision process (Methods, §"Active
-Calibration MDP") and solving it with the PPO policy of R4.
+Calibration MDP") and solving it with the PPO policy of the leave-one-event-out analysis.
 
 *[Fig. 4 = Fig 18 (Sen1Floods11 calibration headroom) + Fig 22
 (cross-benchmark calibration drift)]*
 
-### R4 — Quantifying H2: How many labels are needed to capture the calibration lever? — Four labels recover 99 % of the full-pool oracle under leakage-free leave-one-event-out evaluation
+### Four labels recover the full-pool oracle
 
-R2 and R3 establish that H2 dominates *qualitatively*. The remaining
+the ranking-transfer analysis and the recalibration analysis establish that H2 dominates *qualitatively*. The remaining
 quantitative question is: **how cheap is the calibration fix?** If the
 recoverable information about the optimal τ on a new event is small,
 then an active-calibration policy should reach the full-pool oracle
@@ -600,10 +591,10 @@ pool/test reshuffling.
 paired-difference summary + pooled-F1 ladder). The earlier within-event
 PPO sample-efficiency curve and the decision-aligned-reward A/B
 experiment, originally produced under the leakage-suspect protocol, are
-in the Supplementary Information so that the headline results in R4 use
+in the Supplementary Information so that the headline results in the leave-one-event-out analysis use
 only the leakage-free LOEO protocol.]*
 
-#### R4c — The zero-label test: cross-disaster calibration drift is NOT pure label shift, so the four labels are necessary
+#### The four labels are necessary: drift is not pure label shift
 
 The strongest objection to the four-label headline comes from the label-
 shift literature: if cross-event drift were *pure* prior shift — the
@@ -656,7 +647,7 @@ doing irreplaceable work. Result JSONs:
 `outputs/layer3_ppo/zero_label_prior_correction.json`,
 `outputs/layer3_ppo/quantile_matching_baseline.json`.
 
-#### R4d — Honest positioning: the entire 4-chip selection family sits within 0.017 F1 of the oracle; PPO leads the learned methods but ties the simplest heuristics
+#### Method choice within the 4-chip family is within noise
 
 A reader will reasonably ask: among the methods you evaluate, *is* the
 learned PPO policy practically necessary, or would a simpler heuristic
@@ -685,7 +676,7 @@ estimate did not have power to resolve:
    The five practical 4-chip methods we tested (random, single-model
    entropy, CoreSet, ensemble uncertainty, PPO) span an F1 range of
    0.823 to 0.839, while the oracle sits at 0.840 — a total envelope
-   of 0.017 F1. The cross-event calibration drift (R3) is up to +0.235
+   of 0.017 F1. The cross-event calibration drift (recalibration analysis) is up to +0.235
    F1 on a single event. *Method choice within the active-selection
    family accounts for at most ~7 % of the calibration lever.*
 2. **Single-model entropy is the highest-mean 4-chip heuristic** at
@@ -766,7 +757,7 @@ ensemble uncertainty, PPO) span a 0.017-F1 envelope from zero-shot
 (0.819) to the full-pool oracle (0.840). Every method sits inside that
 envelope; the differences between methods (e.g., PPO − single-model
 entropy = −0.005, *t*-p = 0.057) are within seed-level noise. The
-cross-event calibration drift (R3) is up to +0.235 F1 on a single
+cross-event calibration drift (recalibration analysis) is up to +0.235 F1 on a single
 event — *more than an order of magnitude larger* than the method-choice
 spread. **The information that distinguishes representational from
 calibrational explanations of cross-disaster generalisation does not
@@ -786,7 +777,7 @@ reasonable selection rule — is the deliverable.
 > behaviour when the deployer can collect labels on the same event the
 > model will be calibrated on, and the decision-reward A/B confirms the
 > *architectural* claim that reward swapping changes the policy — but we
-> separate them physically from the headline result to keep R4 entirely
+> separate them physically from the headline result to keep the leave-one-event-out analysis entirely
 > within the leakage-free LOEO protocol. The two ablations are deferred to
 > the Supplementary Information.
 
@@ -859,7 +850,7 @@ and on the xBD damage-bearing hazards.
 
 ---
 
-### R5 — Falsification test of H1 + calibrated negative results: foundation representation does not close the gap, structured-inference does not help, richer chip features do not help
+### Stronger representations do not close the gap
 
 H1's strongest prediction is that **a stronger learned representation
 should close the cross-disaster F1 gap**. We test this by swapping in a
@@ -994,7 +985,7 @@ events in 2016–2017 (Pakistan, Sri-Lanka, India) the "pre-event" and "event-
 year" annual composites are byte-identical and carry no temporal signal. We
 report this as a fundamental data limit, not a method failure.
 
-### R6 — System-level metrics: time-to-answer and reproducibility
+### Time-to-answer and reproducibility
 
 We measure the full agent's wall-clock on a representative U.S. event chip
 (Kansas, 5 km AOI, 2,053 OSM buildings, 9 critical facilities, 232 km of
@@ -1015,7 +1006,7 @@ dashboard (Methods).
 Three implications follow from H2 dominating H1 for the cross-disaster
 generalisation problem.
 
-### Implication 1 — for the disaster-response community
+### Implications for disaster response
 
 Operational disaster response, today, treats every new event as a
 problem of "how do we get a model that works on this event?". This
@@ -1035,11 +1026,11 @@ threshold per event changes. The end-to-end agent we report runs at
 EMS cycle — making the practical limit not compute but the human
 labelling step, which our results bound at four chips.
 
-### Implication 2 — for foundation-model research
+### Implications for foundation-model research
 
 A frozen Google AlphaEarth foundation backbone on matched Sentinel-1 +
 Sentinel-2 inputs reaches roughly the same F1 as a trained U-Net + S1 +
-S2 on the same task (Results R3) but does not surpass it. The
+S2 on the same task (Results the recalibration analysis) but does not surpass it. The
 calibration headroom on AlphaEarth is comparable to the U-Net's
 (+0.042 mean across four hard regions). Combined with the fact that
 four-label calibration recovers ≈ 99 % of the oracle on both backbones,
@@ -1055,7 +1046,7 @@ its honest result — comparable F1, comparable calibration headroom,
 comparable response to active recalibration — is part of the
 contribution.
 
-### Implication 3 — for the active-learning and post-hoc-calibration literatures
+### Implications for active learning and calibration
 
 The active-learning literature has framed "what to label next" as an
 *information* question over the model parameters. The post-hoc
@@ -1078,7 +1069,7 @@ heuristic that targets the decision boundary to perform comparably on
 this task.
 
 For the **label-shift literature** specifically, our zero-label test
-(R4c) adds a cautionary empirical datum: in a realistic cross-event
+(see ‘The four labels are necessary’) adds a cautionary empirical datum: in a realistic cross-event
 deployment with miscalibrated deep-segmentation scores (ECE
 0.12–0.24), Saerens-EM prior estimation diverges outright, and BBSE —
 whose prior estimates are nearly correct — still produces a corrected
@@ -1331,7 +1322,7 @@ within reason.
 **Distinction from active learning.** This is *not* the standard active-
 learning MDP whose objective is to minimise training-loss with few labels.
 The model *f* is fixed; what changes with each query is only the
-*decision threshold τ*. Empirically (Results 1) this is the dominant lever
+*decision threshold τ*. Empirically (see the deployment demonstration above) this is the dominant lever
 under cross-disaster shift, which is why we propose the new formulation.
 
 **Distinction from temperature / Platt / isotonic post-hoc calibration.** A
@@ -1348,7 +1339,7 @@ tuning with τ = σ(−a/b); isotonic regression is monotone and therefore
 ranking-preserving. The "full-pool oracle" baseline in our experiments is
 therefore precisely the strongest 1-parameter monotone post-hoc calibration
 available for binary thresholded decisions, and under the leakage-free
-LOEO 200-pair protocol our PPO recovers ≈ 99 % of its F1 (R4:
+LOEO 200-pair protocol our PPO recovers ≈ 99 % of its F1 (the leave-one-event-out analysis:
 Δ_PPO−oracle = −0.0065, paired *t*-p = 0.016). A 4-chip
 calibration set recovers near-oracle binary-decision performance.
 
@@ -1421,13 +1412,13 @@ the full-pool oracle** rather than tied with it. We attribute this to a
 capacity/training-budget mismatch: doubling the per-chip input dimension
 while keeping the actor MLP at 2 × 64-Tanh and the update budget at 300
 under-fits the new input distribution. We accordingly **retain the 5-d
-feature set as the headline configuration** in R4; the 10-d
+feature set as the headline configuration** in the leave-one-event-out analysis; the 10-d
 configuration is reported here as an ablation rather than as the headline
 method. Result and figure: `outputs/layer3_ppo/ppo_loeo_v3_aggregate.json`
 and Fig. 28.
 
 **Statistical protocol — leave-one-event-out (LOEO).** Our headline numbers
-in R4 are produced under a strict event-level leave-one-out protocol: for
+in the leave-one-event-out analysis are produced under a strict event-level leave-one-out protocol: for
 each of the ten Sen1Floods11 events we hold the event out, train the PPO
 policy from scratch on the other nine events only, freeze the policy, then
 score it (and all baselines) on the held-out event with a re-shuffled
@@ -1514,7 +1505,7 @@ decision-aligned reward A/B) are provided in the Supplementary
 Information (`SUPPLEMENTARY.md`), together with the full per-fold
 result JSONs for every experiment in this paper. These two ablations
 were carried out under the leakage-suspect within-event protocol that
-the leave-one-event-out results of R4 supersede; they are retained as
+the leave-one-event-out results of the leave-one-event-out analysis supersede; they are retained as
 supplementary characterisations of policy behaviour in the
 same-event-labelling deployment setting, and are not part of the
 headline H1-vs-H2 evidence.
