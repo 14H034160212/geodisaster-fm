@@ -1214,7 +1214,9 @@ intended to *augment*, not replace, trained mapping analysts.
 
 ## Methods
 
-*[Outline only at this draft stage; expand at submission. ~1,500–2,500 words.]*
+The end-to-end system architecture — frozen perception, the four-label
+active-calibration stage, the neuro-symbolic reasoning layer, and the
+decision-level briefing — is summarised in Fig. 2.
 
 ### Data
 

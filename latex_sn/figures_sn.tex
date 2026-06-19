@@ -30,6 +30,28 @@
 
 \begin{figure}[t]
   \centering
+  \includegraphics[width=\textwidth]{fig2_system_architecture.png}
+  \caption{\textbf{System architecture of the calibration-centric agent.}
+  Event-day Sentinel-1/2 or HLS imagery is mapped by a \emph{frozen}
+  perception model (a trained U-Net or a frozen foundation backbone)
+  whose per-pixel ranking transfers across events. The active-calibration
+  stage --- formalised as a Markov decision process and solved with PPO
+  (Methods) --- spends a four-chip label budget to recover the
+  event-optimal decision threshold $\tau^{*}$, the \emph{only}
+  per-event learning in the pipeline; this single scalar recovers
+  $\approx99\,\%$ of the full-pool oracle's F1 with no retraining and
+  no new representation (hypothesis H2). The calibrated binary mask is
+  passed to a neuro-symbolic reasoning layer that queries OpenStreetMap
+  buildings, roads and hospitals and runs graph-connectivity analysis to
+  answer ten standard UN-OCHA emergency questions, emitted as a
+  machine-auditable JSON briefing plus an analyst-readable summary.
+  End-to-end machine time is dominated by perception (0.031\,s per chip)
+  and the OpenStreetMap query (minutes), not by any per-event training.}
+  \label{fig:system}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
   \includegraphics[width=\textwidth]{fig26_loeo_v1_v2.png}
   \caption{\textbf{Leakage-free leave-one-event-out evaluation of active
   threshold calibration.} \textbf{a}, Per-event test F1 of the learned
