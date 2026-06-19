@@ -1,20 +1,31 @@
 # Nature Communications submission checklist
 
-*Updated 2026-06-13. Items marked ☐ need human input before clicking submit.*
+*Updated 2026-06-19. Items marked ☐ need human input before clicking submit.*
 
 ## Manuscript
 
-- [x] 149-word abstract (limit ~150)
+- [x] 149-word abstract (limit ~150; no citations)
 - [x] Title acknowledges hazard-specificity ("largely")
 - [x] Four-test hypothesis structure (H1 ranking / representation /
       information-budget / zero-label)
-- [x] All internal cross-references consistent (round-3 audit)
+- [x] All internal cross-references consistent
+- [x] Nature-style concise thematic Results/Discussion subheadings
+      (R# scaffolding + Overview table removed; in-text + caption refs
+      rewritten as descriptive phrases)
+- [x] Section order Introduction → Results → Discussion → Methods
 - [x] Within-event ablations moved to SUPPLEMENTARY.md
-- [x] Official Nature Portfolio template build (`latex_sn/`, sn-jnl class, sn-nature style): compiles to 42-page PDF with all tables + figures + bibliography (16 refs, sn-nature.bst)
-- [x] Generic LaTeX build also retained (`latex/main.tex`)
-- [x] Six main figures with formal captions (`latex/figures.tex`)
-- [x] `[Author Year]` citations converted to `\cite{}` + sn-nature bibliography (latex_sn build)
-- ☐ Final English copy-edit pass
+- [x] Official Nature Portfolio template (sn-jnl class, sn-nature style)
+- [x] **Single-file Overleaf-proof `main.tex`** (body + 7 figures inlined;
+      no \input; Unicode→LaTeX substituted; calc/\tightlist handled) —
+      compiles 0-error: empty-stack/undefined-cs/unicode/missing-fig/
+      undefined-cite/fatal all 0 → clean 34-page PDF
+- [x] System architecture figure (Fig 2) + 6 result figures, all with
+      formal captions
+- [x] 24-entry bibliography, sn-nature.bst, all @article (no @inproceedings
+      empty-stack bug)
+- [x] Self-contained zip verified to compile standalone:
+      `nature_submission_20260618.zip`
+- ☐ Final English copy-edit pass (optional polish)
 
 ## Authorship / affiliations(需要作者提供)
 
