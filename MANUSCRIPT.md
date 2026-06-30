@@ -1001,8 +1001,8 @@ dominant cost (~6 min) and not the model; the neuro-symbolic reasoning layer
 produces all ten UN-OCHA answers in another 1–2 s after OSM. Against the
 documented 1–3 day expert workflow this is a three to four orders-of-
 magnitude reduction in time-to-answer for the kinds of questions a responder
-actually asks. The entire pipeline, including all twenty experiment scripts,
-twenty intermediate result JSONs, and twenty paper-grade figures, regenerates
+actually asks. The entire pipeline, including all 60+ experiment scripts,
+140+ intermediate result JSONs, and 30+ paper-grade figures, regenerates
 from raw data without manual intervention and is mirrored to a public live
 dashboard (Methods).
 

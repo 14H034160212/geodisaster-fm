@@ -1,83 +1,123 @@
 """Fig 2 — System architecture of the calibration-centric agent.
 
-A clean methods/system diagram matching the current manuscript: a frozen
-perception model whose pixel ranking transfers across events, an
-active-calibration stage that spends four labels to recover the
-event-optimal threshold tau*, a neuro-symbolic reasoning layer over
-OpenStreetMap, and the decision-level briefing. The H2 message — the
-only per-event learning is the one-parameter threshold — is annotated
-on the calibration stage.
+Nature-standard methods/system schematic: a frozen perception model whose
+per-pixel ranking transfers across events, an active-calibration stage that
+spends four labels to recover the event-optimal threshold tau*, a
+neuro-symbolic reasoning layer over OpenStreetMap, and the decision-level
+briefing. The H2 message — the only per-event learning is the one-parameter
+threshold, in contrast to the trained-once-then-frozen perception model — is
+encoded visually beneath the pipeline. No in-figure title (the caption carries
+it); restrained palette; uniform sans-serif type; thin rules; 300 dpi.
 """
 from pathlib import Path
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Circle
+
+# ---- Nature-style typography: prefer Helvetica/Arial, fall back gracefully ----
 import matplotlib.font_manager as fm
+_avail = {f.name for f in fm.fontManager.ttflist}
+for _f in ("Helvetica", "Arial", "Nimbus Sans", "TeX Gyre Heros", "DejaVu Sans"):
+    if _f in _avail:
+        matplotlib.rcParams["font.family"] = _f
+        break
+matplotlib.rcParams["font.family"] = "sans-serif"
+matplotlib.rcParams["svg.fonttype"] = "none"
 
-fig, ax = plt.subplots(figsize=(13.5, 5.2))
-ax.set_xlim(0, 100); ax.set_ylim(0, 42); ax.axis("off")
+# ---- restrained, colour-blind-friendly palette ----
+C_INPUT = "#eef2f6"; C_PERC = "#dce7f2"; C_CAL = "#2c6fb5"
+C_REA   = "#e1ecdc"; C_OUT  = "#ece6f3"
+EDGE    = "#54606e"      # uniform thin edge
+INK     = "#1c2733"      # primary text
+SUB     = "#445063"      # secondary text
+GOLD_BG = "#fbf2e0"; GOLD_ED = "#c08a2a"; GOLD_TX = "#6f4e11"
+FROZEN  = "#6b7785"
 
-# palette
-C_INPUT = "#e8eef5"; C_PERC = "#cfe3f3"; C_CAL = "#1f5fbe"; C_REA = "#d8ecdc"; C_OUT = "#e9e4f5"
-EDGE = "#33415c"
+TITLE_FS = 8.0; BODY_FS = 6.4; SMALL_FS = 5.9; BADGE_FS = 6.6
 
-def box(x, w, color, title, lines, title_color="#16243b", body_color="#2a2a2a", y=22, h=12, alpha=1.0):
-    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.4,rounding_size=1.4",
-                                facecolor=color, edgecolor=EDGE, linewidth=1.2, alpha=alpha))
-    ax.text(x + w/2, y + h - 2.2, title, ha="center", va="top", fontsize=12.5,
-            fontweight="bold", color=title_color)
-    ax.text(x + w/2, y + h - 5.6, lines, ha="center", va="top", fontsize=8.6,
-            color=body_color, linespacing=1.45)
+fig, ax = plt.subplots(figsize=(7.2, 3.55))
+ax.set_xlim(0, 100); ax.set_ylim(0, 50); ax.axis("off")
 
-def arrow(x0, x1, y=28, label=None):
-    ax.add_patch(FancyArrowPatch((x0, y), (x1, y), arrowstyle="-|>", mutation_scale=18,
-                                 lw=1.8, color=EDGE))
+BOX_Y, BOX_H = 30.0, 12.0
+MID = BOX_Y + BOX_H / 2
+
+def stage(x, w, color, n, title, lines, light=False):
+    tx = "white" if light else INK
+    bx = "#e8eef5" if light else SUB
+    ax.add_patch(FancyBboxPatch((x, BOX_Y), w, BOX_H,
+                 boxstyle="round,pad=0.3,rounding_size=0.9",
+                 facecolor=color, edgecolor=EDGE, linewidth=0.8))
+    # numbered stage marker, just above the top-left corner (outside the box)
+    ax.add_patch(Circle((x + 2.2, BOX_Y + BOX_H + 1.9), 1.5,
+                 facecolor="white", edgecolor=EDGE, linewidth=0.9, zorder=5))
+    ax.text(x + 2.2, BOX_Y + BOX_H + 1.9, str(n), ha="center", va="center",
+            fontsize=BADGE_FS, fontweight="bold", color=INK, zorder=6)
+    ax.text(x + w / 2, BOX_Y + BOX_H - 2.0, title, ha="center", va="top",
+            fontsize=TITLE_FS, fontweight="bold", color=tx)
+    ax.text(x + w / 2, BOX_Y + BOX_H - 4.9, lines, ha="center", va="top",
+            fontsize=BODY_FS, color=bx, linespacing=1.5)
+
+def arrow(x0, x1, label=None):
+    ax.add_patch(FancyArrowPatch((x0, MID), (x1, MID), arrowstyle="-|>",
+                 mutation_scale=11, lw=1.0, color=EDGE,
+                 shrinkA=0, shrinkB=0))
     if label:
-        ax.text((x0+x1)/2, y+1.4, label, ha="center", va="bottom", fontsize=7.6,
-                color="#444", style="italic")
+        ax.text((x0 + x1) / 2, MID + 1.2, label, ha="center", va="bottom",
+                fontsize=BODY_FS, color=INK)
 
-# stage boxes
-box(1.5, 17, C_INPUT, "Event imagery",
-    "Sentinel-1 / Sentinel-2\nor HLS, event-day\n(no labels)", y=22, h=13)
-box(22, 18, C_PERC, "Frozen perception",
-    "pre-trained segmenter\n(U-Net or foundation)\n→ per-pixel scores\n\\textit{ranking transfers}".replace("\\textit{","").replace("}",""),
-    y=22, h=13)
-box(43.5, 19, C_CAL, "Active calibration",
-    "pick 4 chips $\\rightarrow$ fit $\\tau^*$\n(MDP / PPO; §Methods)\n$\\rightarrow$ calibrated mask",
-    title_color="white", body_color="white", y=22, h=13)
-box(65.5, 16.5, C_REA, "Neuro-symbolic\nreasoning",
-    "OSM buildings / roads /\nhospitals; graph\nconnectivity", y=22, h=13)
-box(84, 14.5, C_OUT, "Decision\nbriefing",
-    "10 UN-OCHA answers\nJSON + Markdown\n~minutes/event", y=22, h=13)
+# ---- five pipeline stages ----
+stage(1.0, 17.0, C_INPUT, 1, "Event imagery",
+      "Sentinel-1 / Sentinel-2\nor HLS, event-day\n(no labels)")
+stage(21.5, 17.5, C_PERC, 2, "Frozen perception",
+      "pre-trained segmenter\n(U-Net or foundation)\nper-pixel scores;\nranking transfers")
+stage(42.5, 18.0, C_CAL, 3, "Active calibration",
+      "pick 4 chips, fit $\\tau^{*}$\n(MDP, PPO; Methods)\ncalibrated binary mask", light=True)
+stage(64.0, 16.5, C_REA, 4, "Neuro-symbolic\nreasoning",
+      "OSM buildings, roads,\nhospitals; graph\nconnectivity")
+stage(84.0, 15.0, C_OUT, 5, "Decision briefing",
+      "10 UN-OCHA answers\nJSON + Markdown\n~minutes / event")
 
-# arrows between
-arrow(18.7, 21.7, y=28.5)
-arrow(40.2, 43.2, y=28.5)
-arrow(62.7, 65.2, y=28.5, label=r"$\tau^*$")
-arrow(82.2, 83.7, y=28.5)
+arrow(18.0, 21.5)
+arrow(39.0, 42.5)
+arrow(60.5, 64.0, label=r"$\tau^{*}$")
+arrow(80.5, 84.0)
 
-# H2 annotation under the calibration box
-ax.add_patch(FancyBboxPatch((43.5, 7), 19, 11, boxstyle="round,pad=0.3,rounding_size=1.0",
-                            facecolor="#fdf3e3", edgecolor="#c98a23", linewidth=1.0))
-ax.text(53, 16.5, "The only per-event learning", ha="center", va="top",
-        fontsize=8.2, fontweight="bold", color="#9a6a12")
-ax.text(53, 13.2,
-        "One scalar $\\tau$, 4 labels $\\rightarrow$\n99% of the full-pool oracle.\nNo retraining, no new\nrepresentation (H2).",
-        ha="center", va="top", fontsize=7.8, color="#5c4410", linespacing=1.4)
-ax.add_patch(FancyArrowPatch((53, 18), (53, 22), arrowstyle="-|>", mutation_scale=13,
-                             lw=1.3, color="#c98a23"))
+# ---- H1/H2 visual contrast beneath the pipeline ----
+# perception = trained once, then frozen (not per-event)
+ax.annotate("", xy=(30.25, 28.6), xytext=(30.25, 26.8),
+            arrowprops=dict(arrowstyle="-", lw=0.8, color=FROZEN))
+ax.text(30.25, 26.4, "trained once, then frozen\n(shared across all events)",
+        ha="center", va="top", fontsize=SMALL_FS, color=FROZEN, style="italic",
+        linespacing=1.4)
 
-# bottom speed bar
-ax.add_patch(FancyBboxPatch((1.5, 0.5), 97, 4.4, boxstyle="round,pad=0.2,rounding_size=0.8",
-                            facecolor="#16243b", edgecolor="none"))
-ax.text(4, 2.7, "End-to-end machine time (event imagery → responder briefing):",
-        ha="left", va="center", fontsize=8.8, color="#cfe0f5")
-ax.text(78, 2.7, "0.031 s / chip  ·  minutes / event", ha="left", va="center",
-        fontsize=9.4, color="white", fontweight="bold")
+# calibration = the only per-event learning (H2 callout)
+ax.add_patch(FancyArrowPatch((51.5, 29.7), (51.5, 24.4), arrowstyle="-|>",
+             mutation_scale=10, lw=1.0, color=GOLD_ED))
+ax.add_patch(FancyBboxPatch((37.5, 10.5), 28.0, 13.0,
+             boxstyle="round,pad=0.3,rounding_size=0.8",
+             facecolor=GOLD_BG, edgecolor=GOLD_ED, linewidth=0.9))
+ax.text(51.5, 22.6, "The only per-event learning", ha="center", va="top",
+        fontsize=BODY_FS + 0.4, fontweight="bold", color=GOLD_ED)
+ax.text(51.5, 19.7,
+        "one scalar $\\tau$ from 4 labels recovers\n"
+        "$\\approx$99% of the full-pool oracle,\n"
+        "with no retraining or new representation (H2)",
+        ha="center", va="top", fontsize=SMALL_FS, color=GOLD_TX, linespacing=1.5)
 
-ax.text(50, 40, "A four-label calibration agent for cross-disaster mapping",
-        ha="center", va="top", fontsize=13.5, fontweight="bold", color="#16243b")
+# ---- machine-time summary strip ----
+ax.add_patch(FancyBboxPatch((1.0, 2.0), 98.0, 3.8,
+             boxstyle="round,pad=0.15,rounding_size=0.6",
+             facecolor="#1c2733", edgecolor="none"))
+ax.text(3.5, 3.9, "End-to-end machine time, event imagery to responder briefing",
+        ha="left", va="center", fontsize=SMALL_FS + 0.3, color="#c4d3e6")
+ax.text(96.5, 3.9, "0.031 s / chip  ·  minutes / event", ha="right", va="center",
+        fontsize=BODY_FS + 0.6, color="white", fontweight="bold")
 
-fig.tight_layout()
+fig.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
 out = Path("outputs/figures/fig2_system_architecture.png")
-fig.savefig(out, dpi=200, bbox_inches="tight"); plt.close()
-print(f"Saved {out}")
+out.parent.mkdir(parents=True, exist_ok=True)
+fig.savefig(out, dpi=300, bbox_inches="tight", pad_inches=0.04)
+fig.savefig(out.with_suffix(".pdf"), bbox_inches="tight", pad_inches=0.04)
+plt.close()
+print(f"Saved {out} and {out.with_suffix('.pdf')}")

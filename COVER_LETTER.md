@@ -24,9 +24,9 @@ falsification experiments across three public benchmarks (floods,
 building damage, wildfires; ≥ 18 real events) and four backbones (a
 U-Net and three frozen foundation models: AlphaEarth, Prithvi, DOFA):
 
-1. **Ranking transfers; thresholds do not.** 15 of 18 event-optimal
-   thresholds differ from the 0.5 default; re-fitting one threshold
-   recovers up to +0.235 F1 on a single event.
+1. **Ranking transfers; thresholds do not.** 15 of the 16 events with
+   measured event-optimal thresholds differ from the 0.5 default;
+   re-fitting one threshold recovers up to +0.235 F1 on a single event.
 2. **Representation does not close the gap — three times.** No
    foundation model exceeds the from-scratch U-Net; Prithvi, pre-trained
    on the wildfire benchmark's own HLS modality, is slightly *worse* on
@@ -58,15 +58,15 @@ U-Net and three frozen foundation models: AlphaEarth, Prithvi, DOFA):
    paper's central deliverable is the *answer to the question*, not the
    method by which we ask it.
 2. **Breadth of evidence.** The H2-dominates finding is supported across
-   12 real events from two independent public benchmarks
-   (Sen1Floods11 floods and xBD building damage), two backbones (a
-   trained U-Net and a frozen Google AlphaEarth foundation model), and
-   under three statistical protocols (within-event paired,
-   leave-one-event-out 10-fold, and a leave-one-hazard-out cross-hazard
-   protocol). To our knowledge this is the first apples-to-apples
-   comparison of an Earth-observation foundation model against a
-   same-input U-Net on cross-event flood mapping under leakage-free
-   evaluation.
+   18 real events from three independent public benchmarks
+   (Sen1Floods11 floods, xBD building damage and HLS Burn-Scars
+   wildfires) and four backbones (a trained U-Net and three frozen
+   foundation models: AlphaEarth, Prithvi and DOFA), under three
+   statistical protocols (within-event paired, leave-one-event-out
+   10-fold, and a leave-one-hazard-out cross-hazard protocol). To our
+   knowledge this is the first apples-to-apples comparison of an
+   Earth-observation foundation model against a same-input U-Net on
+   cross-event flood mapping under leakage-free evaluation.
 3. **Foreseeable real-world economic and societal benefit — not just a
    test-set gain.** The finding is directly actionable and the payoff is
    quantifiable in operational, not accuracy-point, terms. (i) *Annotation
@@ -89,7 +89,7 @@ U-Net and three frozen foundation models: AlphaEarth, Prithvi, DOFA):
    r = 0.971; on the USA test event, 2.4 % of buildings and 6.6 % of
    road-kilometres flagged as affected — the exposure figures that size a
    response). The end-to-end agent we ship runs at 0.031 s per chip on a
-   single GPU and is fully reproducible (28 paper-grade figures, ~50
+   single GPU and is fully reproducible (30+ paper-grade figures, 140+
    result JSONs, live auto-updating dashboard at
    `https://geodisaster-fm.pages.dev/`).
 4. **Calibrated negative findings.** We present a deliberate panel of
@@ -107,7 +107,7 @@ U-Net and three frozen foundation models: AlphaEarth, Prithvi, DOFA):
 We considered direct submission to *Nature*. The work reframes a
 deep-learning sub-field (cross-disaster mapping) and quantifies an
 operational deliverable, but the empirical scope is currently bounded
-to the disaster-mapping community (two benchmarks, twelve events, two
+to the disaster-mapping community (three benchmarks, 18 events, four
 backbones). We believe *Nature Communications* — whose breadth-of-
 impact criterion encompasses the broadly significant advance to a
 specific scientific community that this paper makes — is the natural
