@@ -15,13 +15,13 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Circle
 
-# ---- Nature-style typography: prefer Helvetica/Arial, fall back gracefully ----
+# ---- Nature-style typography: prefer a Helvetica-like sans, fall back gracefully ----
 import matplotlib.font_manager as fm
 _avail = {f.name for f in fm.fontManager.ttflist}
-for _f in ("Helvetica", "Arial", "Nimbus Sans", "TeX Gyre Heros", "DejaVu Sans"):
-    if _f in _avail:
-        matplotlib.rcParams["font.family"] = _f
-        break
+_prefs = [f for f in ("Helvetica", "Arial", "Nimbus Sans", "TeX Gyre Heros")
+          if f in _avail]
+# Prepend the preferred faces so font.family="sans-serif" actually resolves to one.
+matplotlib.rcParams["font.sans-serif"] = _prefs + matplotlib.rcParams["font.sans-serif"]
 matplotlib.rcParams["font.family"] = "sans-serif"
 matplotlib.rcParams["svg.fonttype"] = "none"
 
