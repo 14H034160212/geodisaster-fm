@@ -191,16 +191,19 @@ with a structurally-corrected PPO, and integrating it into a closed-loop
 perception $\rightarrow$ reasoning $\rightarrow$ calibration agent --- is necessary to make the
 test precise, but is not the contribution we offer to the field. The
 contribution is the \textbf{scientific reframing}: the cross-disaster gap is
-inexpensive to close, the operational disaster-response community can
-deploy near-oracle calibration on any new event with four labels, and
-the deep-learning methodological investment in representation
-engineering is, for this particular problem, the wrong place to spend
-effort. The end-to-end agent built around this insight runs at 0.031 s
-per chip on a single GPU --- three to four orders of magnitude faster
-than the 1-to-3-day Copernicus EMS Rapid Mapping cycle --- and delivers
-the auditable, decision-level answers (which buildings are flooded,
-which roads are passable, which communities are isolated) a responder
-actually consumes.
+inexpensive to close. The operational disaster-response community can
+adapt to any new event with four labels in minutes, rather than the tens
+of expert labels and days a per-event rebuild would take --- an
+order-of-magnitude cut in the only human step that scales with the
+number of events, and the difference between a bespoke per-event effort
+and globally scalable, all-hazard coverage. The corollary is that the
+deep-learning methodological investment in representation engineering
+is, for this particular problem, the wrong place to spend effort. The
+end-to-end agent built around this insight runs at 0.031 s per chip on a
+single GPU --- three to four orders of magnitude faster than the 1-to-3-day
+Copernicus EMS Rapid Mapping cycle --- and delivers the auditable,
+decision-level answers (which buildings are flooded, which roads are
+passable, which communities are isolated) a responder actually consumes.
 
 All code, intermediate results, and figures are public:
 https://github.com/14H034160212/geodisaster-fm , mirrored to
