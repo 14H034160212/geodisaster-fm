@@ -8,9 +8,9 @@ before submission.*
 Dear Editor,
 
 We submit our manuscript **"Cross-disaster mapping is largely a
-calibration problem, not a representation problem: four labels recover
-99 % of the full-pool oracle, regardless of how those labels are
-chosen"** for consideration as an Article in *Nature Communications*.
+calibration problem, not a representation problem: four labels per event
+recover near-oracle accuracy and cut adaptation from days to minutes"**
+for consideration as an Article in *Nature Communications*.
 
 ## What the paper does
 

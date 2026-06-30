@@ -1,4 +1,4 @@
-# Cross-disaster mapping is largely a calibration problem, not a representation problem: four labels recover 99 % of the full-pool oracle, regardless of how those labels are chosen
+# Cross-disaster mapping is largely a calibration problem, not a representation problem: four labels per event recover near-oracle accuracy and cut adaptation from days to minutes
 
 *Manuscript draft (Nature Communications). Working title — subject to revision after final results.*
 
@@ -15,16 +15,15 @@ public benchmarks spanning floods, building damage and wildfires
 threshold does not (15 of 16 measured event-optimal thresholds differ
 from the 0.5 default). Re-fitting one threshold recovers up to
 +0.235 F1 per event; none of three frozen foundation models (AlphaEarth,
-Prithvi, DOFA) exceeds a from-scratch U-Net, and all drift at least
-as much.
-The fix is cheap but not free: four labelled tiles recover 99 % of the
-full-pool oracle regardless of how they are chosen, whereas zero-label
-label-shift corrections (EM, BBSE) fail — the class-conditional score
-distributions themselves distort, which only labels can reveal. An
-end-to-end agent operationalises this finding, delivering
-responder-grade flood briefings in minutes rather than days.
+Prithvi, DOFA) exceeds a from-scratch U-Net. Four labelled tiles
+recover 99 % of the full-pool oracle regardless of how they are chosen,
+whereas zero-label corrections (EM, BBSE) fail — the class-conditional
+scores themselves distort, which only labels reveal. Because perception
+stays frozen, each new event costs four labels and minutes, not tens and
+days — an order-of-magnitude cut in the only human step that scales with
+events, which an end-to-end agent turns into responder briefings.
 
-*(149 words)*
+*(150 words)*
 
 
 ## Introduction
@@ -64,7 +63,12 @@ labelling.
 The question we set out to answer is **which hypothesis dominates** in
 realistic cross-disaster deployment, and if it is H2, **how cheap the
 calibration fix is**. The answer has direct implications for how the
-disaster-response community should spend its modelling effort.
+disaster-response community should spend its modelling effort — and
+direct economic stakes. Per-event expert annotation is the dominant
+labour cost in operational rapid mapping, so the distinction between H1
+and H2 is the distinction between rebuilding or retraining a model for
+every new disaster and spending a handful of labels: the gap between a
+bespoke per-event effort and globally scalable, all-hazard coverage.
 
 ### Why discriminating H1 from H2 has not been done before
 
