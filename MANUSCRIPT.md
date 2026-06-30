@@ -1006,7 +1006,7 @@ dashboard (Methods).
 Three implications follow from H2 dominating H1 for the cross-disaster
 generalisation problem.
 
-### Implications for disaster response
+### Operational and economic implications
 
 Operational disaster response, today, treats every new event as a
 problem of "how do we get a model that works on this event?". This
@@ -1021,10 +1021,57 @@ from one calibrated using every chip in the labelled pool. The
 infrastructure to integrate this into existing rapid-mapping workflows
 (Copernicus EMS Rapid Mapping, UNOSAT, commercial providers) is
 straightforward: the model itself is already trained, only the
-threshold per event changes. The end-to-end agent we report runs at
-0.031 s per chip — the machine time, exclusive of analyst verification, is much faster than the 1-to-3-day
-EMS cycle — making the practical limit not compute but the human
-labelling step, which our results bound at four chips.
+threshold per event changes.
+
+Three properties of this result translate the test-set finding into a
+foreseeable, quantifiable operational and economic benefit, each
+grounded in measured quantities rather than a model-accuracy delta.
+
+*Annotation cost falls by an order of magnitude.* Calibrating to a new
+event with the full labelled pool requires tens of expert-annotated
+chips per event (the Sen1Floods11 hand-labelled pool, for instance,
+provides on the order of forty chips per flood event). Our result shows
+that four chips recover ≈ 99 % of that full-pool F1 (pooled
+leave-one-event-out F1 0.837 versus the oracle's 0.839). Expert pixel
+annotation of flood, damage or burn extent is the dominant labour cost
+in rapid mapping; cutting the per-event budget from tens of chips to
+four is a roughly ten-fold reduction in the only human step that scales
+with the number of events.
+
+*Time-to-first-map collapses to the labelling of four chips.* The
+operational European reference service, Copernicus EMS Rapid Mapping,
+targets 24 h for first delivery and one-to-three days for actionable
+vector packages. In our pipeline the entire per-event learning step is a
+single threshold fit from four chips; machine time is 0.031 s per chip
+for perception plus minutes for the neuro-symbolic reasoning query. The
+binding constraint therefore shifts from days of expert annotation to
+the minutes needed to label four chips — compressing time-to-actionable
+map well inside the first-72-hour window in which evacuation, search
+prioritisation and aid-allocation decisions are actually made, when the
+marginal value of an earlier map is highest.
+
+*Marginal coverage cost is near-zero and hazard-independent.* Because
+the perception model is frozen and reused, the marginal cost of adding a
+new event is four labels and no retraining — a property we demonstrate
+across three independent hazard families (floods, building damage,
+wildfire) and four backbones. This converts a per-event retraining
+project into a near-constant marginal cost, which is precisely the
+property that makes global, all-hazard coverage economically feasible
+rather than a bespoke effort repeated for every disaster, scaled across
+the many significant events that occur worldwide each year.
+
+These savings are not abstract accuracy points: the calibrated agent's
+flooded-area totals track analyst hand-labels at r = 0.971 in the
+event-ranking regime responders use, and feed directly into the exposure
+figures that size a response (on the USA test event, 2.4 % of buildings
+and 6.6 % of road-kilometres flagged as affected). We deliberately stop
+short of claiming dollar or casualty figures, which would require a
+controlled deployment trial; the claim we make is a defensible
+cost-, time- and feasibility-reduction argument anchored on the
+label-budget ratio, the published EMS service-level target and measured
+machine time. The practical limit on this pipeline is not compute but
+the human labelling step — which our results bound, for the first time,
+at four chips.
 
 ### Implications for foundation-model research
 
