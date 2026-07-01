@@ -288,7 +288,7 @@ deep-learning methodological investment in representation engineering
 is, for this particular problem, the wrong place to spend effort. The
 end-to-end agent built around this insight runs at 0.031 s per chip on a
 single GPU --- three to four orders of magnitude faster than the 1-to-3-day
-Copernicus EMS Rapid Mapping cycle --- and delivers the auditable,
+Copernicus EMS Rapid Mapping \cite{copernicus_ems} cycle --- and delivers the auditable,
 decision-level answers (which buildings are flooded, which roads are
 passable, which communities are isolated) a responder actually consumes.
 
@@ -586,7 +586,7 @@ with PPO. Three implementation choices proved load-bearing:
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{Generalised Advantage Estimation (GAE-$\lambda$ = 0.95)} in place of raw
+  \textbf{Generalised Advantage Estimation (GAE-$\lambda$ = 0.95)} \cite{schulman2016gae} in place of raw
   discounted returns. Episode-level F1 gain is \textasciitilde0.005 F1 with step-level
   noise $\sigma$ \textasciitilde0.05; raw discounted returns therefore have a signal-to-noise
   ratio near unity, drowning any policy gradient. GAE-$\lambda$ provides
@@ -803,7 +803,7 @@ shift literature: if cross-event drift were \emph{pure} prior shift --- the
 class-conditional score distributions transfer intact, only p(y)
 changes --- the optimal threshold could be corrected analytically from
 \textbf{zero} target labels \cite{elkan2001foundations}, using a prior estimated from
-unlabelled target data \cite{saerens2002adjusting,lipton2018detecting}. We test the two
+unlabelled target data \cite{saerens2002adjusting,lipton2018detecting,garg2020unified}. We test the two
 standard zero-label estimators under the identical 20-seed LOEO splits
 (200 paired pairs; the estimators see only the \emph{unlabelled} pool):
 
@@ -1515,7 +1515,7 @@ calibrated (bottom-50 \%-by-area Pearson r = 0.118; MAPE median 25 \%).
 Per-building, per-road and per-population answers are partly validated
 via the xBD damage analysis and are end-to-end-released pipelines, but
 full external validation against Copernicus EMS reference masks or
-WorldPop population counts on shared events is future work.
+WorldPop \cite{worldpop2024} population counts on shared events is future work.
 
 (L4) \emph{Active-selection method choice is within seed-level noise at
 4 chips.} Under the 20-seed LOEO protocol the entire 4-chip
@@ -1573,10 +1573,11 @@ decision-level briefing --- is summarised in Fig. 3.
   targets for five disasters (hurricane-harvey, hurricane-florence,
   guatemala-volcano, mexico-earthquake, palu-tsunami), tiled to 512 $\times$ 512.
 \item
-  \textbf{Google AlphaEarth Satellite Embedding V1 (annual)} --- 64-dimensional
-  10 m annual embedding, fetched per chip via Google Earth Engine.
+  \textbf{Google AlphaEarth Satellite Embedding V1 (annual)} \cite{brown2024alphaearth} --- 64-dimensional
+  10 m annual embedding, fetched per chip via Google Earth Engine \cite{gee2024}.
 \item
-  \textbf{OpenStreetMap} --- buildings, roads, hospitals via Overpass; reasoning-
+  \textbf{OpenStreetMap} \cite{openstreetmap2024} --- buildings, roads, hospitals via Overpass
+  (queried with OSMnx \cite{boeing2017osmnx}); reasoning-
   layer queries.
 \end{itemize}
 
@@ -1585,7 +1586,7 @@ decision-level briefing --- is summarised in Fig. 3.
 \begin{itemize}
 \tightlist
 \item
-  \textbf{U-Net (smp\_unet)} --- ResNet-34 backbone, in\_channels = 15 (S1 2 + S2 13),
+  \textbf{U-Net (smp\_unet)} \cite{ronneberger2015unet} --- ResNet-34 backbone, in\_channels = 15 (S1 2 + S2 13),
   random init; focal-BCE loss ($\alpha$ 0.75, $\gamma$ 2.0); AdamW lr 1e-4; bf16-mixed.
 \item
   \textbf{DeepLabV3+ (ResNet-50)} --- same input/loss, as cross-architecture sanity.
