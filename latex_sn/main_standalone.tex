@@ -91,6 +91,31 @@ new event, two distinct things can be going wrong:
   representation is fine, the operating point is wrong.
 \end{itemize}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig1_h1_h2_concept.png}
+  \caption{\textbf{Two competing hypotheses for cross-disaster
+  generalisation failure, and the experiments that discriminate them.}
+  \textbf{a}, Conceptual schematic. Under representation drift (H1, red)
+  the per-class score distributions of a model applied to a new event
+  collapse onto one another --- the pixel ranking itself breaks, and no
+  threshold can recover performance. Under calibration drift (H2, blue)
+  the per-class distributions retain their shape but translate along the
+  score axis --- the ranking is preserved and a single threshold
+  adjustment (from the training value $\tau=0.5$ to the event-optimal
+  $\tau^{*}$) recovers performance. \textbf{b}, Test of H2(a): F1 at the
+  event-optimal threshold versus F1 at the default threshold for the ten
+  Sen1Floods11 flood events; every point lies above the identity line
+  (Pakistan +0.184 F1 from the threshold alone). \textbf{c}, Test of
+  H2(b): per-event F1 at $\tau=0.5$ (grey) versus $\tau^{*}$ (green),
+  annotated with the recoverable calibration gain. \textbf{d},
+  Quantifying H2: pooled test F1 across 200 leave-one-event-out paired
+  pairs for seven calibration strategies; a four-chip calibration set
+  recovers $\approx99\,\%$ of the full-pool oracle's F1 regardless of
+  the selection method.}
+  \label{fig:concept}
+\end{figure}
+
 These two hypotheses make very different predictions about how the field
 should invest its effort. Under H1, the literature's bias toward
 representation engineering is correct. Under H2, the literature has been
@@ -298,10 +323,25 @@ event (a genuine unseen-event setting), pipe the predicted mask through the
 neuro-symbolic reasoning layer, and compare the resulting answers to the
 analyst-labelled ground truth. Across \textbf{431 chips in 10 real flood events},
 the predicted and ground-truth flooded areas correlate at Pearson r = 0.971
-(Fig.~7). Per-event area error is small for most regions --- USA 2 \%,
+(Fig.~2). Per-event area error is small for most regions --- USA 2 \%,
 Sri-Lanka 6 \%, Paraguay 11 \%, Spain 24 \% --- with Pakistan as the lone
 over-predictor (143 \% error). This Pakistan outlier is itself diagnostic and
 predicted by our cross-region analysis (ranking-transfer analysis).
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig17_answer_fidelity.png}
+  \caption{\textbf{End-to-end decision-level answer fidelity.}
+  Flooded-area answers produced by the full perception $\rightarrow$
+  calibration $\rightarrow$ reasoning agent against analyst hand-labels
+  across 431 chips spanning ten real flood events (Pearson
+  $r=0.971$; Spearman $\rho=0.899$; median absolute percentage error
+  25\,\%). The Pearson headline is driven by the largest events
+  (bottom-50\,\%-by-area chip $r=0.118$): the agent's totals are
+  reliable in the event-ranking regime responders use, while
+  small-area chips carry wide relative errors (deployment results).}
+  \label{fig:fidelity}
+\end{figure}
 
 \textbf{Honest companion statistics for the Pearson headline.} A high Pearson r
 on a 431-chip dataset is necessary but not sufficient: a robustness audit
@@ -342,7 +382,29 @@ Perception runs at \textbf{0.031 s per chip} on a single GPU; the end-to-end
 wall-time is dominated by the public OpenStreetMap query (\textasciitilde minutes), not the
 model. Compared against the documented 1--3 day Copernicus EMS Rapid Mapping
 cycle, the dispatcher returns decision-relevant answers in minutes --- three to
-four orders of magnitude faster (Fig.~2).
+four orders of magnitude faster (Fig.~3).
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig2_system_architecture.png}
+  \caption{\textbf{System architecture of the calibration-centric agent.}
+  Event-day Sentinel-1/2 or HLS imagery is mapped by a \emph{frozen}
+  perception model (a trained U-Net or a frozen foundation backbone)
+  whose per-pixel ranking transfers across events. The active-calibration
+  stage --- formalised as a Markov decision process and solved with PPO
+  (Methods) --- spends a four-chip label budget to recover the
+  event-optimal decision threshold $\tau^{*}$, the \emph{only}
+  per-event learning in the pipeline; this single scalar recovers
+  $\approx99\,\%$ of the full-pool oracle's F1 with no retraining and
+  no new representation (hypothesis H2). The calibrated binary mask is
+  passed to a neuro-symbolic reasoning layer that queries OpenStreetMap
+  buildings, roads and hospitals and runs graph-connectivity analysis to
+  answer ten standard UN-OCHA emergency questions, emitted as a
+  machine-auditable JSON briefing plus an analyst-readable summary.
+  End-to-end machine time is dominated by perception (0.031\,s per chip)
+  and the OpenStreetMap query (minutes), not by any per-event training.}
+  \label{fig:system}
+\end{figure}
 
 Note: the operational deployment metrics shown in this section
 (Pearson r, MAPE, per-event area errors) are the \emph{output} of running
@@ -433,7 +495,7 @@ modest on average but enormous on the hardest region: \textbf{Pakistan recovers
 The optimal threshold ranges from 0.45 to 0.70 and is \textbf{never 0.5}.
 Expected Calibration Error is consistently large (0.12--0.24), confirming the
 score distribution, not the ranking, is what shifts under cross-region
-transfer (Fig.~3).
+transfer (Fig.~4).
 
 \textbf{xBD building damage (4 damage-bearing hazards).} Independently, on the
 xBD building-damage task --- a completely different sensor (sub-metre optical
@@ -441,7 +503,7 @@ vs 10 m Sentinel-1/2), a different unit (per-building damage vs per-pixel
 flood), and a different evaluation (4,552 + 9,733 buildings vs millions of
 flood pixels) --- the same lever is even larger: hurricane-harvey +0.084 F1,
 \textbf{palu-tsunami +0.235 F1}; the optimal thresholds are 0.30--0.35, \emph{also
-$\neq$ 0.5} but on the opposite side of the default (Fig.~3).
+$\neq$ 0.5} but on the opposite side of the default (Fig.~4).
 
 \textbf{HLS Burn-Scars (4 fire-season events, 2018--2021 CONUS).} A note on
 units: HLS Burn-Scars does not delineate individual fires, so our
@@ -482,6 +544,20 @@ the calibration lever is hazard-specific} --- large for floods and
 structural damage, small for wildfires. A practitioner who deploys an
 event-blind $\tau$ = 0.5 will pay a substantial F1 cost on the hazards
 where it matters most.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig22_calibration_cross_benchmark.png}
+  \caption{\textbf{Calibration drift across benchmarks and hazard
+  families.} Event-optimal decision thresholds $\tau^{*}$ and the F1
+  recovered by threshold re-fitting alone, for Sen1Floods11 floods and
+  xBD building damage (HLS Burn-Scars wildfires reported in
+  the recalibration analysis). The direction of drift is benchmark-specific (floods
+  drift up, damage drifts down) and the magnitude is hazard-specific
+  (large for floods and damage, small for wildfires), but 15 of the 16 events with
+  measured event-optimal thresholds differ from the 0.5 default.}
+  \label{fig:crossbench}
+\end{figure}
 
 This empirical result both motivates and justifies framing label-efficient
 threshold recalibration as a Markov decision process (Methods, \S{}``Active
@@ -533,7 +609,7 @@ We motivate each of these by the fact that under the original PPO (no GAE,
 incremental reward, constant entropy 0.01) the learned policy was
 catastrophically wrong-direction on the two highest-headroom held-out events
 in our LOEO evaluation (Pakistan $-$0.033 F1 vs random, Somalia $-$0.037; see
-Fig.~4 for the v1$\leftrightarrow$v2 comparison): the v1 PPO was an
+Fig.~5 for the v1$\leftrightarrow$v2 comparison): the v1 PPO was an
 under-trained random-permutation hash, not a learned calibration policy.
 
 \textbf{Evaluation protocol --- leakage-free LOEO.} Our final headline number is
@@ -547,7 +623,7 @@ test leakage that an earlier protocol (cross-region PPO trained on the same
 4 hard events it was later scored on) was suspect of, and which we now
 attribute the originally inflated v1 paired-significance numbers to.
 
-\textbf{LOEO-v2 result (Table 1, Fig.~4).}
+\textbf{LOEO-v2 result (Table 1, Fig.~5).}
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.3378}}
@@ -635,7 +711,7 @@ The headline interpretation is precise:
   is the science here, not the method.}
 \end{itemize}
 
-\textbf{The per-event picture under 20-seed LOEO (Fig.~4, Supplementary Table 1).}
+\textbf{The per-event picture under 20-seed LOEO (Fig.~5, Supplementary Table 1).}
 PPO matches or beats random on 7 of 10 events; the three losses are
 small ($\leq$ 0.012 F1 each) and concentrated on events where one of the
 other heuristics happens to win the seed lottery (Ghana, Pakistan, India):
@@ -702,6 +778,24 @@ because the methodological lesson is itself a contribution: cross-disaster
 active-calibration claims demand event-level holdout, not seed-level
 pool/test reshuffling.
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig26_loeo_v1_v2.png}
+  \caption{\textbf{Leakage-free leave-one-event-out evaluation of active
+  threshold calibration.} \textbf{a}, Per-event test F1 of the learned
+  PPO policy before (v1, grey) and after (v2, blue) the three structural
+  corrections (GAE-$\lambda$ credit assignment, episode-terminal reward,
+  entropy schedule), against four-chip random calibration (red) and the
+  full-pool oracle (green dashes); shaded bands show the base-to-oracle
+  calibration headroom per event. \textbf{b}, Pooled paired differences
+  (PPO minus comparator) with 95\,\% confidence intervals across the
+  leave-one-event-out protocol. \textbf{c}, Pooled F1 ladder across all
+  methods. The five practical 4-chip selection methods span only
+  0.017~F1 --- an order of magnitude smaller than the single-event
+  calibration drift (up to +0.235~F1) that any of them corrects.}
+  \label{fig:loeo}
+\end{figure}
+
 \subsubsection{The four labels are necessary: drift is not pure label shift}\label{the-four-labels-are-necessary-drift-is-not-pure-label-shift}
 
 The strongest objection to the four-label headline comes from the label-
@@ -734,7 +828,7 @@ BBSE prior correction & \textbf{0.677} & \textbf{$-$0.143} (significantly worse)
 \emph{(reference: 4-label random)} & 0.834 & +0.014 \\
 \end{longtable}
 
-Both fail (Fig.~5) --- and the \emph{way} they fail is diagnostic. Saerens EM diverges
+Both fail (Fig.~6) --- and the \emph{way} they fail is diagnostic. Saerens EM diverges
 to a degenerate prior estimate ($\pi$ $\rightarrow$ 1.0 on all ten events): EM assumes
 the model's posteriors are calibrated under the training prior, and with
 ECE 0.12--0.24 the inflated scores are indistinguishable, to EM, from ``the
@@ -769,6 +863,27 @@ zero-label routes fail by different mechanisms; the four labels are
 doing irreplaceable work. Result JSONs:
 \texttt{outputs/layer3\_ppo/zero\_label\_prior\_correction.json},
 \texttt{outputs/layer3\_ppo/quantile\_matching\_baseline.json}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{fig29_zero_label_test.png}
+  \caption{\textbf{The zero-label test: cross-disaster calibration drift
+  is not pure label shift.} \textbf{a}, Pooled test F1 (200
+  leave-one-event-out paired pairs) for the two standard zero-label
+  prior-shift corrections --- Saerens expectation--maximisation (EM) and
+  black-box shift estimation (BBSE) --- against the uncorrected default,
+  four-label calibration, and the full-pool oracle. Both zero-label
+  corrections fall \emph{below} doing nothing. \textbf{b}, The
+  diagnosis: per event, the model's pool-mean predicted probability
+  (red) systematically exceeds both the training prior (grey) and the
+  \emph{true} new-event prior (green). The class-conditional score
+  distributions distort under cross-event transfer; labels measure this
+  distortion, which no zero-label method can see. BBSE estimates the
+  new-event priors nearly correctly yet its analytically corrected
+  threshold still fails, isolating score distortion --- not prior
+  mis-estimation --- as the dominant failure mode.}
+  \label{fig:zerolabel}
+\end{figure}
 
 \subsubsection{Method choice within the 4-chip family is within noise}\label{method-choice-within-the-4-chip-family-is-within-noise}
 
@@ -1090,7 +1205,7 @@ drift (consistent, with overlapping uncertainty).} Ordering the three
 backbones by how closely their training distribution matches the task ---
 U-Net (trained on the task itself) $\rightarrow$ Prithvi (pre-trained on the task's
 modality) $\rightarrow$ DOFA (generalist) --- the mean recoverable calibration gain
-rises monotonically (Fig.~6). With 5-seed re-training of the two foundation-model
+rises monotonically (Fig.~7). With 5-seed re-training of the two foundation-model
 segmentation heads on their cached frozen features (the U-Net entry is
 a single full training run per fold and is flagged as such):
 
@@ -1124,6 +1239,24 @@ labels, the calibration fix costs almost nothing regardless of where
 you start. A systematic multi-backbone, multi-hazard characterisation
 of this scaling is a concrete direction for follow-up work. Multi-seed
 result JSON: \texttt{outputs/decision/gradient\_multiseed.json}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig30_backbone_ordering.png}
+  \caption{\textbf{Three-backbone ordering on HLS Burn-Scars: weaker
+  task-match, more calibration drift.} \textbf{a}, Cross-event F1 at the
+  event-optimal threshold for a task-trained U-Net, the
+  modality-matched Prithvi-EO-1.0-100M foundation model, and the
+  generalist DOFA foundation model, under identical
+  leave-one-fire-season-out protocols (foundation-model bars: mean
+  $\pm$ s.d.\ over five segmentation-head training seeds on frozen
+  encoder features; U-Net: single full training run per fold).
+  \textbf{b}, Recoverable calibration gain per backbone. The ordering
+  is consistent across seeds but adjacent intervals overlap; we present
+  it as a consistent preliminary ordering rather than a statistically
+  separated gradient.}
+  \label{fig:backbones}
+\end{figure}
 
 \textbf{A structured Markov-random-field decision layer does not beat a calibrated
 threshold.} Motivated by the causal-graph success of Xu et al.~{[}2022{]}, we
@@ -1422,7 +1555,7 @@ intended to \emph{augment}, not replace, trained mapping analysts.
 
 The end-to-end system architecture --- frozen perception, the four-label
 active-calibration stage, the neuro-symbolic reasoning layer, and the
-decision-level briefing --- is summarised in Fig. 2.
+decision-level briefing --- is summarised in Fig. 3.
 
 \subsection{Data}\label{data}
 
@@ -1762,144 +1895,6 @@ provided as Supplementary Information.
 \item \textbf{Author contributions}: [TBD]
 \end{itemize}
 
-\clearpage
-% Main figures with formal submission captions.
-% Source PNGs live in .
-
-\section*{Main Figures}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{fig1_h1_h2_concept.png}
-  \caption{\textbf{Two competing hypotheses for cross-disaster
-  generalisation failure, and the experiments that discriminate them.}
-  \textbf{a}, Conceptual schematic. Under representation drift (H1, red)
-  the per-class score distributions of a model applied to a new event
-  collapse onto one another --- the pixel ranking itself breaks, and no
-  threshold can recover performance. Under calibration drift (H2, blue)
-  the per-class distributions retain their shape but translate along the
-  score axis --- the ranking is preserved and a single threshold
-  adjustment (from the training value $\tau=0.5$ to the event-optimal
-  $\tau^{*}$) recovers performance. \textbf{b}, Test of H2(a): F1 at the
-  event-optimal threshold versus F1 at the default threshold for the ten
-  Sen1Floods11 flood events; every point lies above the identity line
-  (Pakistan +0.184 F1 from the threshold alone). \textbf{c}, Test of
-  H2(b): per-event F1 at $\tau=0.5$ (grey) versus $\tau^{*}$ (green),
-  annotated with the recoverable calibration gain. \textbf{d},
-  Quantifying H2: pooled test F1 across 200 leave-one-event-out paired
-  pairs for seven calibration strategies; a four-chip calibration set
-  recovers $\approx99\,\%$ of the full-pool oracle's F1 regardless of
-  the selection method.}
-  \label{fig:concept}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{fig2_system_architecture.png}
-  \caption{\textbf{System architecture of the calibration-centric agent.}
-  Event-day Sentinel-1/2 or HLS imagery is mapped by a \emph{frozen}
-  perception model (a trained U-Net or a frozen foundation backbone)
-  whose per-pixel ranking transfers across events. The active-calibration
-  stage --- formalised as a Markov decision process and solved with PPO
-  (Methods) --- spends a four-chip label budget to recover the
-  event-optimal decision threshold $\tau^{*}$, the \emph{only}
-  per-event learning in the pipeline; this single scalar recovers
-  $\approx99\,\%$ of the full-pool oracle's F1 with no retraining and
-  no new representation (hypothesis H2). The calibrated binary mask is
-  passed to a neuro-symbolic reasoning layer that queries OpenStreetMap
-  buildings, roads and hospitals and runs graph-connectivity analysis to
-  answer ten standard UN-OCHA emergency questions, emitted as a
-  machine-auditable JSON briefing plus an analyst-readable summary.
-  End-to-end machine time is dominated by perception (0.031\,s per chip)
-  and the OpenStreetMap query (minutes), not by any per-event training.}
-  \label{fig:system}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{fig26_loeo_v1_v2.png}
-  \caption{\textbf{Leakage-free leave-one-event-out evaluation of active
-  threshold calibration.} \textbf{a}, Per-event test F1 of the learned
-  PPO policy before (v1, grey) and after (v2, blue) the three structural
-  corrections (GAE-$\lambda$ credit assignment, episode-terminal reward,
-  entropy schedule), against four-chip random calibration (red) and the
-  full-pool oracle (green dashes); shaded bands show the base-to-oracle
-  calibration headroom per event. \textbf{b}, Pooled paired differences
-  (PPO minus comparator) with 95\,\% confidence intervals across the
-  leave-one-event-out protocol. \textbf{c}, Pooled F1 ladder across all
-  methods. The five practical 4-chip selection methods span only
-  0.017~F1 --- an order of magnitude smaller than the single-event
-  calibration drift (up to +0.235~F1) that any of them corrects.}
-  \label{fig:loeo}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{fig22_calibration_cross_benchmark.png}
-  \caption{\textbf{Calibration drift across benchmarks and hazard
-  families.} Event-optimal decision thresholds $\tau^{*}$ and the F1
-  recovered by threshold re-fitting alone, for Sen1Floods11 floods and
-  xBD building damage (HLS Burn-Scars wildfires reported in
-  the recalibration analysis). The direction of drift is benchmark-specific (floods
-  drift up, damage drifts down) and the magnitude is hazard-specific
-  (large for floods and damage, small for wildfires), but 15 of the 16 events with
-  measured event-optimal thresholds differ from the 0.5 default.}
-  \label{fig:crossbench}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{fig29_zero_label_test.png}
-  \caption{\textbf{The zero-label test: cross-disaster calibration drift
-  is not pure label shift.} \textbf{a}, Pooled test F1 (200
-  leave-one-event-out paired pairs) for the two standard zero-label
-  prior-shift corrections --- Saerens expectation--maximisation (EM) and
-  black-box shift estimation (BBSE) --- against the uncorrected default,
-  four-label calibration, and the full-pool oracle. Both zero-label
-  corrections fall \emph{below} doing nothing. \textbf{b}, The
-  diagnosis: per event, the model's pool-mean predicted probability
-  (red) systematically exceeds both the training prior (grey) and the
-  \emph{true} new-event prior (green). The class-conditional score
-  distributions distort under cross-event transfer; labels measure this
-  distortion, which no zero-label method can see. BBSE estimates the
-  new-event priors nearly correctly yet its analytically corrected
-  threshold still fails, isolating score distortion --- not prior
-  mis-estimation --- as the dominant failure mode.}
-  \label{fig:zerolabel}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.92\textwidth]{fig30_backbone_ordering.png}
-  \caption{\textbf{Three-backbone ordering on HLS Burn-Scars: weaker
-  task-match, more calibration drift.} \textbf{a}, Cross-event F1 at the
-  event-optimal threshold for a task-trained U-Net, the
-  modality-matched Prithvi-EO-1.0-100M foundation model, and the
-  generalist DOFA foundation model, under identical
-  leave-one-fire-season-out protocols (foundation-model bars: mean
-  $\pm$ s.d.\ over five segmentation-head training seeds on frozen
-  encoder features; U-Net: single full training run per fold).
-  \textbf{b}, Recoverable calibration gain per backbone. The ordering
-  is consistent across seeds but adjacent intervals overlap; we present
-  it as a consistent preliminary ordering rather than a statistically
-  separated gradient.}
-  \label{fig:backbones}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{fig17_answer_fidelity.png}
-  \caption{\textbf{End-to-end decision-level answer fidelity.}
-  Flooded-area answers produced by the full perception $\rightarrow$
-  calibration $\rightarrow$ reasoning agent against analyst hand-labels
-  across 431 chips spanning ten real flood events (Pearson
-  $r=0.971$; Spearman $\rho=0.899$; median absolute percentage error
-  25\,\%). The Pearson headline is driven by the largest events
-  (bottom-50\,\%-by-area chip $r=0.118$): the agent's totals are
-  reliable in the event-ranking regime responders use, while
-  small-area chips carry wide relative errors (deployment results).}
-  \label{fig:fidelity}
-\end{figure}
 
 
 \bibliography{refs}
