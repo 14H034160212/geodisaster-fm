@@ -74,7 +74,7 @@ larger backbone, transfer from a foundation model, fuse more modalities
 itself fails to transfer, and the corrective is to learn a better
 representation.
 
-We propose to test a \textbf{different mechanism}. When a model degrades on a
+We propose to test a \textbf{different mechanism} (Fig.~1). When a model degrades on a
 new event, two distinct things can be going wrong:
 
 \begin{itemize}
@@ -298,7 +298,7 @@ event (a genuine unseen-event setting), pipe the predicted mask through the
 neuro-symbolic reasoning layer, and compare the resulting answers to the
 analyst-labelled ground truth. Across \textbf{431 chips in 10 real flood events},
 the predicted and ground-truth flooded areas correlate at Pearson r = 0.971
-(Fig. 1a). Per-event area error is small for most regions --- USA 2 \%,
+(Fig.~7). Per-event area error is small for most regions --- USA 2 \%,
 Sri-Lanka 6 \%, Paraguay 11 \%, Spain 24 \% --- with Pakistan as the lone
 over-predictor (143 \% error). This Pakistan outlier is itself diagnostic and
 predicted by our cross-region analysis (ranking-transfer analysis).
@@ -342,18 +342,7 @@ Perception runs at \textbf{0.031 s per chip} on a single GPU; the end-to-end
 wall-time is dominated by the public OpenStreetMap query (\textasciitilde minutes), not the
 model. Compared against the documented 1--3 day Copernicus EMS Rapid Mapping
 cycle, the dispatcher returns decision-relevant answers in minutes --- three to
-four orders of magnitude faster (Fig. 1b).
-
-\emph{{[}Fig. 1 --- H1 vs H2 conceptual + experimental design overview, source
-\texttt{outputs/figures/fig1\_h1\_h2\_concept.png}. The four panels are:
-(a) conceptual cartoon of H1 (representation drift) vs H2 (calibration
-drift); (b) Test of H2(a) --- F1@$\tau$* vs F1@0.5 scatter across all 10
-events (every point above y = x, ranking survives, Pakistan +0.184 F1
-from $\tau$ alone); (c) Test of H2(b) --- recalibration recovers F1 on every
-event (mean +0.030 across the 10 flood events); (d) Quantifying H2 ---
-four labels recover the full-pool oracle (pooled F1 across 100 LOEO
-paired pairs). Together the four panels are the figure the rest of the
-manuscript explains in detail.{]}}
+four orders of magnitude faster (Fig.~2).
 
 Note: the operational deployment metrics shown in this section
 (Pearson r, MAPE, per-event area errors) are the \emph{output} of running
@@ -379,7 +368,7 @@ seeds. The cross-region F1 spans a wide range --- from Pakistan 0.54 to Mekong
 0.96 --- and the multi-seed analysis confirms the gap is \emph{structural}: per-region
 standard deviation is $\leq$ 0.016 for nine of the ten regions, while Pakistan
 shows $\sigma$ = 0.068, five to eight times the rest. The hard-region structure is a
-reproducible property of cross-region transfer (Fig. 2).
+reproducible property of cross-region transfer.
 
 \subsubsection{Cross-hazard (xBD)}\label{cross-hazard-xbd}
 
@@ -396,11 +385,11 @@ pre/post}: with a 6-channel pre + post optical input on an image-level
 80 / 20 split across the four damage-bearing hazards and three independent
 seeds, F1 rises from 0.723 $\pm$ 0.012 (post-only) to 0.810 $\pm$ 0.016 (pre + post),
 a +0.087 gain with non-overlapping confidence intervals --- the known +1 lever
-for xBD that our first cross-hazard model lacked (Fig. 3a). (b) \textbf{Cross-
+for xBD that our first cross-hazard model lacked. (b) \textbf{Cross-
 hazard pre/post + multi-seed}: re-running the leave-one-hazard-out protocol
 with the pre/post input across the four damage-bearing hazards and two
 independent seeds reveals that the change-detection prior is \emph{hazard-
-specific} (Fig. 3b). Mean cross-hazard F1 rises modestly from 0.488 (post-
+specific}. Mean cross-hazard F1 rises modestly from 0.488 (post-
 only) to 0.521 $\pm$ 0.007 (pre + post, +0.033), but the gain is dramatically
 uneven: hurricane-harvey --- the hardest single case at F1 0.298 with the
 post-only model --- is rescued to 0.477 $\pm$ 0.030 (+0.18 F1), hurricane-florence
@@ -409,9 +398,6 @@ declines from 0.635 to 0.562 $\pm$ 0.024 ($-$0.07). The change-detection prior i
 the right inductive bias for water- and wind-driven hazards but the wrong one
 for events whose damage is fully apparent in the post image alone --- a
 mechanistically interpretable result, not a uniform improvement.
-
-\emph{{[}Fig. 2 = Fig 6 (multi-seed cross-region); Fig. 3 = Figs 7 + 15 (xBD cross-
-hazard + pre/post){]}}
 
 \subsection{Threshold recalibration recovers most of the lost F1}\label{threshold-recalibration-recovers-most-of-the-lost-f1}
 
@@ -447,7 +433,7 @@ modest on average but enormous on the hardest region: \textbf{Pakistan recovers
 The optimal threshold ranges from 0.45 to 0.70 and is \textbf{never 0.5}.
 Expected Calibration Error is consistently large (0.12--0.24), confirming the
 score distribution, not the ranking, is what shifts under cross-region
-transfer (Fig. 4a).
+transfer (Fig.~3).
 
 \textbf{xBD building damage (4 damage-bearing hazards).} Independently, on the
 xBD building-damage task --- a completely different sensor (sub-metre optical
@@ -455,7 +441,7 @@ vs 10 m Sentinel-1/2), a different unit (per-building damage vs per-pixel
 flood), and a different evaluation (4,552 + 9,733 buildings vs millions of
 flood pixels) --- the same lever is even larger: hurricane-harvey +0.084 F1,
 \textbf{palu-tsunami +0.235 F1}; the optimal thresholds are 0.30--0.35, \emph{also
-$\neq$ 0.5} but on the opposite side of the default (Fig. 4b).
+$\neq$ 0.5} but on the opposite side of the default (Fig.~3).
 
 \textbf{HLS Burn-Scars (4 fire-season events, 2018--2021 CONUS).} A note on
 units: HLS Burn-Scars does not delineate individual fires, so our
@@ -500,9 +486,6 @@ where it matters most.
 This empirical result both motivates and justifies framing label-efficient
 threshold recalibration as a Markov decision process (Methods, \S{}``Active
 Calibration MDP'') and solving it with the PPO policy of the leave-one-event-out analysis.
-
-\emph{{[}Fig. 4 = Fig 18 (Sen1Floods11 calibration headroom) + Fig 22
-(cross-benchmark calibration drift){]}}
 
 \subsection{Four labels recover the full-pool oracle}\label{four-labels-recover-the-full-pool-oracle}
 
@@ -550,7 +533,7 @@ We motivate each of these by the fact that under the original PPO (no GAE,
 incremental reward, constant entropy 0.01) the learned policy was
 catastrophically wrong-direction on the two highest-headroom held-out events
 in our LOEO evaluation (Pakistan $-$0.033 F1 vs random, Somalia $-$0.037; see
-Fig. 5e for the v1$\leftrightarrow$v2 comparison): the v1 PPO was an
+Fig.~4 for the v1$\leftrightarrow$v2 comparison): the v1 PPO was an
 under-trained random-permutation hash, not a learned calibration policy.
 
 \textbf{Evaluation protocol --- leakage-free LOEO.} Our final headline number is
@@ -564,7 +547,7 @@ test leakage that an earlier protocol (cross-region PPO trained on the same
 4 hard events it was later scored on) was suspect of, and which we now
 attribute the originally inflated v1 paired-significance numbers to.
 
-\textbf{LOEO-v2 result (Table 1, Fig. 2).}
+\textbf{LOEO-v2 result (Table 1, Fig.~4).}
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.3378}}
@@ -652,7 +635,7 @@ The headline interpretation is precise:
   is the science here, not the method.}
 \end{itemize}
 
-\textbf{The per-event picture under 20-seed LOEO (Fig. 2, Supplementary Table 1).}
+\textbf{The per-event picture under 20-seed LOEO (Fig.~4, Supplementary Table 1).}
 PPO matches or beats random on 7 of 10 events; the three losses are
 small ($\leq$ 0.012 F1 each) and concentrated on events where one of the
 other heuristics happens to win the seed lottery (Ghana, Pakistan, India):
@@ -719,13 +702,6 @@ because the methodological lesson is itself a contribution: cross-disaster
 active-calibration claims demand event-level holdout, not seed-level
 pool/test reshuffling.
 
-\emph{{[}Fig. 2 --- source \texttt{outputs/figures/fig26\_loeo\_v1\_v2.png} (LOEO-v1$\leftrightarrow$v2 +
-paired-difference summary + pooled-F1 ladder). The earlier within-event
-PPO sample-efficiency curve and the decision-aligned-reward A/B
-experiment, originally produced under the leakage-suspect protocol, are
-in the Supplementary Information so that the headline results in the leave-one-event-out analysis use
-only the leakage-free LOEO protocol.{]}}
-
 \subsubsection{The four labels are necessary: drift is not pure label shift}\label{the-four-labels-are-necessary-drift-is-not-pure-label-shift}
 
 The strongest objection to the four-label headline comes from the label-
@@ -758,7 +734,7 @@ BBSE prior correction & \textbf{0.677} & \textbf{$-$0.143} (significantly worse)
 \emph{(reference: 4-label random)} & 0.834 & +0.014 \\
 \end{longtable}
 
-Both fail --- and the \emph{way} they fail is diagnostic. Saerens EM diverges
+Both fail (Fig.~5) --- and the \emph{way} they fail is diagnostic. Saerens EM diverges
 to a degenerate prior estimate ($\pi$ $\rightarrow$ 1.0 on all ten events): EM assumes
 the model's posteriors are calibrated under the training prior, and with
 ECE 0.12--0.24 the inflated scores are indistinguishable, to EM, from ``the
@@ -951,7 +927,7 @@ reasonable selection rule --- is the deliverable.
 
 \begin{quote}
 \textbf{Methodological appendix.} The original sample-efficiency budget sweep
-and the decision-aligned-reward A/B (Fig. 23, Fig. 24) were carried out
+and the decision-aligned-reward A/B (Supplementary Figs.~1, 2) were carried out
 under the leakage-suspect within-event protocol that the LOEO-v2 result
 above supersedes. We do not retract these experiments --- the within-event
 sample-efficiency curve is a defensible characterisation of policy
@@ -1114,7 +1090,7 @@ drift (consistent, with overlapping uncertainty).} Ordering the three
 backbones by how closely their training distribution matches the task ---
 U-Net (trained on the task itself) $\rightarrow$ Prithvi (pre-trained on the task's
 modality) $\rightarrow$ DOFA (generalist) --- the mean recoverable calibration gain
-rises monotonically. With 5-seed re-training of the two foundation-model
+rises monotonically (Fig.~6). With 5-seed re-training of the two foundation-model
 segmentation heads on their cached frozen features (the U-Net entry is
 a single full training run per fold and is flagged as such):
 
@@ -1705,7 +1681,7 @@ under-fits the new input distribution. We accordingly \textbf{retain the 5-d
 feature set as the headline configuration} in the leave-one-event-out analysis; the 10-d
 configuration is reported here as an ablation rather than as the headline
 method. Result and figure: \texttt{outputs/layer3\_ppo/ppo\_loeo\_v3\_aggregate.json}
-and Fig. 28.
+and Supplementary Fig.~3.
 
 \textbf{Statistical protocol --- leave-one-event-out (LOEO).} Our headline numbers
 in the leave-one-event-out analysis are produced under a strict event-level leave-one-out protocol: for
