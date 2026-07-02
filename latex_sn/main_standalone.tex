@@ -68,11 +68,17 @@ A deep-learning disaster mapper trained on one set of events degrades
 sharply when applied to a new event. This degradation is the central
 operational obstacle in deploying machine-learnt disaster mapping at
 scale, and the published mitigation strategies have almost uniformly
-treated it as a \textbf{representation problem}: train on more events, use a
-larger backbone, transfer from a foundation model, fuse more modalities
-\cite{brown2024alphaearth,jakubik2023prithvi,xiong2024dofa}. The implicit assumption is that the learned representation
+treated it as a \textbf{representation problem}: train on more events
+\cite{yadav2022sarflood,konapala2021sentinel,misra2025globalfloods,khvedchenya2021siamese,hu2023burnseverity,aldabbagh2023wildfire},
+use a larger backbone or transfer from a foundation model
+\cite{brown2024alphaearth,jakubik2023prithvi,xiong2024dofa,cong2022satmae,reed2023scalemae,tseng2023presto,fuller2023croma,wu2025skysense},
+or fuse more modalities. The implicit assumption is that the learned representation
 itself fails to transfer, and the corrective is to learn a better
-representation.
+representation --- a framing made explicit for remote-sensing segmentation by a
+dedicated domain-generalisable foundation model \cite{gong2024crossearth}, and
+one for which the closest disaster-specific precedent already shows that
+in-distribution performance is a poor predictor of cross-event performance
+\cite{bensonecker2020outofdomain}.
 
 We propose to test a \textbf{different mechanism} (Fig.~1). When a model degrades on a
 new event, two distinct things can be going wrong:
@@ -139,22 +145,31 @@ bespoke per-event effort and globally scalable, all-hazard coverage.
 Three literatures touch the question; none has framed it explicitly,
 and one of them supplies a hypothesis we must explicitly test against.
 
-\textbf{Active learning} \cite{sener2018coreset,gal2017dropout} asks ``how do we get the most
+\textbf{Active learning} \cite{sener2018coreset,gal2017dropout,settles2009active,lewisgale1994uncertainty} asks ``how do we get the most
 out of the next label'', without distinguishing between updating the
-model (H1) and recalibrating its operating point (H2). \textbf{Post-hoc
+model (H1) and recalibrating its operating point (H2); a Nature
+Communications precedent applies the same budget-constrained-labelling
+logic to dataset cleaning rather than calibration \cite{bernhardt2022activelabel}.
+\textbf{Post-hoc
 calibration} \cite{guo2017calibration,platt1999probabilistic,zadrozny2002isotonic} focuses on
 probability scale, but for \emph{binary thresholded decisions} --- exactly the
 case in operational disaster mapping --- all monotone single-parameter
 post-hoc calibrations (Platt, temperature, isotonic) are mathematically
-equivalent to threshold tuning, which we prove (Methods).
+equivalent to threshold tuning, which we prove (Methods). That in-distribution
+calibration degrades under distribution shift is itself well documented
+\cite{ovadia2019trust,tomani2021posthoc}, but neither study asks whether the
+degradation reflects prior shift, score-distribution distortion, or a
+failure of the underlying ranking --- the H1-vs-H2 question this paper poses.
 
 \textbf{Label shift} is the most important adjacent literature, because it
 makes a sharp competing prediction. Under pure label shift --- the class-
 conditional feature distributions \emph{p(x\textbar y)} transfer intact and only the
 class prior \emph{p(y)} changes --- the optimal threshold moves by a known
 analytic amount \cite{elkan2001foundations}, the new prior can be estimated from
-\emph{unlabelled} target data alone {[}Saerens et al.~2002; Lipton et al.
-2018; Garg et al.~2020{]}, and the calibration fix therefore costs
+\emph{unlabelled} target data alone \cite{saerens2002adjusting,lipton2018detecting,garg2020unified}
+(with bias-corrected refinements for the label-shift-specific case
+\cite{alexandari2020biascorrected} and analogues for continuous covariate
+shift \cite{wang2020transcal}), and the calibration fix therefore costs
 \textbf{zero labels}. If cross-disaster calibration drift were \emph{pure} label
 shift, our four-label headline would be unnecessary: a zero-label
 prior-correction would suffice. We test this directly (the leave-one-event-out analysis, ``the
@@ -1368,7 +1383,13 @@ cost-, time- and feasibility-reduction argument anchored on the
 label-budget ratio, the published EMS service-level target and measured
 machine time. The practical limit on this pipeline is not compute but
 the human labelling step --- which our results bound, for the first time,
-at four chips.
+at four chips. This is consistent with the broader case, made recently in
+Nature Communications, that AI-integrated early-warning infrastructure is
+valuable precisely because it is cheap and fast relative to the hazards it
+covers \cite{reichstein2025earlywarning}; the wildfire arm of our study sits
+alongside a parallel Nature Communications result showing global,
+satellite-driven fire-activity prediction is itself now data-driven and
+operational at scale \cite{digiuseppe2025fireactivity}.
 
 \subsection{Implications for foundation-model research}\label{implications-for-foundation-model-research}
 
@@ -1388,7 +1409,15 @@ first published apples-to-apples comparison of an Earth-observation
 foundation model and a same-input U-Net on cross-event flood mapping;
 its honest result --- comparable F1, comparable calibration headroom,
 comparable response to active recalibration --- is part of the
-contribution.
+contribution. Even larger, more recent multi-modal Earth-observation
+foundation models explicitly benchmarked on disaster-relevant downstream
+tasks \cite{wu2025skysense} do not obviate this test: scale and modality
+breadth are a different axis from cross-event calibration robustness, and
+a recent Nature Machine Intelligence editorial has itself flagged that
+geospatial foundation models do not automatically resolve robustness or
+real-time-monitoring generalisation \cite{nmi2025editorial} --- the
+question our four-test decomposition answers directly rather than by
+assertion.
 
 \subsection{Implications for active learning and calibration}\label{implications-for-active-learning-and-calibration}
 

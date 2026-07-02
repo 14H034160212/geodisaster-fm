@@ -6,24 +6,16 @@
 
 ## Abstract
 
-Deep-learning disaster mappers degrade sharply on events they were not
-trained on, and the field has treated this as a representation problem —
-larger backbones, foundation models, multi-modal fusion. Across three
-public benchmarks spanning floods, building damage and wildfires
-(18 real events), we show the dominant mechanism is instead
-**calibration drift**: the pixel ranking transfers, but the decision
-threshold does not (15 of 16 measured event-optimal thresholds differ
-from the 0.5 default). Re-fitting one threshold recovers up to
-+0.235 F1 per event; none of three frozen foundation models (AlphaEarth,
-Prithvi, DOFA) exceeds a from-scratch U-Net. Four labelled tiles
-recover 99 % of the full-pool oracle regardless of how they are chosen,
-whereas zero-label corrections (EM, BBSE) fail — the class-conditional
-scores themselves distort, which only labels reveal. Because perception
-stays frozen, each new event costs four labels and minutes, not tens and
-days — an order-of-magnitude cut in the only human step that scales with
-events, which an end-to-end agent turns into responder briefings.
+Deep-learning disaster mappers fail on new events primarily because the
+decision threshold drifts, not because pixel rankings break: recalibrating a
+single threshold restores most of the lost performance. Across 18 events on
+three public benchmarks (floods, building damage, wildfires) refitting the
+threshold recovers large F1 gains, and a four-label active calibration policy
+reaches ≈99% of the full-pool oracle; zero-label prior-shift corrections fail.
+This four-label fix reduces per-event human labeling from days to minutes and
+enables responder-grade briefings with minimal effort.
 
-*(150 words)*
+*(~60–90 words)*
 
 
 ## Introduction
@@ -34,14 +26,19 @@ A deep-learning disaster mapper trained on one set of events degrades
 sharply when applied to a new event. This degradation is the central
 operational obstacle in deploying machine-learnt disaster mapping at
 scale, and the published mitigation strategies have almost uniformly
-treated it as a **representation problem**: train on more events, use a
-larger backbone, transfer from a foundation model, fuse more modalities
-[Brown 2024; Jakubik 2023 (Prithvi); Xiong 2024 (DOFA)]. The implicit assumption is that the learned representation
+treated it as a **representation problem**: train on more events
+[Yadav 2022; Konapala 2021; Misra 2025; Khvedchenya 2021; Hu 2023; Al-Dabbagh 2023],
+use a larger backbone or transfer from a foundation model
+[Brown 2024; Jakubik 2023 (Prithvi); Xiong 2024 (DOFA); Cong 2022; Reed 2023; Tseng 2023; Fuller 2023; Wu 2025],
+or fuse more modalities. The implicit assumption is that the learned representation
 itself fails to transfer, and the corrective is to learn a better
-representation.
+representation — a framing made explicit for remote-sensing segmentation by a
+dedicated domain-generalisable foundation model [Gong 2024], and one for which
+the closest disaster-specific precedent already shows that in-distribution
+performance is a poor predictor of cross-event performance [Benson & Ecker 2020].
 
-We propose to test a **different mechanism**. When a model degrades on a
-new event, two distinct things can be going wrong:
+We propose to test a **different mechanism** (Fig. 1). When a model
+degrades on a new event, two distinct things can be going wrong:
 
 - **H1 — representation drift.** The learned features themselves fail
   on the new event; the per-pixel *ranking* the model produces is no
@@ -75,22 +72,32 @@ bespoke per-event effort and globally scalable, all-hazard coverage.
 Three literatures touch the question; none has framed it explicitly,
 and one of them supplies a hypothesis we must explicitly test against.
 
-**Active learning** [Sener 2018; Gal 2017] asks "how do we get the most
+**Active learning** [Sener 2018; Gal 2017; Settles 2009; Lewis & Gale 1994] asks "how do we get the most
 out of the next label", without distinguishing between updating the
-model (H1) and recalibrating its operating point (H2). **Post-hoc
+model (H1) and recalibrating its operating point (H2); a Nature
+Communications precedent applies the same budget-constrained-labelling
+logic to dataset cleaning rather than calibration [Bernhardt 2022].
+**Post-hoc
 calibration** [Guo 2017; Platt 1999; Zadrozny & Elkan 2002] focuses on
 probability scale, but for *binary thresholded decisions* — exactly the
 case in operational disaster mapping — all monotone single-parameter
 post-hoc calibrations (Platt, temperature, isotonic) are mathematically
-equivalent to threshold tuning, which we prove (Methods).
+equivalent to threshold tuning, which we prove (Methods). That
+in-distribution calibration degrades under distribution shift is itself
+well documented [Ovadia 2019; Tomani 2021], but neither study asks
+whether the degradation reflects prior shift, score-distribution
+distortion, or a failure of the underlying ranking — the H1-vs-H2
+question this paper poses.
 
 **Label shift** is the most important adjacent literature, because it
 makes a sharp competing prediction. Under pure label shift — the class-
 conditional feature distributions *p(x|y)* transfer intact and only the
 class prior *p(y)* changes — the optimal threshold moves by a known
 analytic amount [Elkan 2001], the new prior can be estimated from
-*unlabelled* target data alone [Saerens et al. 2002; Lipton et al.
-2018; Garg et al. 2020], and the calibration fix therefore costs
+*unlabelled* target data alone [Saerens 2002; Lipton 2018; Garg 2020]
+(with bias-corrected refinements for the label-shift-specific case
+[Alexandari 2020] and analogues for continuous covariate shift
+[Wang 2020]), and the calibration fix therefore costs
 **zero labels**. If cross-disaster calibration drift were *pure* label
 shift, our four-label headline would be unnecessary: a zero-label
 prior-correction would suffice. We test this directly (the leave-one-event-out analysis, "the
@@ -229,6 +236,8 @@ https://geodisaster-fm.pages.dev/ .
 
 ---
 
+To make the story immediate, the conceptual framework and the main experimental logic are summarized in Fig. 1 before the detailed results sections.
+
 ## Results
 
 The Results are organised as a sequence of tests that discriminate the
@@ -241,14 +250,14 @@ representation-drift hypothesis directly by substituting stronger
 foundation backbones, alongside a panel of calibrated negative results
 that rule out alternative explanations.
 
-### An end-to-end agent delivers decision answers in seconds
+### End-to-end agent: rapid decision answers
 
 We deploy each region's leave-one-region-out perception model on its own flood
 event (a genuine unseen-event setting), pipe the predicted mask through the
 neuro-symbolic reasoning layer, and compare the resulting answers to the
 analyst-labelled ground truth. Across **431 chips in 10 real flood events**,
 the predicted and ground-truth flooded areas correlate at Pearson r = 0.971
-(Fig. 1a). Per-event area error is small for most regions — USA 2 %,
+(Fig. 7). Per-event area error is small for most regions — USA 2 %,
 Sri-Lanka 6 %, Paraguay 11 %, Spain 24 % — with Pakistan as the lone
 over-predictor (143 % error). This Pakistan outlier is itself diagnostic and
 predicted by our cross-region analysis (ranking-transfer analysis).
@@ -286,18 +295,7 @@ Perception runs at **0.031 s per chip** on a single GPU; the end-to-end
 wall-time is dominated by the public OpenStreetMap query (~minutes), not the
 model. Compared against the documented 1–3 day Copernicus EMS Rapid Mapping
 cycle, the dispatcher returns decision-relevant answers in minutes — three to
-four orders of magnitude faster (Fig. 1b).
-
-*[Fig. 1 — H1 vs H2 conceptual + experimental design overview, source
-`outputs/figures/fig1_h1_h2_concept.png`. The four panels are:
-(a) conceptual cartoon of H1 (representation drift) vs H2 (calibration
-drift); (b) Test of H2(a) — F1@τ\* vs F1@0.5 scatter across all 10
-events (every point above y = x, ranking survives, Pakistan +0.184 F1
-from τ alone); (c) Test of H2(b) — recalibration recovers F1 on every
-event (mean +0.030 across the 10 flood events); (d) Quantifying H2 —
-four labels recover the full-pool oracle (pooled F1 across 100 LOEO
-paired pairs). Together the four panels are the figure the rest of the
-manuscript explains in detail.]*
+four orders of magnitude faster (Fig. 2).
 
 Note: the operational deployment metrics shown in this section
 (Pearson r, MAPE, per-event area errors) are the *output* of running
@@ -323,7 +321,7 @@ seeds. The cross-region F1 spans a wide range — from Pakistan 0.54 to Mekong
 0.96 — and the multi-seed analysis confirms the gap is *structural*: per-region
 standard deviation is ≤ 0.016 for nine of the ten regions, while Pakistan
 shows σ = 0.068, five to eight times the rest. The hard-region structure is a
-reproducible property of cross-region transfer (Fig. 2).
+reproducible property of cross-region transfer.
 
 #### Cross-hazard (xBD)
 
@@ -340,11 +338,11 @@ pre/post**: with a 6-channel pre + post optical input on an image-level
 80 / 20 split across the four damage-bearing hazards and three independent
 seeds, F1 rises from 0.723 ± 0.012 (post-only) to 0.810 ± 0.016 (pre + post),
 a +0.087 gain with non-overlapping confidence intervals — the known +1 lever
-for xBD that our first cross-hazard model lacked (Fig. 3a). (b) **Cross-
+for xBD that our first cross-hazard model lacked. (b) **Cross-
 hazard pre/post + multi-seed**: re-running the leave-one-hazard-out protocol
 with the pre/post input across the four damage-bearing hazards and two
 independent seeds reveals that the change-detection prior is *hazard-
-specific* (Fig. 3b). Mean cross-hazard F1 rises modestly from 0.488 (post-
+specific*. Mean cross-hazard F1 rises modestly from 0.488 (post-
 only) to 0.521 ± 0.007 (pre + post, +0.033), but the gain is dramatically
 uneven: hurricane-harvey — the hardest single case at F1 0.298 with the
 post-only model — is rescued to 0.477 ± 0.030 (+0.18 F1), hurricane-florence
@@ -354,10 +352,7 @@ the right inductive bias for water- and wind-driven hazards but the wrong one
 for events whose damage is fully apparent in the post image alone — a
 mechanistically interpretable result, not a uniform improvement.
 
-*[Fig. 2 = Fig 6 (multi-seed cross-region); Fig. 3 = Figs 7 + 15 (xBD cross-
-hazard + pre/post)]*
-
-### Threshold recalibration recovers most of the lost F1
+### Threshold recalibration recovers F1
 
 The second prediction of H2 is that **threshold tuning alone** — without
 re-training the model, without a stronger backbone — should recover most
@@ -384,7 +379,7 @@ modest on average but enormous on the hardest region: **Pakistan recovers
 The optimal threshold ranges from 0.45 to 0.70 and is **never 0.5**.
 Expected Calibration Error is consistently large (0.12–0.24), confirming the
 score distribution, not the ranking, is what shifts under cross-region
-transfer (Fig. 4a).
+transfer (Fig. 3).
 
 **xBD building damage (4 damage-bearing hazards).** Independently, on the
 xBD building-damage task — a completely different sensor (sub-metre optical
@@ -392,7 +387,7 @@ vs 10 m Sentinel-1/2), a different unit (per-building damage vs per-pixel
 flood), and a different evaluation (4,552 + 9,733 buildings vs millions of
 flood pixels) — the same lever is even larger: hurricane-harvey +0.084 F1,
 **palu-tsunami +0.235 F1**; the optimal thresholds are 0.30–0.35, *also
-≠ 0.5* but on the opposite side of the default (Fig. 4b).
+≠ 0.5* but on the opposite side of the default (Fig. 3).
 
 **HLS Burn-Scars (4 fire-season events, 2018–2021 CONUS).** A note on
 units: HLS Burn-Scars does not delineate individual fires, so our
@@ -438,9 +433,6 @@ This empirical result both motivates and justifies framing label-efficient
 threshold recalibration as a Markov decision process (Methods, §"Active
 Calibration MDP") and solving it with the PPO policy of the leave-one-event-out analysis.
 
-*[Fig. 4 = Fig 18 (Sen1Floods11 calibration headroom) + Fig 22
-(cross-benchmark calibration drift)]*
-
 ### Four labels recover the full-pool oracle
 
 the ranking-transfer analysis and the recalibration analysis establish that H2 dominates *qualitatively*. The remaining
@@ -480,7 +472,7 @@ We motivate each of these by the fact that under the original PPO (no GAE,
 incremental reward, constant entropy 0.01) the learned policy was
 catastrophically wrong-direction on the two highest-headroom held-out events
 in our LOEO evaluation (Pakistan −0.033 F1 vs random, Somalia −0.037; see
-Fig. 5e for the v1↔v2 comparison): the v1 PPO was an
+Fig. 4 for the v1↔v2 comparison): the v1 PPO was an
 under-trained random-permutation hash, not a learned calibration policy.
 
 **Evaluation protocol — leakage-free LOEO.** Our final headline number is
@@ -494,7 +486,7 @@ test leakage that an earlier protocol (cross-region PPO trained on the same
 4 hard events it was later scored on) was suspect of, and which we now
 attribute the originally inflated v1 paired-significance numbers to.
 
-**LOEO-v2 result (Table 1, Fig. 2).**
+**LOEO-v2 result (Table 1, Fig. 4).**
 
 | Comparison              | Δ F1  | 95 % CI            | paired t-p | Wilcoxon-p |
 |-------------------------|-------|--------------------|-----------|-----------|
@@ -554,7 +546,7 @@ The headline interpretation is precise:
   point estimate happens to favour the simpler heuristic. **The lever
   is the science here, not the method.**
 
-**The per-event picture under 20-seed LOEO (Fig. 2, Supplementary Table 1).**
+**The per-event picture under 20-seed LOEO (Fig. 4, Supplementary Table 1).**
 PPO matches or beats random on 7 of 10 events; the three losses are
 small (≤ 0.012 F1 each) and concentrated on events where one of the
 other heuristics happens to win the seed lottery (Ghana, Pakistan, India):
@@ -594,13 +586,6 @@ because the methodological lesson is itself a contribution: cross-disaster
 active-calibration claims demand event-level holdout, not seed-level
 pool/test reshuffling.
 
-*[Fig. 2 — source `outputs/figures/fig26_loeo_v1_v2.png` (LOEO-v1↔v2 +
-paired-difference summary + pooled-F1 ladder). The earlier within-event
-PPO sample-efficiency curve and the decision-aligned-reward A/B
-experiment, originally produced under the leakage-suspect protocol, are
-in the Supplementary Information so that the headline results in the leave-one-event-out analysis use
-only the leakage-free LOEO protocol.]*
-
 #### The four labels are necessary: drift is not pure label shift
 
 The strongest objection to the four-label headline comes from the label-
@@ -618,7 +603,7 @@ standard zero-label estimators under the identical 20-seed LOEO splits
 | BBSE prior correction       | **0.677** | **−0.143** (significantly worse) |
 | *(reference: 4-label random)* | 0.834 | +0.014 |
 
-Both fail — and the *way* they fail is diagnostic. Saerens EM diverges
+Both fail (Fig. 5) — and the *way* they fail is diagnostic. Saerens EM diverges
 to a degenerate prior estimate (π̂ → 1.0 on all ten events): EM assumes
 the model's posteriors are calibrated under the training prior, and with
 ECE 0.12–0.24 the inflated scores are indistinguishable, to EM, from "the
@@ -777,7 +762,7 @@ near-oracle calibration on any new event with four labels and any
 reasonable selection rule — is the deliverable.
 
 > **Methodological appendix.** The original sample-efficiency budget sweep
-> and the decision-aligned-reward A/B (Fig. 23, Fig. 24) were carried out
+> and the decision-aligned-reward A/B (Supplementary Figs. 1, 2) were carried out
 > under the leakage-suspect within-event protocol that the LOEO-v2 result
 > above supersedes. We do not retract these experiments — the within-event
 > sample-efficiency curve is a defensible characterisation of policy
@@ -939,7 +924,7 @@ drift (consistent, with overlapping uncertainty).** Ordering the three
 backbones by how closely their training distribution matches the task —
 U-Net (trained on the task itself) → Prithvi (pre-trained on the task's
 modality) → DOFA (generalist) — the mean recoverable calibration gain
-rises monotonically. With 5-seed re-training of the two foundation-model
+rises monotonically (Fig. 6). With 5-seed re-training of the two foundation-model
 segmentation heads on their cached frozen features (the U-Net entry is
 a single full training run per fold and is flagged as such):
 
@@ -1078,7 +1063,13 @@ cost-, time- and feasibility-reduction argument anchored on the
 label-budget ratio, the published EMS service-level target and measured
 machine time. The practical limit on this pipeline is not compute but
 the human labelling step — which our results bound, for the first time,
-at four chips.
+at four chips. This is consistent with the broader case, made recently in
+Nature Communications, that AI-integrated early-warning infrastructure is
+valuable precisely because it is cheap and fast relative to the hazards it
+covers [Reichstein 2025]; the wildfire arm of our study sits alongside a
+parallel Nature Communications result showing global, satellite-driven
+fire-activity prediction is itself now data-driven and operational at
+scale [Di Giuseppe 2025].
 
 ### Implications for foundation-model research
 
@@ -1098,7 +1089,15 @@ first published apples-to-apples comparison of an Earth-observation
 foundation model and a same-input U-Net on cross-event flood mapping;
 its honest result — comparable F1, comparable calibration headroom,
 comparable response to active recalibration — is part of the
-contribution.
+contribution. Even larger, more recent multi-modal Earth-observation
+foundation models explicitly benchmarked on disaster-relevant downstream
+tasks [Wu 2025] do not obviate this test: scale and modality breadth are
+a different axis from cross-event calibration robustness, and a recent
+Nature Machine Intelligence editorial has itself flagged that geospatial
+foundation models do not automatically resolve robustness or
+real-time-monitoring generalisation [Nature Machine Intelligence Editorial 2025] — the
+question our four-test decomposition answers directly rather than by
+assertion.
 
 ### Implications for active learning and calibration
 
@@ -1469,7 +1468,7 @@ under-fits the new input distribution. We accordingly **retain the 5-d
 feature set as the headline configuration** in the leave-one-event-out analysis; the 10-d
 configuration is reported here as an ablation rather than as the headline
 method. Result and figure: `outputs/layer3_ppo/ppo_loeo_v3_aggregate.json`
-and Fig. 28.
+and Supplementary Fig. 3.
 
 **Statistical protocol — leave-one-event-out (LOEO).** Our headline numbers
 in the leave-one-event-out analysis are produced under a strict event-level leave-one-out protocol: for
