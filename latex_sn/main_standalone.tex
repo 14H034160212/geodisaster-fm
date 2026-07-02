@@ -53,7 +53,7 @@
 \affil[2]{\orgdiv{[Department TBD]}, \orgname{[Institution TBD]},
   \orgaddress{\city{[City]}, \country{[Country]}}}
 
-\abstract{Deep-learning disaster mappers degrade sharply on events they were not trained on, and the field has treated this as a representation problem --- larger backbones, foundation models, multi-modal fusion. Across three public benchmarks spanning floods, building damage and wildfires (18 real events), we show the dominant mechanism is instead \textbf{calibration drift}: the pixel ranking transfers, but the decision threshold does not (15 of 16 measured event-optimal thresholds differ from the 0.5 default). Re-fitting one threshold recovers up to +0.235 F1 per event; none of three frozen foundation models (AlphaEarth, Prithvi, DOFA) exceeds a from-scratch U-Net. Four labelled tiles recover 99 \% of the full-pool oracle regardless of how they are chosen, whereas zero-label corrections (EM, BBSE) fail --- the class-conditional scores themselves distort, which only labels reveal. Because perception stays frozen, each new event costs four labels and minutes, not tens and days --- an order-of-magnitude cut in the only human step that scales with events, which an end-to-end agent turns into responder briefings.}
+\abstract{Deep-learning disaster mappers degrade sharply on events they were not trained on, and prior work has largely treated this as a representation problem --- larger backbones, foundation models, multi-modal fusion. Across three public benchmarks spanning floods, building damage and wildfires (18 real events), we show the dominant mechanism is instead \textbf{calibration drift}: the pixel ranking transfers, but the decision threshold does not (15 of 16 measured event-optimal thresholds differ from the 0.5 default). Re-fitting one threshold recovers up to +0.235 F1 per event; none of three frozen foundation models (AlphaEarth, Prithvi, DOFA) exceeds a from-scratch U-Net. Four labelled tiles recover 99 \% of the full-pool oracle regardless of how they are chosen, whereas zero-label corrections (EM, BBSE) fail --- the class-conditional scores themselves distort, which only labels reveal. Because perception stays frozen, each new event costs four labels and minutes, not tens and days --- an order-of-magnitude cut in the only human step that scales with events.}
 
 \keywords{cross-disaster generalisation, calibration drift, label shift,
 foundation models, active learning, flood mapping, disaster response}
@@ -65,20 +65,19 @@ foundation models, active learning, flood mapping, disaster response}
 \subsection{The scientific question}\label{the-scientific-question}
 
 A deep-learning disaster mapper trained on one set of events degrades
-sharply when applied to a new event. This degradation is the central
-operational obstacle in deploying machine-learnt disaster mapping at
-scale, and the published mitigation strategies have almost uniformly
-treated it as a \textbf{representation problem}: train on more events
-\cite{yadav2022sarflood,konapala2021sentinel,misra2025globalfloods,khvedchenya2021siamese,hu2023burnseverity,aldabbagh2023wildfire},
-use a larger backbone or transfer from a foundation model
-\cite{brown2024alphaearth,jakubik2023prithvi,xiong2024dofa,cong2022satmae,reed2023scalemae,tseng2023presto,fuller2023croma,wu2025skysense},
-or fuse more modalities. The implicit assumption is that the learned representation
-itself fails to transfer, and the corrective is to learn a better
-representation --- a framing made explicit for remote-sensing segmentation by a
-dedicated domain-generalisable foundation model \cite{gong2024crossearth}, and
-one for which the closest disaster-specific precedent already shows that
-in-distribution performance is a poor predictor of cross-event performance
-\cite{bensonecker2020outofdomain}.
+sharply on a new event. This degradation is the central operational
+obstacle to scalable machine-learnt disaster mapping, yet most
+mitigation work treats it as a \textbf{representation problem}: scale training data
+across events \cite{yadav2022sarflood,misra2025globalfloods},
+extend to harder hazard settings \cite{hu2023burnseverity,aldabbagh2023wildfire},
+or increase backbone pre-training and modality breadth
+\cite{brown2024alphaearth,jakubik2023prithvi,xiong2024dofa,wu2025skysense}.
+The underlying assumption is that representation transfer fails and must
+be repaired with a better representation, a framing explicit in domain-generalisable remote-sensing
+segmentation work \cite{gong2024crossearth}. In disaster mapping
+specifically, the closest out-of-domain precedent already shows that
+in-distribution performance is a poor predictor of cross-event
+performance \cite{bensonecker2020outofdomain}.
 
 We propose to test a \textbf{different mechanism} (Fig.~1). When a model degrades on a
 new event, two distinct things can be going wrong:
@@ -147,9 +146,10 @@ and one of them supplies a hypothesis we must explicitly test against.
 
 \textbf{Active learning} \cite{sener2018coreset,gal2017dropout,settles2009active,lewisgale1994uncertainty} asks ``how do we get the most
 out of the next label'', without distinguishing between updating the
-model (H1) and recalibrating its operating point (H2); a Nature
-Communications precedent applies the same budget-constrained-labelling
-logic to dataset cleaning rather than calibration \cite{bernhardt2022activelabel}.
+model (H1) and recalibrating its operating point (H2). A related
+Nature Communications precedent applies the same budget-constrained
+querying logic to active label cleaning (data quality), not operating-
+point calibration \cite{bernhardt2022activelabel}.
 \textbf{Post-hoc
 calibration} \cite{guo2017calibration,platt1999probabilistic,zadrozny2002isotonic} focuses on
 probability scale, but for \emph{binary thresholded decisions} --- exactly the
@@ -1358,9 +1358,8 @@ single threshold fit from four chips; machine time is 0.031 s per chip
 for perception plus minutes for the neuro-symbolic reasoning query. The
 binding constraint therefore shifts from days of expert annotation to
 the minutes needed to label four chips --- compressing time-to-actionable
-map well inside the first-72-hour window in which evacuation, search
-prioritisation and aid-allocation decisions are actually made, when the
-marginal value of an earlier map is highest.
+mapping well inside the first 72-hour window when evacuation, search
+prioritisation and aid-allocation decisions are most time-sensitive.
 
 \emph{Marginal coverage cost is near-zero and hazard-independent.} Because
 the perception model is frozen and reused, the marginal cost of adding a
@@ -1370,26 +1369,24 @@ wildfire) and four backbones. This converts a per-event retraining
 project into a near-constant marginal cost, which is precisely the
 property that makes global, all-hazard coverage economically feasible
 rather than a bespoke effort repeated for every disaster, scaled across
-the many significant events that occur worldwide each year.
+the many significant events worldwide each year.
 
-These savings are not abstract accuracy points: the calibrated agent's
+These savings are operational, not abstract: the calibrated agent's
 flooded-area totals track analyst hand-labels at r = 0.971 in the
-event-ranking regime responders use, and feed directly into the exposure
-figures that size a response (on the USA test event, 2.4 \% of buildings
-and 6.6 \% of road-kilometres flagged as affected). We deliberately stop
-short of claiming dollar or casualty figures, which would require a
-controlled deployment trial; the claim we make is a defensible
-cost-, time- and feasibility-reduction argument anchored on the
-label-budget ratio, the published EMS service-level target and measured
-machine time. The practical limit on this pipeline is not compute but
-the human labelling step --- which our results bound, for the first time,
-at four chips. This complements a broader case, made recently in Nature
-Communications, for integrating Earth-observation and meteorological
-foundation models into multi-hazard early-warning systems
-\cite{reichstein2025earlywarning}; the wildfire arm of our study sits
-alongside a parallel Nature Communications result showing that
-data-driven machine learning is already operational for global
-fire-activity prediction \cite{digiuseppe2025fireactivity}.
+event-ranking regime responders use, and directly feed exposure figures
+that size response (on the USA test event, 2.4 \% of buildings and 6.6
+\% of road-kilometres are flagged as affected). We deliberately stop
+short of claiming dollar or casualty effects, which require controlled
+deployment trials; our claim is a defensible cost-, time- and
+feasibility-reduction argument anchored in the label-budget ratio,
+published EMS service targets and measured machine time. The practical
+limit on this pipeline is not compute but the human labelling step,
+which our results bound at four chips. These deployment implications align with two recent
+Nature Communications results: one argues for integrating
+Earth-observation and meteorological foundation models into multi-hazard
+early-warning systems \cite{reichstein2025earlywarning}, and another
+demonstrates that data-driven machine learning is already operational
+for global fire-activity prediction \cite{digiuseppe2025fireactivity}.
 
 \subsection{Implications for foundation-model research}\label{implications-for-foundation-model-research}
 
@@ -1401,20 +1398,21 @@ calibration headroom on AlphaEarth is comparable to the U-Net's
 four-label calibration recovers $\approx$ 99 \% of the oracle on both backbones,
 the practical value of
 swapping in a foundation model for cross-disaster flood mapping under
-\emph{matched inputs} is small. Where foundation models do plausibly add
+\emph{matched inputs} is small. Where foundation models add
 value --- pre-training compute amortisation, multi-task transfer, broader
 modality fusion --- is orthogonal to the cross-disaster F1 question we
 test here. Our calibrated characterisation is, to our knowledge, the
 first published apples-to-apples comparison of an Earth-observation
 foundation model and a same-input U-Net on cross-event flood mapping;
-its honest result --- comparable F1, comparable calibration headroom,
+its result --- comparable F1, comparable calibration headroom,
 comparable response to active recalibration --- is part of the
 contribution. Even larger, more recent multi-modal Earth-observation
 foundation models \cite{wu2025skysense} do not obviate this test: scale and modality
 breadth are a different axis from cross-event calibration robustness, and
-a recent Nature Machine Intelligence editorial has itself flagged that
-geospatial foundation models do not automatically resolve robustness or
-real-time-monitoring generalisation \cite{nmi2025editorial} --- the
+a recent Nature Machine Intelligence editorial has flagged that
+geospatial foundation models do not automatically resolve robustness
+challenges in cross-event generalisation or real-time monitoring
+\cite{nmi2025editorial} --- the
 question our four-test decomposition answers directly rather than by
 assertion.
 
@@ -1433,15 +1431,15 @@ problem is solvable with four labels under a leakage-free
 leave-one-event-out protocol means that, for tasks that ultimately make
 binary decisions, \textbf{the active-learning--vs--calibration distinction is
 not the right axis} --- the right axis is sample efficiency on a
-one-parameter post-hoc adjustment. We give one careful instantiation
+one-parameter post-hoc adjustment. We give one instantiation
 (PPO with GAE-$\lambda$ + terminal-only reward + entropy schedule, retaining
 5-d chip features) and characterise the design space around it
-(Supplementary Information), but we expect any sensible active-selection
+(Supplementary Information), and we expect active-selection
 heuristic that targets the decision boundary to perform comparably on
 this task.
 
 For the \textbf{label-shift literature} specifically, our zero-label test
-(see `The four labels are necessary') adds a cautionary empirical datum: in a realistic cross-event
+(see `The four labels are necessary') adds a cautionary result: in a realistic cross-event
 deployment with miscalibrated deep-segmentation scores (ECE
 0.12--0.24), Saerens-EM prior estimation diverges outright, and BBSE ---
 whose prior estimates are nearly correct --- still produces a corrected
