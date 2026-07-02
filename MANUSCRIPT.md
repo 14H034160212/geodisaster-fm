@@ -1063,13 +1063,13 @@ cost-, time- and feasibility-reduction argument anchored on the
 label-budget ratio, the published EMS service-level target and measured
 machine time. The practical limit on this pipeline is not compute but
 the human labelling step — which our results bound, for the first time,
-at four chips. This is consistent with the broader case, made recently in
-Nature Communications, that AI-integrated early-warning infrastructure is
-valuable precisely because it is cheap and fast relative to the hazards it
-covers [Reichstein 2025]; the wildfire arm of our study sits alongside a
-parallel Nature Communications result showing global, satellite-driven
-fire-activity prediction is itself now data-driven and operational at
-scale [Di Giuseppe 2025].
+at four chips. This complements a broader case, made recently in Nature
+Communications, for integrating Earth-observation and meteorological
+foundation models into multi-hazard early-warning systems
+[Reichstein 2025]; the wildfire arm of our study sits alongside a
+parallel Nature Communications result showing that data-driven machine
+learning is already operational for global fire-activity prediction
+[Di Giuseppe 2025].
 
 ### Implications for foundation-model research
 
@@ -1090,8 +1090,7 @@ foundation model and a same-input U-Net on cross-event flood mapping;
 its honest result — comparable F1, comparable calibration headroom,
 comparable response to active recalibration — is part of the
 contribution. Even larger, more recent multi-modal Earth-observation
-foundation models explicitly benchmarked on disaster-relevant downstream
-tasks [Wu 2025] do not obviate this test: scale and modality breadth are
+foundation models [Wu 2025] do not obviate this test: scale and modality breadth are
 a different axis from cross-event calibration robustness, and a recent
 Nature Machine Intelligence editorial has itself flagged that geospatial
 foundation models do not automatically resolve robustness or
